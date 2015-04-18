@@ -85,14 +85,14 @@ public class Individual {
 	 * @param random
 	 *            用于生成随机数
 	 */
-	public void learnFromNeighbours(int learningPattern, Random random) {
+	public void learnFromNeighbours(LearningPattern learningPattern, Random random) {
 		nextStrategy = strategy;
 
 		float noise = 0.1f; // 噪声暂时设为0.1
 
 		if (!neighbours.isEmpty()) {
 			switch (learningPattern) {
-			case World.LEARNING_PATTERN_MAXPAYOFF:
+			case MAXPAYOFF:
 				Individual maxPayoffNeighbour = this;
 				for (Individual in : neighbours) {
 					if (in.getAccumulatedPayoff() > maxPayoffNeighbour
@@ -104,7 +104,7 @@ public class Individual {
 				// System.out.println(""+this+" learn from \n\t"+
 				// maxPayoffNeighbour);
 				break;
-			case World.LEARNING_PATTERN_FERMI:
+			case FERMI:
 				double imitatePosibility = 0;
 				Individual neighbour = neighbours
 						.get((int) (random.nextFloat() * neighbours.size()));
@@ -143,15 +143,15 @@ public class Individual {
 	 * @param random
 	 *            用于生成随机数
 	 */
-	public void imigrate(World world, int imigratePattern, Random random) {
+	public void imigrate(World world, MigrationPattern imigratePattern, Random random) {
 		ArrayList<Seat> emptySeatAround = world.getEmptySeatAround(this.seat);
 		double imigratePosibility = 0;
 
 		switch (imigratePattern) {
-		case World.IMIGRATION_PATTERN_NONE:
+		case NONE:
 			// 什么也不做
 			break;
-		case World.IMIGRATION_PATTERN_RANDOM:
+		case RANDOM:
 			if (!emptySeatAround.isEmpty()) {
 //				float dl = world.getSeatDefectionLevel(this.seat);
 //				imigratePosibility = dl / 8;
@@ -167,7 +167,7 @@ public class Individual {
 				emptySeat.setOwner(this);
 			}
 			break;
-		case World.IMIGRATION_PATTERN_OPTIMISTIC:
+		case OPTIMISTIC:
 			if (!emptySeatAround.isEmpty()) {
 				Seat tmpSeat = this.seat;
 				Seat emptySeat = emptySeatAround
@@ -191,7 +191,7 @@ public class Individual {
 				}
 			}
 			break;
-		case World.IMIGRATION_PATTERN_ESCAPE:
+		case ESCAPE:
 			if (!emptySeatAround.isEmpty()) {
 				float dl = world.getSeatDefectionLevel(this.seat);
 				imigratePosibility = dl / 8;

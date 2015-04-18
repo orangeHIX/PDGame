@@ -4,22 +4,21 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.io.File;
-import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Enumeration;
 
 import javax.swing.AbstractButton;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import entity.World;
+import entity.LearningPattern;
+import entity.MigrationPattern;
+import entity.StrategyPattern;
 import test.SpatialPDGame;
 import utils.CompleteListener;
 import utils.FileUtils;
@@ -849,39 +848,39 @@ public class MainJFrame  extends javax.swing.JFrame implements Reporter,Complete
 				0);
     }
                                          
-    private int getMigratePattern(){
+    private MigrationPattern getMigratePattern(){
     	if(jRadioButtonMigrationNone.isSelected()){
-    		return World.IMIGRATION_PATTERN_NONE;
+    		return MigrationPattern.NONE;
     	}else if(jRadioButtonMigrationRandom.isSelected()){
-    		return World.IMIGRATION_PATTERN_RANDOM;
+    		return MigrationPattern.RANDOM;
     	}else if(jRadioButtonMigrationOptimistic.isSelected()){
-    		return World.IMIGRATION_PATTERN_OPTIMISTIC;
+    		return MigrationPattern.OPTIMISTIC;
     	}else if(jRadioButtonMigrationEscape.isSelected()){
-    		return World.IMIGRATION_PATTERN_ESCAPE;
+    		return MigrationPattern.ESCAPE;
     	}
-    	return -1;
+		return null;
     }  
     
-    private int getLearningPattern(){
+    private LearningPattern getLearningPattern(){
     	if(jRadioButtonMaxPayoffLearning.isSelected()){
-    		return World.LEARNING_PATTERN_MAXPAYOFF;
+    		return LearningPattern.MAXPAYOFF;
     	}else if(jRadioButtonFermiLearning.isSelected()){
-    		return World.LEARNING_PATTERN_FERMI;
+    		return LearningPattern.FERMI;
     	}
-    	return -1;
+    	return null;
     }
     
-    private int getStrategyPattern(){
+    private StrategyPattern getStrategyPattern(){
     	if(jRadioButtonTwoStrategy.isSelected()){
-    		return World.STRATEGY_PATTERN_TWO;
+    		return StrategyPattern.TWO;
     	}else if(jRadioButtonThreeStrategy.isSelected()){
-    		return World.STRATEGY_PATTERN_THREE;
+    		return StrategyPattern.THREE;
     	}else if(jRadioButtonFiveStrategy.isSelected()){
-    		return World.STRATEGY_PATTERN_FIVE;
+    		return StrategyPattern.FIVE;
     	}else if(jRadioButtonContinuousStrategy.isSelected()){
-    		return World.STRATEGY_PATTERN_CONTINUOUS;
+    		return StrategyPattern.CONTINUOUS;
     	}
-    	return -1;
+    	return null;
     }
     
     private void setLearningPatternText(JRadioButton radioButton){
@@ -961,8 +960,8 @@ public class MainJFrame  extends javax.swing.JFrame implements Reporter,Complete
     	boolean mStop = false;
     	
     	public WorkThread(int L, float d0, float R, float S,  float T, float P,
-    			float pi, float qi, int learningPattern, int imigratePattern,
-    			int strategyPattern, String filepath, boolean recordSnapShoot,
+    			float pi, float qi, LearningPattern learningPattern,
+    			MigrationPattern imigratePattern, StrategyPattern strategyPattern, String filepath, boolean recordSnapShoot,
     			int maxTurn, Reporter reporter,CompleteListener completeListener){
     		spdg = new SpatialPDGame(recordSnapShoot, reporter);
     		spdg.initSpatialPDGame(L, d0, R, S, T, P, pi, qi, learningPattern, imigratePattern, strategyPattern);

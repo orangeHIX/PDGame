@@ -21,6 +21,9 @@ import rule.GamblingRule;
 import utils.ArraytoString;
 import utils.FileUtils;
 import utils.Reporter;
+import entity.LearningPattern;
+import entity.MigrationPattern;
+import entity.StrategyPattern;
 import entity.World;
 import entity.WorldDetail;
 import graphic.Painter;
@@ -50,18 +53,18 @@ public class SpatialPDGame implements Reporter {
 		for (int i = 0; i < L1; i++) {
 			for (int j = 0; j < L2; j++) {
 				ALLPDCooLevel += coopertationLevels[i][j];
-				if(i == 0)
+				if (i == 0)
 					CooLevel2 += coopertationLevels[i][j];
-				if(j == 0)
+				if (j == 0)
 					CooLevel3 += coopertationLevels[i][j];
-				if(i == j)
+				if (i == j)
 					CooLevel4 += coopertationLevels[i][j];
 			}
 		}
 		ALLPDCooLevel = ALLPDCooLevel / (L1 * L2);
-		CooLevel2 = CooLevel2/L2;
-		CooLevel3 = CooLevel3/L1;
-		CooLevel4 = CooLevel4/(Math.min(L1, L2));
+		CooLevel2 = CooLevel2 / L2;
+		CooLevel3 = CooLevel3 / L1;
+		CooLevel4 = CooLevel4 / (Math.min(L1, L2));
 		sb.append("整体平均合作水平：" + ALLPDCooLevel + "\r\n");
 		sb.append("第一行平均合作水平：" + CooLevel2 + "\r\n");
 		sb.append("第一列平均合作水平：" + CooLevel3 + "\r\n");
@@ -72,8 +75,6 @@ public class SpatialPDGame implements Reporter {
 		sb.append(ArraytoString.getTwoDeArrayString(coopertationLevels, L1, L2));
 		return sb.toString();
 	}
-
-	
 
 	public static void main(String args[]) {
 		// SpatialPDGame spdg = new SpatialPDGame();
@@ -93,11 +94,11 @@ public class SpatialPDGame implements Reporter {
 		// long end = System.currentTimeMillis();
 		// System.out.println("underwent: " + (end - start) + "ms");
 		// }
-		//float qi = 0;
+		// float qi = 0;
 		long start = System.currentTimeMillis();
-		runOneTest2(World.LEARNING_PATTERN_MAXPAYOFF,
-				World.IMIGRATION_PATTERN_OPTIMISTIC,
-				World.STRATEGY_PATTERN_CONTINUOUS,  MAX_TURN_NUM, "F:\\毕设任务\\data4(d0=0.2)");
+		runOneTest2(LearningPattern.MAXPAYOFF, MigrationPattern.OPTIMISTIC,
+				StrategyPattern.CONTINUOUS, MAX_TURN_NUM,
+				"F:\\毕设任务\\data4(d0=0.2)");
 		long end = System.currentTimeMillis();
 		System.out.println("underwent: " + (end - start) + "ms");
 		// }
@@ -119,8 +120,9 @@ public class SpatialPDGame implements Reporter {
 		// "F:\\毕设任务\\data_test");
 	}
 
-	public static void runOneTest2(int learningPattern, int imigratePattern,
-			int strategyPattern, int maxTurn, String outputFilePath) {
+	public static void runOneTest2(LearningPattern learningPattern,
+			MigrationPattern imigratePattern, StrategyPattern strategyPattern,
+			int maxTurn, String outputFilePath) {
 		int L = LENGTH;
 		float qi;
 		float pi = 0.5f;
@@ -153,14 +155,9 @@ public class SpatialPDGame implements Reporter {
 							.getDetailReport());
 
 					cl[i][j] = spdg.getCooperationLevel();
-					System.out.println(""
-							+ learningPattern
-							+ ","
-							+ imigratePattern
-							+ ","
-							+ strategyPattern
-							+ ", Dr=" + Dr + ", Dg=" + Dg + ", d0= " + d0
-							+ " completed");
+					System.out.println("" + learningPattern + ","
+							+ imigratePattern + "," + strategyPattern + ", Dr="
+							+ Dr + ", Dg=" + Dg + ", d0= " + d0 + " completed");
 				}
 			}
 			FileUtils.outputTofile(
@@ -172,8 +169,9 @@ public class SpatialPDGame implements Reporter {
 		}
 	}
 
-	public static void runOneTest(int learningPattern, int imigratePattern,
-			int strategyPattern, int maxTurn, String outputFilePath) {
+	public static void runOneTest(LearningPattern learningPattern,
+			MigrationPattern imigratePattern, StrategyPattern strategyPattern,
+			int maxTurn, String outputFilePath) {
 		int L = LENGTH;
 		float r, d0;
 		float pi = 0.2f;
@@ -205,11 +203,9 @@ public class SpatialPDGame implements Reporter {
 								strategyPattern, pi, qi, spdg.gr, d0), spdg
 						.getSnapshootMap());
 				cl[i][j] = spdg.getCooperationLevel();
-				System.out.println(""
-						+ learningPattern + ","
-						+ imigratePattern + ","
-						+ strategyPattern
-						+ " gr=" + r + ", d0= " + d0 + " completed");
+				System.out.println("" + learningPattern + "," + imigratePattern
+						+ "," + strategyPattern + " gr=" + r + ", d0= " + d0
+						+ " completed");
 			}
 		}
 		FileUtils.outputTofile(
@@ -222,24 +218,23 @@ public class SpatialPDGame implements Reporter {
 
 	}
 
-	World world;
+	private World world;
 
-	GamblingRule gr;
+	private GamblingRule gr;
 
-	int learningPattern;
+	private LearningPattern learningPattern;
 
-	int imigrationPattern;
-	int strategyPattern;
+	private MigrationPattern imigrationPattern;
+	private StrategyPattern strategyPattern;
 
-	float d0;
+	private float d0;
 
-	float pi;
+	private float pi;
 
-	float qi;
+	private float qi;
 
-	
 	private int turn;
-	
+
 	private int noChangeTurn;
 
 	private boolean isFinished;
@@ -257,16 +252,17 @@ public class SpatialPDGame implements Reporter {
 		this.recordSnapShoot = recordSnapShoot;
 		this.reporter = this;
 	}
+
 	public SpatialPDGame(boolean recordSnapShoot, Reporter reporter) {
 		world = new World();
 		this.recordSnapShoot = recordSnapShoot;
 		this.reporter = reporter;
 	}
-	
-	public void setReporter(Reporter reporter){
+
+	public void setReporter(Reporter reporter) {
 		this.reporter = reporter;
 	}
-	
+
 	public void finalize() {
 		if (!isFinished) {
 			isFinished = true;
@@ -335,24 +331,26 @@ public class SpatialPDGame implements Reporter {
 	public Map<Integer, Image> getSnapshootMap() {
 		return Snapshoot;
 	}
+
 	/**
 	 * @param pi
 	 *            学习邻居策略的概率
 	 * @param qi
 	 *            迁徙的概率
-	 * @param learningPattern 学习模式，可以是学习最优邻居World.LEARNING_PATTERN_MAXPAYOFF, 
-	 * 			也可以是fermi学习模式World.LEARNING_PATTERN_FERMI
+	 * @param learningPattern
+	 *            学习模式，可以是学习最优邻居World.LEARNING_PATTERN_MAXPAYOFF,
+	 *            也可以是fermi学习模式World.LEARNING_PATTERN_FERMI
 	 * @param imigrationPattern
 	 *            迁徙模式 ，可以是无迁徙World.IMIGRATE_PATTERN_NONE、随机迁徙World.
 	 *            IMIGRATE_PATTERN_RANDOM、机会迁徙World.IMIGRATE_PATTERN_OPTIMISTIC
-	 *            
+	 * 
 	 */
-	public void initSpatialPDGame(int L, float d0, float R, float S,  float T, float P,
-			float pi, float qi, int learningPattern, int imigratePattern,
-			int strategyPattern) {
+	public void initSpatialPDGame(int L, float d0, float R, float S, float T,
+			float P, float pi, float qi, LearningPattern learningPattern,
+			MigrationPattern imigratePattern, StrategyPattern strategyPattern) {
 
 		world.init_world(L, d0, strategyPattern, 1);
-		gr = new GamblingRule(R,S,T,P);
+		gr = new GamblingRule(R, S, T, P);
 		this.d0 = d0;
 		this.pi = pi;
 		this.qi = qi;
@@ -363,18 +361,19 @@ public class SpatialPDGame implements Reporter {
 		noChangeTurn = 0;
 		isFinished = false;
 	}
-	
-	public void initSpatialPDGame(int L, float d0, float Dr, float Dg,
-			float pi, float qi, int learningPattern, int imigratePattern,
-			int strategyPattern) {
 
-		initSpatialPDGame(L, d0, 1, -Dr, 1+Dg, 0, pi, qi,
-				learningPattern, imigratePattern, strategyPattern);
-		
+	public void initSpatialPDGame(int L, float d0, float Dr, float Dg,
+			float pi, float qi, LearningPattern learningPattern,
+			MigrationPattern imigratePattern, StrategyPattern strategyPattern) {
+
+		initSpatialPDGame(L, d0, 1, -Dr, 1 + Dg, 0, pi, qi, learningPattern,
+				imigratePattern, strategyPattern);
+
 	}
 
 	public void initSpatialPDGame(int L, float d0, float r, float pi, float qi,
-			int learningPattern, int imigratePattern, int strategyPattern) {
+			LearningPattern learningPattern, MigrationPattern imigratePattern,
+			StrategyPattern strategyPattern) {
 
 		initSpatialPDGame(L, d0, r, r, pi, qi, learningPattern,
 				imigratePattern, strategyPattern);
@@ -445,20 +444,22 @@ public class SpatialPDGame implements Reporter {
 					worldDetailHistory.put(turn, world.getWorldDetail());
 				}
 				if ((turn) % (sampleInterval * 20) == 0) {
-					reporter.report("turn "+turn+" ......");
+					reporter.report("turn " + turn + " ......");
 				}
 				if (turn == Math.pow(10, Snapshoot.size())) {
 					recordSnapshoot(turn);
-					
+
 				}
 				// System.out.println("合作率："+world.getCooperationRate());
 			}
 		}
 
 	}
-	public int getTurn(){
+
+	public int getTurn() {
 		return turn;
 	}
+
 	@Override
 	public String toString() {
 		DecimalFormat df = new DecimalFormat("0.000");
@@ -467,8 +468,6 @@ public class SpatialPDGame implements Reporter {
 				+ imigrationPattern + ", strategyPattern=" + strategyPattern
 				+ ", pi=" + pi + ", qi=" + qi + "]";
 	}
-
-
 
 	@Override
 	public void report(String s) {

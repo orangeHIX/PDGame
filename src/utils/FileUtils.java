@@ -11,6 +11,9 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 
 import rule.GamblingRule;
+import entity.LearningPattern;
+import entity.MigrationPattern;
+import entity.StrategyPattern;
 import entity.World;
 
 public class FileUtils {
@@ -25,7 +28,9 @@ public class FileUtils {
 		}
 		file.delete();
 	}
-	public static void outputSnapshootToFile(String filePath, Map<Integer, Image> Snapshoot) {
+
+	public static void outputSnapshootToFile(String filePath,
+			Map<Integer, Image> Snapshoot) {
 		try {
 			FileUtils.deleteFile(filePath);
 			for (Integer i : Snapshoot.keySet()) {
@@ -53,7 +58,7 @@ public class FileUtils {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/** 获取该文件对象，如果该文件对象不存在，则创建它 */
 	public static File getFile(String fileName) {
 		File f = new File(fileName);
@@ -61,26 +66,41 @@ public class FileUtils {
 			f.getParentFile().mkdirs();
 		return f;
 	}
-	
-	public static String constructFileName(String base, int learningPattern,
-			int imigratePattern, int strategyPattern,float pi,float qi, GamblingRule gr, float d0) {
+
+	public static String constructFileName(String base,
+			LearningPattern learningPattern, MigrationPattern imigratePattern,
+			StrategyPattern strategyPattern, float pi, float qi,
+			GamblingRule gr, float d0) {
 		DecimalFormat df = new DecimalFormat("0.00");
 		return constructFilePath(base, learningPattern, imigratePattern,
-				strategyPattern,pi,qi)
+				strategyPattern, pi, qi)
 				+ "\\"
-				+ "gr=("+df.format(gr.getR())+","+df.format(gr.getS())+","+df.format(gr.getT())+","+df.format(gr.getP())+")"
+				+ "gr=("
+				+ df.format(gr.getR())
+				+ ","
+				+ df.format(gr.getS())
+				+ ","
+				+ df.format(gr.getT())
+				+ ","
+				+ df.format(gr.getP())
+				+ ")"
 				+ "_$_d0="
-				+ df.format(d0) + ".txt";
+				+ df.format(d0)
+				+ ".txt";
 	}
-	public static String constructFilePath(String base, int learningPattern,
-			int imigratePattern, int strategyPattern, float pi, float qi) {
+
+	public static String constructFilePath(String base,
+			LearningPattern learningPattern, MigrationPattern imigratePattern,
+			StrategyPattern strategyPattern, float pi, float qi) {
 		DecimalFormat df = new DecimalFormat("0.00");
-		return base + "\\" + learningPattern + "_$_"
-				+ imigratePattern + "_$_"
-				+ World.getStrategyPatternString(strategyPattern) +"_$_pi="+df.format(pi)+"_$_qi="+df.format(qi);
+		return base + "\\" + learningPattern + "_$_" + imigratePattern + "_$_"
+				+ strategyPattern + "_$_pi=" + df.format(pi) + "_$_qi="
+				+ df.format(qi);
 	}
+
 	public static String constructImageFilePath(String base,
-			int learningPattern, int imigratePattern, int strategyPattern,float pi,float qi,
+			LearningPattern learningPattern, MigrationPattern imigratePattern,
+			StrategyPattern strategyPattern, float pi, float qi,
 			GamblingRule gr, float d0) {
 		return constructFileName(base, learningPattern, imigratePattern,
 				strategyPattern, pi, qi, gr, d0).replace(".txt", "");
