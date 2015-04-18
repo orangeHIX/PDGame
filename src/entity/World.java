@@ -24,19 +24,19 @@ public class World {
 //	public static final int STRATEGY_PATTERN_CONTINUOUS = 3;
 
 	/** 记录所有个体的表 */
-	ArrayList<Individual> IndividualList;
+	private ArrayList<Individual> IndividualList;
 	/** 二维网络中所有空位，二维数组表示 */
-	Seat[][] grid;
+	private Seat[][] grid;
 	/** 二维网格的宽度 */
-	int L;
+	private int L;
 	/** 二维网格中个体的密度 */
-	float d0;
+	private float d0;
 	/**
 	 * 规定每个个体周围距离多远的个体算是直接邻居，例如： 个体周围距离为1的设为直接邻居，最大邻居数为8
 	 */
-	int neighbourRange;
+	private int neighbourRange;
 	/** 记录个体所能采用的策略的代表数值 */
-	float[] strategySample;
+	private float[] strategySample;
 
 	private Random random = new Random();
 
