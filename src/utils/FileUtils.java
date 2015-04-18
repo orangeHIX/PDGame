@@ -75,8 +75,8 @@ public class FileUtils {
 	public static String constructFilePath(String base, int learningPattern,
 			int imigratePattern, int strategyPattern, float pi, float qi) {
 		DecimalFormat df = new DecimalFormat("0.00");
-		return base + "\\" + World.getLearningPatternString(learningPattern) + "_$_"
-				+ World.getImigratePatternString(imigratePattern) + "_$_"
+		return base + "\\" + learningPattern + "_$_"
+				+ imigratePattern + "_$_"
 				+ World.getStrategyPatternString(strategyPattern) +"_$_pi="+df.format(pi)+"_$_qi="+df.format(qi);
 	}
 	public static String constructImageFilePath(String base,

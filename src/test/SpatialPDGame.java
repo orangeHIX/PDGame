@@ -154,11 +154,11 @@ public class SpatialPDGame implements Reporter {
 
 					cl[i][j] = spdg.getCooperationLevel();
 					System.out.println(""
-							+ World.getLearningPatternString(learningPattern)
+							+ learningPattern
 							+ ","
-							+ World.getImigratePatternString(imigratePattern)
+							+ imigratePattern
 							+ ","
-							+ World.getStrategyPatternString(strategyPattern)
+							+ strategyPattern
 							+ ", Dr=" + Dr + ", Dg=" + Dg + ", d0= " + d0
 							+ " completed");
 				}
@@ -206,9 +206,9 @@ public class SpatialPDGame implements Reporter {
 						.getSnapshootMap());
 				cl[i][j] = spdg.getCooperationLevel();
 				System.out.println(""
-						+ World.getLearningPatternString(learningPattern) + ","
-						+ World.getImigratePatternString(imigratePattern) + ","
-						+ World.getStrategyPatternString(strategyPattern)
+						+ learningPattern + ","
+						+ imigratePattern + ","
+						+ strategyPattern
 						+ " gr=" + r + ", d0= " + d0 + " completed");
 			}
 		}

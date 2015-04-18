@@ -37,7 +37,7 @@ public class MainJFrame  extends javax.swing.JFrame implements Reporter,Complete
     public MainJFrame() {
         initComponents();
         this.setLocationByPlatform(true);
-        this.setTitle("¿Õ¼äÊÜÏÞÍøÂç²©ÞÄÄ£ÐÍÄ£ÄâÑÝ»¯Èí¼þ");
+        this.setTitle("ï¿½Õ¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ç²©ï¿½ï¿½Ä£ï¿½ï¿½Ä£ï¿½ï¿½ï¿½Ý»ï¿½ï¿½ï¿½ï¿½");
     }
 
     /**
@@ -119,32 +119,32 @@ public class MainJFrame  extends javax.swing.JFrame implements Reporter,Complete
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new java.awt.GridLayout(3, 1));
 
-        jLabel1.setText("Íø¸ñ±ß³¤");
+        jLabel1.setText("ï¿½ï¿½ï¿½ß³ï¿½");
         jLabel1.setToolTipText("");
 
         jTextFieldGridLength.setColumns(10);
         jTextFieldGridLength.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
         jTextFieldGridLength.setText("100");
 
-        jLabel2.setText("ÈË¿ÚÃÜ¶È");
+        jLabel2.setText("ï¿½Ë¿ï¿½ï¿½Ü¶ï¿½");
 
         jSpinnerPopulationDensity.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(0.5f), Float.valueOf(0.0f), Float.valueOf(1.0f), Float.valueOf(0.1f)));
 
-        jLabel3.setText("×î´ó²½Êý");
+        jLabel3.setText("ï¿½ï¿½ï¿½ï¿½ï¿½");
 
-        jLabel5.setText("Êä³öÎÄ¼þÄ¿Â¼");
+        jLabel5.setText("ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½Ä¿Â¼");
 
         jTextFieldOutputFilePath.setText("jTextField5");
 
-        jButtonBrowse.setText("ä¯ÀÀ");
+        jButtonBrowse.setText("ï¿½ï¿½ï¿½");
 
-        jPanel10.setBorder(javax.swing.BorderFactory.createTitledBorder("²©ÞÄ¾ØÕó"));
+        jPanel10.setBorder(javax.swing.BorderFactory.createTitledBorder("ï¿½ï¿½ï¿½Ä¾ï¿½ï¿½ï¿½"));
 
         buttonGroupPayoffMatrix.add(jRadioButtonBCHPayoffMatrix);
         jRadioButtonBCHPayoffMatrix.setText("BCH");
 
         buttonGroupPayoffMatrix.add(jRadioButtonClassicPayoffMatrix);
-        jRadioButtonClassicPayoffMatrix.setText("¾­µäÊÕÒæ¾ØÕó");
+        jRadioButtonClassicPayoffMatrix.setText("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
 
         jLabel6.setText("R =");
 
@@ -263,26 +263,26 @@ public class MainJFrame  extends javax.swing.JFrame implements Reporter,Complete
                     .addComponent(jSpinnerPayoffP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
-        jCheckBoxNeedOutputImage.setText("Êä³öÈË¿Ú°ßÍ¼");
+        jCheckBoxNeedOutputImage.setText("ï¿½ï¿½ï¿½ï¿½Ë¿Ú°ï¿½Í¼");
 
         jLabelGridLengthCheck.setForeground(new java.awt.Color(255, 0, 0));
         jLabelGridLengthCheck.setText("*");
 
         jSpinnerMaxTurn.setModel(new javax.swing.SpinnerNumberModel(30000, 100, 1000000, 100));
 
-        jPanel7.setBorder(javax.swing.BorderFactory.createTitledBorder("²ßÂÔ»·¾³"));
+        jPanel7.setBorder(javax.swing.BorderFactory.createTitledBorder("ï¿½ï¿½ï¿½Ô»ï¿½ï¿½ï¿½"));
 
         buttonGroupStrategyPattern.add(jRadioButtonTwoStrategy);
-        jRadioButtonTwoStrategy.setText("Ë«²ßÂÔ");
+        jRadioButtonTwoStrategy.setText("Ë«ï¿½ï¿½ï¿½ï¿½");
 
         buttonGroupStrategyPattern.add(jRadioButtonThreeStrategy);
-        jRadioButtonThreeStrategy.setText("Èý²ßÂÔ");
+        jRadioButtonThreeStrategy.setText("ï¿½ï¿½ï¿½ï¿½ï¿½");
 
         buttonGroupStrategyPattern.add(jRadioButtonFiveStrategy);
-        jRadioButtonFiveStrategy.setText("Îå²ßÂÔ");
+        jRadioButtonFiveStrategy.setText("ï¿½ï¿½ï¿½ï¿½ï¿½");
 
         buttonGroupStrategyPattern.add(jRadioButtonContinuousStrategy);
-        jRadioButtonContinuousStrategy.setText("Á¬Ðø²ßÂÔ");
+        jRadioButtonContinuousStrategy.setText("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
@@ -380,13 +380,13 @@ public class MainJFrame  extends javax.swing.JFrame implements Reporter,Complete
 
         jPanel2.setLayout(new java.awt.GridLayout(3, 0));
 
-        jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder("Ð­Í¬ÑÝ»¯·½Ê½"));
+        jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder("Ð­Í¬ï¿½Ý»ï¿½ï¿½ï¿½Ê½"));
 
         jLabel10.setText("pi =");
 
         jLabel11.setText("qi =");
 
-        jLabel4.setText("Ã¿Ò»²½ÑÝ»¯£¬Ã¿¸ö¸öÌåÒÔpiµÄ¸ÅÂÊÑ§Ï°£¬ÒÔqiµÄ¸ÅÂÊÇ¨áã");
+        jLabel4.setText("Ã¿Ò»ï¿½ï¿½ï¿½Ý»ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½piï¿½Ä¸ï¿½ï¿½ï¿½Ñ§Ï°ï¿½ï¿½ï¿½ï¿½qiï¿½Ä¸ï¿½ï¿½ï¿½Ç¨ï¿½ï¿½");
 
         jSpinnerPi.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(0.0f), Float.valueOf(0.0f), Float.valueOf(1.0f), Float.valueOf(0.01f)));
 
@@ -424,19 +424,19 @@ public class MainJFrame  extends javax.swing.JFrame implements Reporter,Complete
 
         jPanel2.add(jPanel6);
 
-        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("¸öÌåÇ¨áã·½Ê½"));
+        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("ï¿½ï¿½ï¿½ï¿½Ç¨ï¿½ã·½Ê½"));
 
         buttonGroupMigrationPattern.add(jRadioButtonMigrationNone);
-        jRadioButtonMigrationNone.setText("²»Ç¨áã");
+        jRadioButtonMigrationNone.setText("ï¿½ï¿½Ç¨ï¿½ï¿½");
 
         buttonGroupMigrationPattern.add(jRadioButtonMigrationRandom);
-        jRadioButtonMigrationRandom.setText("Ëæ»úÇ¨áã");
+        jRadioButtonMigrationRandom.setText("ï¿½ï¿½ï¿½Ç¨ï¿½ï¿½");
 
         buttonGroupMigrationPattern.add(jRadioButtonMigrationOptimistic);
-        jRadioButtonMigrationOptimistic.setText("»ú»áÇ¨áã");
+        jRadioButtonMigrationOptimistic.setText("ï¿½ï¿½ï¿½Ç¨ï¿½ï¿½");
 
         buttonGroupMigrationPattern.add(jRadioButtonMigrationEscape);
-        jRadioButtonMigrationEscape.setText("ÌÓÒÝÇ¨áã");
+        jRadioButtonMigrationEscape.setText("ï¿½ï¿½ï¿½ï¿½Ç¨ï¿½ï¿½");
 
         jTextFieldMigrationPattern.setEditable(false);
 
@@ -474,10 +474,10 @@ public class MainJFrame  extends javax.swing.JFrame implements Reporter,Complete
 
         jPanel2.add(jPanel4);
 
-        jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder("¸öÌåÑ§Ï°·½Ê½"));
+        jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder("ï¿½ï¿½ï¿½ï¿½Ñ§Ï°ï¿½ï¿½Ê½"));
 
         buttonGroupLearningPattern.add(jRadioButtonMaxPayoffLearning);
-        jRadioButtonMaxPayoffLearning.setText("×î´óÊÕÒæÑ§Ï°");
+        jRadioButtonMaxPayoffLearning.setText("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ§Ï°");
 
 
         buttonGroupLearningPattern.add(jRadioButtonFermiLearning);
@@ -515,7 +515,7 @@ public class MainJFrame  extends javax.swing.JFrame implements Reporter,Complete
 
         getContentPane().add(jPanel2);
 
-        jButtonStart.setText("¿ªÊ¼ÔËÐÐ");
+        jButtonStart.setText("ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½");
 
         jTextAreaTaskDescription.setEditable(false);
         jTextAreaTaskDescription.setColumns(20);
@@ -623,12 +623,12 @@ public class MainJFrame  extends javax.swing.JFrame implements Reporter,Complete
     			//JOptionPane.showMessageDialog(MainJFrame.this, new String(""));
     			int i = 0;
     			try{
-    				i  = Integer.parseUnsignedInt(((JTextField)e.getSource()).getText().trim());
+    				i  = Integer.parseInt(((JTextField)e.getSource()).getText().trim());
     			}catch(NumberFormatException ne){
     				
     			}
     			if( i <= 0){
-    				JOptionPane.showMessageDialog(MainJFrame.this, "Íø¸ñ±ß³¤±ØÐëÊÇÒ»¸öÓÐÐ§µÄÕýÕûÊý");
+    				JOptionPane.showMessageDialog(MainJFrame.this, "ï¿½ï¿½ï¿½ß³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Ð§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
     				jTextFieldGridLength.requestFocusInWindow();
     				jTextFieldGridLength.selectAll();
     				jLabelGridLengthCheck.setVisible(true);
@@ -739,7 +739,7 @@ public class MainJFrame  extends javax.swing.JFrame implements Reporter,Complete
     		public void focusLost(FocusEvent e){
     			File f= new File(jTextFieldOutputFilePath.getText());
     			if( (!f.exists()) || (!f.isDirectory()) ){
-    				JOptionPane.showMessageDialog(MainJFrame.this, "¸ÃÎÄ¼þÄ¿Â¼²»´æÔÚ");
+    				JOptionPane.showMessageDialog(MainJFrame.this, "ï¿½ï¿½ï¿½Ä¼ï¿½Ä¿Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
     				jTextFieldOutputFilePath.requestFocusInWindow();
     				jTextFieldOutputFilePath.selectAll();
     			}
@@ -886,24 +886,24 @@ public class MainJFrame  extends javax.swing.JFrame implements Reporter,Complete
     
     private void setLearningPatternText(JRadioButton radioButton){
     	if( radioButton.equals(jRadioButtonMaxPayoffLearning)){
-			jTextFieldLearningPattern.setText("¸öÌå´ÓÖ±½ÓÁÚ¾ÓÑ§Ï°²ßÂÔ£¬Ñ§Ï°¾ßÓÐ×î´óÀÛ»ýÊÕÒæµÄÁÚ¾Ó");
+			jTextFieldLearningPattern.setText("ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½Ú¾ï¿½Ñ§Ï°ï¿½ï¿½ï¿½Ô£ï¿½Ñ§Ï°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Û»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú¾ï¿½");
 		}else if(radioButton.equals(jRadioButtonFermiLearning)){
-			jTextFieldLearningPattern.setText("´ÓÖ±½ÓÁÚ¾ÓÑ§Ï°²ßÂÔ£¬¸öÌåiËæ»úÑ¡ÔñÒ»¸öÁÚ¾Ójºó£¬°´ÕÕÏÂÊ½¾ö¶¨ÊÇ·ñÑ§Ï°¸ÃÁÚ¾Ó£¬"
-					+ "ÆäÖÐPiÊÇiµÄ±¾ÂÖÊÕÒæ£¬PjÊÇÁÚ¾ÓjµÄ±¾ÂÖÊÕÒæ£¬iÑ§Ï°ºóÕßjµÄ¸ÅÂÊÎªw=1/(1+exp[(pi-pj)/k])");
+			jTextFieldLearningPattern.setText("ï¿½ï¿½Ö±ï¿½ï¿½ï¿½Ú¾ï¿½Ñ§Ï°ï¿½ï¿½ï¿½Ô£ï¿½ï¿½ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ú¾ï¿½jï¿½ó£¬°ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½Ñ§Ï°ï¿½ï¿½ï¿½Ú¾Ó£ï¿½"
+					+ "ï¿½ï¿½ï¿½ï¿½Piï¿½ï¿½iï¿½Ä±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ£¬Pjï¿½ï¿½ï¿½Ú¾ï¿½jï¿½Ä±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ£¬iÑ§Ï°ï¿½ï¿½ï¿½ï¿½jï¿½Ä¸ï¿½ï¿½ï¿½Îªw=1/(1+exp[(pi-pj)/k])");
 		}
     }
     
     private void setMigratePatternText(JRadioButton radioButton){
     	if(radioButton.equals(jRadioButtonMigrationNone)){
-			jTextFieldMigrationPattern.setText("¸öÌå²»ÒÆ¶¯");
+			jTextFieldMigrationPattern.setText("ï¿½ï¿½ï¿½å²»ï¿½Æ¶ï¿½");
 		}else if(radioButton.equals(jRadioButtonMigrationRandom)){
-			jTextFieldMigrationPattern.setText("¸öÌåËæ»úÇ¨áãµ½Ö±½ÓÏàÁÚµÄÒ»¸ö¿ÕÎ»ÉÏ");
+			jTextFieldMigrationPattern.setText("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¨ï¿½ãµ½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½Ò»ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½");
 		}else if(radioButton.equals(jRadioButtonMigrationOptimistic)){
-			jTextFieldMigrationPattern.setText("¸öÌå¸öÌåiËùÔÚÎ»ÖÃxÎªxkÔÚÒ»½×ÁÚ¾ÓÖÐËæ»úÑ¡È¡Ò»¸ö¿ÕÎ»xl£¬"
-					+ "°´ÕÕ¸ÅÂÊ¦ÒµÄ¿ÉÄÜÐÔÇ¨ÒÆµÄÎ»ÖÃÉÏ¡£ÆäÖÐ£º ¦Ò(xk¡úxl)= 1/(1+exp[(fcl-fck)/K]) K=0.1 £¨5£©£¬"
-					+ "fck±íÊ¾¸öÌåÎ»ÓÚkÎ»ÖÃÊ±ÁÚ¾ÓµÄÆ½¾ùºÏ×÷³Ì¶È£¬¹«Ê½5±íÊ¾¸öÌåiÔÚËæ»úÁÚ¾ÓÖÐÑ¡È¡Ò»¸ö¿ÕÎ»l£¨Ã»ÓÐÔò²»ÒÆ£©");
+			jTextFieldMigrationPattern.setText("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½xÎªxkï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ú¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¡È¡Ò»ï¿½ï¿½ï¿½ï¿½Î»xlï¿½ï¿½"
+					+ "ï¿½ï¿½ï¿½Õ¸ï¿½ï¿½Ê¦ÒµÄ¿ï¿½ï¿½ï¿½ï¿½ï¿½Ç¨ï¿½Æµï¿½Î»ï¿½ï¿½ï¿½Ï¡ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ ï¿½ï¿½(xkï¿½ï¿½xl)= 1/(1+exp[(fcl-fck)/K]) K=0.1 ï¿½ï¿½5ï¿½ï¿½ï¿½ï¿½"
+					+ "fckï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½kÎ»ï¿½ï¿½Ê±ï¿½Ú¾Óµï¿½Æ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¶È£ï¿½ï¿½ï¿½Ê½5ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú¾ï¿½ï¿½ï¿½Ñ¡È¡Ò»ï¿½ï¿½ï¿½ï¿½Î»lï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½Æ£ï¿½");
 		}else if(radioButton.equals(jRadioButtonMigrationEscape)){
-			jTextFieldMigrationPattern.setText("¸öÌåÍ³¼ÆÖÜÎ§ÁÚ¾Ó±³ÅÑÕßµÄÊýÁ¿nd£¬ÒÔnd/8µÄ¸ÅÂÊÇ¨áãµ½¿ÕÎ»ÉÏ");
+			jTextFieldMigrationPattern.setText("ï¿½ï¿½ï¿½ï¿½Í³ï¿½ï¿½ï¿½ï¿½Î§ï¿½Ú¾Ó±ï¿½ï¿½ï¿½ï¿½ßµï¿½ï¿½ï¿½ï¿½ï¿½ndï¿½ï¿½ï¿½ï¿½nd/8ï¿½Ä¸ï¿½ï¿½ï¿½Ç¨ï¿½ãµ½ï¿½ï¿½Î»ï¿½ï¿½");
 		}
     }
     private void taskStateChanged(){
@@ -911,8 +911,8 @@ public class MainJFrame  extends javax.swing.JFrame implements Reporter,Complete
     		jButtonStart.setText("Í£Ö¹");
     		jTextAreaReport.setText("");
     	}else{
-    		jButtonStart.setText("¿ªÊ¼");
-    		jTextAreaTaskDescription.append("\r\n"+getDateString(System.currentTimeMillis())+"Í£Ö¹ÈÎÎñ");
+    		jButtonStart.setText("ï¿½ï¿½Ê¼");
+    		jTextAreaTaskDescription.append("\r\n"+getDateString(System.currentTimeMillis())+"Í£Ö¹ï¿½ï¿½ï¿½ï¿½");
     		jTextAreaTaskDescription.setCaretPosition(jTextAreaTaskDescription.getText().length());
     	}
     }
@@ -1003,9 +1003,9 @@ public class MainJFrame  extends javax.swing.JFrame implements Reporter,Complete
 	    	mStop = true;
 	    }
 	    public String getTaskDes(){
-	    	return "µ±Ç°ÔËÐÐÈÎÎñ¼òÊö£º"+spdg.toString() 
-	    			+"\r\n½á¹ûÊä³öÎÄ¼þÄ¿Â¼£º"+outputFilePath
-	    			+"\r\n¿ªÊ¼Ê±¼ä£º"+getDateString(startTime);
+	    	return "ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"+spdg.toString() 
+	    			+"\r\nï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½Ä¿Â¼ï¿½ï¿½"+outputFilePath
+	    			+"\r\nï¿½ï¿½Ê¼Ê±ï¿½ä£º"+getDateString(startTime);
 	    }
     }
     private String getDateString(long timeInMillis){
@@ -1023,7 +1023,7 @@ public class MainJFrame  extends javax.swing.JFrame implements Reporter,Complete
 		// TODO Auto-generated method stub
 		isRunning = false;
 		taskStateChanged();
-		jTextAreaReport.append(message+"\r\nÈÎÎñÍê³É\r\n");
+		jTextAreaReport.append(message+"\r\nï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\r\n");
 	}
 	
 	private boolean isRunning = false;

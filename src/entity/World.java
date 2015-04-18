@@ -434,60 +434,6 @@ public class World {
 		}
 		return sb.toString();
 	}
-	public static String getImigratePatternString(int imigratePattern) {
-		String imigrateStr = "";
-		switch (imigratePattern) {
-		case World.IMIGRATION_PATTERN_NONE:
-			imigrateStr = "no_imigrate";
-			break;
-		case World.IMIGRATION_PATTERN_RANDOM:
-			imigrateStr = "random_imigrate";
-			break;
-		case World.IMIGRATION_PATTERN_OPTIMISTIC:
-			imigrateStr = "optimistic_imigrate";
-			break;
-		case World.IMIGRATION_PATTERN_ESCAPE:
-			imigrateStr = "optimistic_escape";
-			break;
-		default:
-			throw new IllegalArgumentException("illegal imigrationPattern");
-		}
-		return imigrateStr;
-	}
-	public static String getLearningPatternString(int learningPattern) {
-		String learningStr = "";
-		switch (learningPattern) {
-		case World.LEARNING_PATTERN_MAXPAYOFF:
-			learningStr = "max_payoff_learning";
-			break;
-		case World.LEARNING_PATTERN_FERMI:
-			learningStr = "fermi_learning";
-			break;
-		default:
-			throw new IllegalArgumentException("illegal learningPattern");
-		}
-		return learningStr;
-	}
-	public static String getStrategyPatternString(int strategyPattern) {
-		String strategyStr = "";
-		switch (strategyPattern) {
-		case World.STRATEGY_PATTERN_TWO:
-			strategyStr = "two_strategy";
-			break;
-		case World.STRATEGY_PATTERN_THREE:
-			strategyStr = "three_strategy";
-			break;
-		case World.STRATEGY_PATTERN_FIVE:
-			strategyStr = "five_strategy";
-			break;
-		case World.STRATEGY_PATTERN_CONTINUOUS:
-			strategyStr = "continuous_strategy";
-			break;
-		default:
-			throw new IllegalArgumentException("illegal strategyPattern");
-		}
-		return strategyStr;
-	}
 
 
 }
