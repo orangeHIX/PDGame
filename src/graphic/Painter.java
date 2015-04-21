@@ -14,6 +14,31 @@ import entity.World;
 
 public class Painter {
 
+	public static final Color CColor = Color.YELLOW;
+	public static final Color MColor = Color.RED;
+	public static final Color DColor = Color.BLUE;
+
+	public static Color getGradient(Color cfrom, Color cto, float f) {
+		if (f >= 0 && f <= 1.0f) {
+			int r = (int) (cfrom.getRed() + (cto.getRed() - cfrom.getRed()) * f);
+			int g = (int) (cfrom.getGreen() + (cto.getGreen() - cfrom.getGreen()) * f);
+			int b = (int) (cfrom.getBlue() + (cto.getBlue() - cfrom.getBlue()) * f);
+			return new Color(r, g, b);
+		} else {
+			return null;
+		}
+	}
+
+	public static Color getGradient(Color cfrom,  Color cmid, Color cto, float f) {
+		if(f >= 0 && f < .5f){
+			return getGradient(cfrom, cmid, f*2);
+		}else if( f <= 1.0f){
+			return getGradient(cmid, cto, (f - 0.5f) *2);
+		}else{
+			return null;
+		}
+	}
+	
 	public static Image getImage(int width, int height, World world) {
 
 		BufferedImage bi = new BufferedImage(width, height,
@@ -23,7 +48,7 @@ public class Painter {
 
 		g2.setBackground(Color.WHITE);
 		g2.clearRect(0, 0, width, height);
-		
+
 		int widPerCell, heiPerCell;
 		int L = world.getLength();
 		widPerCell = (int) (width / L);
@@ -33,8 +58,7 @@ public class Painter {
 		for (int i = 0; i < L; i++) {
 			for (int j = 0; j < L; j++) {
 				if ((in = world.getIndividual(i, j)) != null) {
-					g2.setColor(new Color(in.getStrategy(), 0, (1 - in
-							.getStrategy())));
+					g2.setColor(getGradient(DColor, MColor,CColor, in.getStrategy()));
 				} else {
 					g2.setColor(new Color(0, 0, 0));
 				}

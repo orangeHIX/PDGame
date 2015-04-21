@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream.GetField;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,10 +32,26 @@ import gui.Window;
 
 public class SpatialPDGame implements Reporter {
 
+	public static interface SampleCheck {
+		/**
+		 * 判断是否需要采样，每隔间隔轮数进行一次采样，统计合作水平
+		 * 
+		 * @param 当前演化轮数
+		 */
+		public boolean isWorldDetailHistorySampleTurn(int turn);
+
+		/**
+		 * 判断是否需要记录演化斑图
+		 * 
+		 * @param 当前演化轮数
+		 */
+		public boolean isSnapshootSampleTurn(int turn);
+	}
+
 	/** 无变化门限，若连续超过此值的博弈演化轮数所有个体的策略保持不变，则认为模型已经稳定，不再进行演化 */
 	public static final int noChangeThreshold = 100;
 	/** 采样间隔，每隔间隔轮数进行一次采样，统计合作水平 */
-	public static final int sampleInterval = 100;
+	// public static final int sampleInterval = 100;
 	/** 网格长度 */
 	public static final int LENGTH = 100;
 
@@ -77,10 +94,10 @@ public class SpatialPDGame implements Reporter {
 	}
 
 	public static void main(String args[]) {
-		// SpatialPDGame spdg = new SpatialPDGame();
-		// spdg.initSpatialPDGame(100, 1.f, 1.0f, 0.2f, 0.2f,
-		// World.LEARNING_PATTERN_MAXPAYOFF,
-		// World.IMIGRATION_PATTERN_OPTIMISTIC, World.STRATEGY_PATTERN_TWO);
+		// SpatialPDGame spdg = new SpatialPDGame(false);
+		// spdg.initSpatialPDGame(100, .5f, 1.0f, 0.2f, 0.2f,
+		// LearningPattern.MAXPAYOFF,
+		// MigrationPattern.OPTIMISTIC, StrategyPattern.CONTINUOUS);
 		// spdg.run(10);
 		// System.out.println(spdg.getDetailReport());
 		// spdg.printPicture();
@@ -96,126 +113,71 @@ public class SpatialPDGame implements Reporter {
 		// }
 		// float qi = 0;
 		long start = System.currentTimeMillis();
-		runOneTest2(LearningPattern.MAXPAYOFF, MigrationPattern.OPTIMISTIC,
+		runOneTest3(LearningPattern.MAXPAYOFF, MigrationPattern.OPTIMISTIC,
 				StrategyPattern.CONTINUOUS, MAX_TURN_NUM,
-				"F:\\毕设任务\\data4(d0=0.2)");
+				"D:\\Users\\Jeff\\Desktop\\shuju2");
 		long end = System.currentTimeMillis();
 		System.out.println("underwent: " + (end - start) + "ms");
 		// }
-
-		// runOneTest(World.LEARNING_PATTERN_MAXPAYOFF,World.IMIGRATION_PATTERN_NONE,
-		// World.STRATEGY_PATTERN_TWO, MAX_TURN_NUM,"F:\\毕设任务\\test");
-
-		// for (int i = 1; i < 3; i++) {
-		// long start = System.currentTimeMillis();
-		// runOneTest(World.LEARNING_PATTERN_FERMI, i,
-		// World.STRATEGY_PATTERN_TWO, MAX_TURN_NUM,
-		// "F:\\毕设任务\\data_two_strategy_test");
-		// long end = System.currentTimeMillis();
-		// System.out.println("underwent: " + (end - start) + "ms");
-		// }
-		// runOneTest(World.LEARNING_PATTERN_MAXPAYOFF,
-		// World.IMIGRATION_PATTERN_NONE,
-		// World.STRATEGY_PATTERN_TWO, MAX_TURN_NUM,
-		// "F:\\毕设任务\\data_test");
 	}
 
-	public static void runOneTest2(LearningPattern learningPattern,
+	public static void runOneTest3(LearningPattern learningPattern,
 			MigrationPattern imigratePattern, StrategyPattern strategyPattern,
 			int maxTurn, String outputFilePath) {
 		int L = LENGTH;
-		float qi;
 		float pi = 0.5f;
-		float d0 = 0.2f;
-		float Dr, Dg;
-
-		SpatialPDGame spdg = new SpatialPDGame(false);
-		float stepLength = STEP_LENGTH;
-		float stepLength2 = 0.1f;
-		int L1, L2;
-		L1 = (int) Math.round(1 / stepLength) + 1;
-		L2 = (int) Math.round(1 / stepLength) + 1;
-		double[][] cl = new double[L1][];
-		for (int i = 0; i < L1; i++) {
-			cl[i] = new double[L2];
-		}
-
-		int i, j;
-		for (qi = 1.0f; qi <= 1.0001f; qi += stepLength2) {
-			for (i = 0, Dr = 0; Dr <= 1.0001f; Dr += stepLength, i++) {
-				for (j = 0, Dg = 0; Dg <= 1.0001f; Dg += stepLength, j++) {
-					spdg.initSpatialPDGame(L, d0, Dr, Dg, pi, qi,
-							learningPattern, imigratePattern, strategyPattern);
-					spdg.run(maxTurn);
-					spdg.finalize();
-					// spdg.printPicture();
-					FileUtils.outputTofile(FileUtils.constructFileName(
-							outputFilePath, learningPattern, imigratePattern,
-							strategyPattern, pi, qi, spdg.gr, d0), spdg
-							.getDetailReport());
-
-					cl[i][j] = spdg.getCooperationLevel();
-					System.out.println("" + learningPattern + ","
-							+ imigratePattern + "," + strategyPattern + ", Dr="
-							+ Dr + ", Dg=" + Dg + ", d0= " + d0 + " completed");
-				}
-			}
-			FileUtils.outputTofile(
-					FileUtils.constructFilePath(outputFilePath,
-							learningPattern, imigratePattern, strategyPattern,
-							pi, qi)
-							+ "\\CoopertationLevel.txt",
-					getCoopertationLevelsReport(cl, "Dg", "Dr", L1, L2));
-		}
-	}
-
-	public static void runOneTest(LearningPattern learningPattern,
-			MigrationPattern imigratePattern, StrategyPattern strategyPattern,
-			int maxTurn, String outputFilePath) {
-		int L = LENGTH;
-		float r, d0;
-		float pi = 0.2f;
-		float qi = 0.2f;
-		// float noise = 0.1f;
-
+		float d0 = 0.5f;
+		float[] qis = { 0, 0.1f, 0.9f };
+		float[] Drs = { 0.1f, 0.9f };
+		float[] Dgs = { 0.1f, 0.9f };
 		SpatialPDGame spdg = new SpatialPDGame(true);
+		float Dr = 0.1f;
+		float Dg = 0.9f;
+		for (float qi : qis) {
 
-		float stepLength = STEP_LENGTH;
-		double[][] cl = new double[(int) Math.round(1 / stepLength)][];
-		for (int i = 0; i < (int) Math.round(1 / stepLength); i++) {
-			cl[i] = new double[(int) Math.round(1 / stepLength)];
-		}
-		int i, j;
-		for (i = 0, r = stepLength; r <= 1.0001f; r += stepLength, i++) {
-			for (j = 0, d0 = stepLength; d0 <= 1.0001f; d0 += stepLength, j++) {
-				spdg.initSpatialPDGame(L, d0, r, pi, qi, learningPattern,
-						imigratePattern, strategyPattern);
-				spdg.run(maxTurn);
-				spdg.finalize();
-				// spdg.printPicture();
-				FileUtils.outputTofile(FileUtils.constructFileName(
-						outputFilePath, learningPattern, imigratePattern,
-						strategyPattern, pi, qi, spdg.gr, d0), spdg
-						.getDetailReport());
-				FileUtils.outputSnapshootToFile(FileUtils
-						.constructImageFilePath(outputFilePath,
-								learningPattern, imigratePattern,
-								strategyPattern, pi, qi, spdg.gr, d0), spdg
-						.getSnapshootMap());
-				cl[i][j] = spdg.getCooperationLevel();
-				System.out.println("" + learningPattern + "," + imigratePattern
-						+ "," + strategyPattern + " gr=" + r + ", d0= " + d0
-						+ " completed");
-			}
-		}
-		FileUtils.outputTofile(
-				FileUtils.constructFilePath(outputFilePath, learningPattern,
-						imigratePattern, strategyPattern, pi, qi)
-						+ "\\CoopertationLevel.txt",
-				getCoopertationLevelsReport(cl, "d0", "r",
-						(int) Math.round(1 / stepLength),
-						(int) Math.round(1 / stepLength)));
+			spdg.initSpatialPDGame(L, d0, Dr, Dg, pi, qi, learningPattern,
+					imigratePattern, strategyPattern);
+			spdg.run(maxTurn, new SampleCheck() {
+				int[] specialTurns = { 1, 2, 3, 4, 5, 6, 20, 50 };
 
+				@Override
+				public boolean isWorldDetailHistorySampleTurn(int turn) {
+					// TODO Auto-generated method stub
+					if ((turn) % 100 == 0) {
+						return true;
+					} else if (Arrays.binarySearch(specialTurns, turn) >= 0) {
+						return true;
+					}
+					return false;
+				}
+
+				@Override
+				public boolean isSnapshootSampleTurn(int turn) {
+					// TODO Auto-generated method stub
+					int keyturn = -1;
+					for (int i = 1; (keyturn = (int) Math.pow(10, i)) < turn; i++)
+						;
+					if (keyturn == turn) {
+						return true;
+					} else if (Arrays.binarySearch(specialTurns, turn) >= 0) {
+						return true;
+					}
+					return false;
+				}
+			});
+			spdg.finalize();
+			// spdg.printPicture();
+			FileUtils.outputTofile(FileUtils.constructFileName(outputFilePath,
+					learningPattern, imigratePattern, strategyPattern, pi, qi,
+					spdg.gr, d0), spdg.getDetailReport());
+			FileUtils.outputSnapshootToFile(FileUtils.constructImageFilePath(
+					outputFilePath, learningPattern, imigratePattern,
+					strategyPattern, pi, qi, spdg.gr, d0), spdg
+					.getSnapshootMap());
+
+		}
+		// System.out.println("" + learningPattern + "," + imigratePattern + ","
+		// + strategyPattern + " gr=" + r + ", d0= " + d0 + " completed");
 	}
 
 	private World world;
@@ -242,10 +204,10 @@ public class SpatialPDGame implements Reporter {
 	private final boolean recordSnapShoot;
 	private Reporter reporter;
 
-	Map<Integer, WorldDetail> worldDetailHistory = new HashMap<>();
+	private Map<Integer, WorldDetail> worldDetailHistory = new HashMap<>();
 
 	// Map<Integer, Float> globalCoopertationLevelHistory = new HashMap<>();
-	Map<Integer, Image> Snapshoot = new HashMap<>();
+	private Map<Integer, Image> Snapshoot = new HashMap<>();
 
 	public SpatialPDGame(boolean recordSnapShoot) {
 		world = new World();
@@ -269,7 +231,7 @@ public class SpatialPDGame implements Reporter {
 			// globalCoopertationLevelHistory.put(turn,
 			// world.getGlobalCooperationLevel());
 			worldDetailHistory.put(turn, world.getWorldDetail());
-			recordSnapshoot(turn);
+			recordSnapshoot();
 		}
 	}
 
@@ -279,7 +241,7 @@ public class SpatialPDGame implements Reporter {
 
 	// float averageNeighbourNum = 0;
 	private Image getCurrentPicture() {
-		return Painter.getImage(1000, 1000, world);
+		return Painter.getImage(400, 400, world);
 	}
 
 	public String getDetailReport() {
@@ -403,7 +365,7 @@ public class SpatialPDGame implements Reporter {
 		frame.setVisible(true);
 	}
 
-	private void recordSnapshoot(int turn) {
+	private void recordSnapshoot() {
 		if (recordSnapShoot) {
 			Snapshoot.put(turn, getCurrentPicture());
 			reporter.report("snapshoot at turn " + turn);
@@ -411,6 +373,30 @@ public class SpatialPDGame implements Reporter {
 	}
 
 	public void run(int turnNum) {
+		run(turnNum, new SampleCheck() {
+
+			@Override
+			public boolean isWorldDetailHistorySampleTurn(int turn) {
+				// TODO Auto-generated method stub
+				if ((turn) % 100 == 0) {
+					return true;
+				}
+				return false;
+			}
+
+			@Override
+			public boolean isSnapshootSampleTurn(int turn) {
+				// TODO Auto-generated method stub
+				if (turn == Math.pow(10, Snapshoot.size())) {
+					return true;
+				}
+				return false;
+			}
+
+		});
+	}
+
+	public void run(int turnNum, SampleCheck sampleCheck) {
 		if (!isFinished) {
 			int cumulativeTurnNum = 0;
 			if (turn == 0) {
@@ -418,10 +404,14 @@ public class SpatialPDGame implements Reporter {
 				worldDetailHistory.clear();
 				Snapshoot.clear();
 				noChangeTurn = 0;
+
 				worldDetailHistory.put(turn, world.getWorldDetail());
+
 				// globalCoopertationLevelHistory.put(turn,
 				// world.getGlobalCooperationLevel());
-				recordSnapshoot(turn);
+
+				recordSnapshoot();
+
 			}
 
 			int population = world.getPopulationNum();
@@ -438,17 +428,16 @@ public class SpatialPDGame implements Reporter {
 				} else {
 					noChangeTurn = 0;
 				}
-				if ((turn) % sampleInterval == 0) {
+				if (sampleCheck.isWorldDetailHistorySampleTurn(turn)) {
 					// globalCoopertationLevelHistory.put(turn,
 					// world.getGlobalCooperationLevel());
 					worldDetailHistory.put(turn, world.getWorldDetail());
 				}
-				if ((turn) % (sampleInterval * 20) == 0) {
+				if ((turn) % (2000) == 0) {
 					reporter.report("turn " + turn + " ......");
 				}
-				if (turn == Math.pow(10, Snapshoot.size())) {
-					recordSnapshoot(turn);
-
+				if (sampleCheck.isSnapshootSampleTurn(turn)) {
+					recordSnapshoot();
 				}
 				// System.out.println("合作率："+world.getCooperationRate());
 			}
