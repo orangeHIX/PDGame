@@ -224,9 +224,10 @@ public class World {
 					// 这样，即使有邻居迁移后，个体仍能找到本轮初始状态所有邻居
 					in.addNeighbour(neighbour);
 					neighbour.addNeighbour(in);
-
+					//System.out.println( "interact :"+(in.getW() + neighbour.getW()) / 2);
 					if (random.nextFloat() <= (in.getW() + neighbour.getW()) / 2) {
 						// 个体与邻居的两两博弈后，累计收益
+						//System.out.println("game : " +in+" and "+neighbour);
 						in.accumulatePayoff(gr.getPayOff(in.getStrategy(),
 								neighbour.getStrategy()));
 						neighbour.accumulatePayoff(gr.getPayOff(
@@ -418,6 +419,8 @@ public class World {
 		for (Individual e : IndividualList) {
 			ann += (getAllSeatAround(e.getSeat()).size() - getEmptySeatAround(
 					e.getSeat()).size());
+//			System.out.println("getAverageNeighbourNum "+getAllSeatAround(e.getSeat()).size() +","+ getEmptySeatAround(
+//					e.getSeat()).size());
 		}
 		return ann / IndividualList.size();
 	}

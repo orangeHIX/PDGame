@@ -1,45 +1,66 @@
 package graphic;
 
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
 import java.awt.Image;
+import java.awt.RenderingHints;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.SortedMap;
 
 import javax.imageio.ImageIO;
+import javax.swing.JFrame;
 
 import entity.Individual;
 import entity.World;
+import gui.Window;
 
 public class Painter {
+
+	/** 图片格式：JPG */
+	private static final String PICTRUE_FORMATE_JPG = "jpg";
 
 	public static final Color CColor = Color.YELLOW;
 	public static final Color MColor = Color.RED;
 	public static final Color DColor = Color.BLUE;
 
-	public static Color getGradient(Color cfrom, Color cto, float f) {
+	private static Color getGradient(Color cfrom, Color cto, float f) {
 		if (f >= 0 && f <= 1.0f) {
 			int r = (int) (cfrom.getRed() + (cto.getRed() - cfrom.getRed()) * f);
-			int g = (int) (cfrom.getGreen() + (cto.getGreen() - cfrom.getGreen()) * f);
-			int b = (int) (cfrom.getBlue() + (cto.getBlue() - cfrom.getBlue()) * f);
+			int g = (int) (cfrom.getGreen() + (cto.getGreen() - cfrom
+					.getGreen()) * f);
+			int b = (int) (cfrom.getBlue() + (cto.getBlue() - cfrom.getBlue())
+					* f);
 			return new Color(r, g, b);
 		} else {
 			return null;
 		}
 	}
 
-	public static Color getGradient(Color cfrom,  Color cmid, Color cto, float f) {
-		if(f >= 0 && f < .5f){
-			return getGradient(cfrom, cmid, f*2);
-		}else if( f <= 1.0f){
-			return getGradient(cmid, cto, (f - 0.5f) *2);
-		}else{
+	private static Color getGradient(Color cfrom, Color cmid, Color cto, float f) {
+		if (f >= 0 && f < .5f) {
+			return getGradient(cfrom, cmid, f * 2);
+		} else if (f <= 1.0f) {
+			return getGradient(cmid, cto, (f - 0.5f) * 2);
+		} else {
 			return null;
 		}
 	}
-	
-	public static Image getImage(int width, int height, World world) {
+
+	public static Image getPDGameImage(int width, int height, World world) {
 
 		BufferedImage bi = new BufferedImage(width, height,
 				BufferedImage.TYPE_INT_RGB);
@@ -58,7 +79,8 @@ public class Painter {
 		for (int i = 0; i < L; i++) {
 			for (int j = 0; j < L; j++) {
 				if ((in = world.getIndividual(i, j)) != null) {
-					g2.setColor(getGradient(DColor, MColor,CColor, in.getStrategy()));
+					g2.setColor(getGradient(DColor, MColor, CColor,
+							in.getStrategy()));
 				} else {
 					g2.setColor(new Color(0, 0, 0));
 				}
@@ -66,10 +88,214 @@ public class Painter {
 						heiPerCell);
 			}
 		}
+		g2.dispose();
 		return bi;
 	}
 
+	public static Image composing(ArrayList<NamedImage> images, int column,  int imageWidth,
+			int imageHeight, int marginLengthX, int marginLengthY, int spacingLengthX,  int spacingLengthY) {
+		int legendSpace = marginLengthX*3;
+		int width = column * (imageWidth + spacingLengthX) + 2 * marginLengthX
+				- spacingLengthX  + legendSpace;
+		int row = (int) Math.ceil(images.size() / (double) column);
+		int height = row * (imageHeight + spacingLengthY) + 2 * marginLengthY
+				- spacingLengthY;
+
+		BufferedImage bi = new BufferedImage(width , height,
+				BufferedImage.TYPE_INT_ARGB);
+
+		Graphics2D g2 = bi.createGraphics();
+		//g2.setBackground(new Color(0,0,0,0));
+		g2.setBackground(Color.GRAY);
+		g2.clearRect(0, 0, width, height);
+
+		g2.setColor(Color.RED);
+		g2.setFont(new Font("宋体", Font.BOLD, 20));
+		
+		sortImageList(images);
+		
+		int k = 0;
+		int drawX, drawY;
+		for (int i = 0; i < row; i++) {
+			drawY = spacingLengthY * i + marginLengthY
+					+ imageHeight * i;
+			g2.drawLine(0, drawY,
+					width, drawY);
+			for (int j = 0; j < column; j++) {
+				drawX = spacingLengthX * j + marginLengthX
+						+ imageWidth * j;
+				if (i == 0) {
+					g2.drawLine(drawX, 0, drawX, height);
+				}
+				g2.drawImage(images.get(k).image, drawX, drawY, imageWidth, imageHeight, null);
+				g2.drawString(""+images.get(k).getID(), drawX, drawY );
+				// g2.fillRect(spacingLength * (j + 1) + imageWidth * j,
+				// spacingLength * (i + 1) + imageHeight * i, imageWidth,
+				// imageHeight);
+				k++;
+				if (k >= images.size()) {
+					break;
+				}
+			}
+		}
+		Image legend = getLegend(100);
+		g2.drawImage(legend, width - legendSpace -spacingLengthX, marginLengthY, legendSpace, legendSpace*5, null);
+		
+		g2.dispose();
+
+		return bi;
+	}
+	
+	private static Image getLegend(int width){
+		int height = width*10;
+		int leftMargin = width;
+		
+		BufferedImage bi = new BufferedImage(width+leftMargin, height,
+				BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2 = bi.createGraphics();
+		
+		g2.setBackground(new Color(0,0,0,0));
+		//g2.setBackground(Color.GRAY);
+		g2.clearRect(0, 0, width, height);
+		
+		
+		for( int i = 0; i < height; i++){
+			g2.setColor(getGradient(CColor,MColor, DColor, i/(float)height));
+			g2.fillRect(0, i, width, 1);
+		}
+		
+		g2.setColor(Color.BLACK);
+		int fontSize = (int) (leftMargin/1.6);
+		g2.setFont(new  Font("新宋", Font.PLAIN, fontSize));
+		g2.drawRect(0, 0, width-1, height-1);
+		float[] scale = {0,0.2f, 0.4f, 0.6f, 0.8f,1.0f};
+		float scaleDepth = 0.3f;
+		int lineBold = height/200;
+		DecimalFormat df = new DecimalFormat("0.0");
+		for(float sc : scale){
+			g2.fillRect(0, (int)(sc*height), (int)(width*scaleDepth), lineBold);
+			g2.fillRect((int)(width*(1-scaleDepth)), (int)(sc*height), (int)(width*scaleDepth), lineBold);
+			g2.drawString(""+df.format(1-sc), width, (int)(sc*(height-fontSize))+fontSize);
+		}
+		g2.dispose();
+		return bi;
+	}
+
+	private static BufferedImage rotateImage(final BufferedImage bufferedimage,
+            final int degree) {
+        int w = bufferedimage.getWidth();
+        int h = bufferedimage.getHeight();
+        int type = bufferedimage.getColorModel().getTransparency();
+        BufferedImage img;
+        Graphics2D graphics2d;
+        (graphics2d = (img = new BufferedImage(w, h, type))
+                .createGraphics()).setRenderingHint(
+                RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        graphics2d.rotate(Math.toRadians(degree), w / 2, h / 2);
+        graphics2d.drawImage(bufferedimage, 0, 0, null);
+        graphics2d.dispose();
+        return img;
+    }
+	private static ArrayList<NamedImage> sortImageList(ArrayList<NamedImage> images){
+		images.sort(new Comparator<NamedImage>() {
+
+			@Override
+			public int compare(NamedImage o1, NamedImage o2) {
+				// TODO Auto-generated method stub
+				return o1.getID() - o2.getID();
+			}
+		});
+		return images;
+	}
+	
+
+	static class NamedImage
+	{
+		String name;
+		Image image;
+		public NamedImage(String name, Image image) {
+			super();
+			this.name = name;
+			this.image = image;
+		}
+		public int getID(){
+			return Integer.parseInt(name.substring(name.indexOf("_") +1, name.indexOf(".jpg")));
+		}
+		
+	}
+	
+	private static ArrayList<NamedImage> readImages(String path) {
+
+		File f = new File(path);
+		BufferedImage bi = null;
+		ArrayList<NamedImage> imageList =new ArrayList<>();
+
+		if (f != null && f.isDirectory()) {
+			File[] fs = f.listFiles(new FilenameFilter() {
+				
+				@Override
+				public boolean accept(File dir, String name) {
+					// TODO Auto-generated method stub
+					if(name.startsWith("turn_") && name.endsWith(".jpg")){
+						return true;
+					}
+					return false;
+				}
+			});
+
+			try {
+				for (File imagef : fs) {
+						bi = ImageIO.read(imagef);
+						if (bi != null) {
+							imageList.add(new NamedImage(imagef.getName(), bi));
+						}
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return imageList;
+	}
+
+	public static void printPicture() {
+		BufferedImage bi = null;
+		final ArrayList<NamedImage> imageList = readImages("C:\\Users\\hyx\\Desktop\\补充微观数据\\shuju\\"
+				+ "max_payoff_learning_$_optimistic_migrate_$_continuous_strategy_$_pi=0.50_$_qi=0.00\\"
+				+ "gr=(1.00,-0.10,1.90,0.00)_$_d0=0.50");
+
+		// 创建frame
+		JFrame frame = new JFrame() {
+			public static final int MarginWith = 40;
+
+			@Override
+			public void paint(Graphics g) {
+				g.clearRect(0, 0, this.getWidth(), this.getHeight());
+				g.drawImage(composing(imageList, 6, 120, 120, 20, 20, 10, 20),
+						MarginWith, MarginWith, null);
+			}
+		};
+		// 调整frame的大小和初始位置
+		frame.setSize(1000, 880);
+		frame.setLocation(100, 100);
+		// 增加窗口监听事件，使用内部类方法，并用监听器的默认适配器
+		frame.addWindowListener(new WindowAdapter() {
+
+			// 重写窗口关闭事件
+			@Override
+			public void windowClosing(WindowEvent arg0) {
+				System.exit(0);
+			}
+
+		});
+		frame.setTitle("test");
+		// 显示窗体
+		frame.setVisible(true);
+	}
+
 	public static void main(String[] args) {
+		printPicture();
 		// int width = 100;
 		// int height = 100;
 		// String s = "你好";
@@ -104,4 +330,5 @@ public class Painter {
 		// }
 
 	}
+
 }

@@ -95,13 +95,14 @@ public class SpatialPDGame implements Reporter {
 	}
 
 	public static void main(String args[]) {
-		// SpatialPDGame spdg = new SpatialPDGame(false);
-		// spdg.initSpatialPDGame(100, .5f, 1.0f, 0.2f, 0.2f,
-		// LearningPattern.MAXPAYOFF,
-		// MigrationPattern.OPTIMISTIC, StrategyPattern.CONTINUOUS);
-		// spdg.run(10);
-		// System.out.println(spdg.getDetailReport());
-		// spdg.printPicture();
+//		 SpatialPDGame spdg = new SpatialPDGame(false);
+//		 spdg.initSpatialPDGame(10, 1.0f, 0.1f, 0.1f, 1.0f, 0, 1.0f,
+//					LearningPattern.FERMI, MigrationPattern.NONE, StrategyPattern.TWO,
+//					NeighbourCoverage.Von);
+//			spdg.run(1);
+//			spdg.finalize();
+//		 System.out.println(spdg.getDetailReport());
+//		 spdg.printPicture();
 
 		// for (int i = 0; i < 3; i++) {
 		// for (int j = 0; j < 4; j++) {
@@ -232,15 +233,14 @@ public class SpatialPDGame implements Reporter {
 			String outputFilePath) {
 		int L = LENGTH;
 		float qi = 0.0f;
-		;
-		float pi = 0.5f;
+		float pi = 1.0f;
 		float w = 0.0f;
 		float d0 = 1.0f;
 		float Dr, Dg;
 
-		SpatialPDGame spdg = new SpatialPDGame(false);
+		SpatialPDGame spdg = new SpatialPDGame(true);
 		float stepLength = STEP_LENGTH;
-		float stepLength2 = 0.1f;
+		//float stepLength2 = 0.1f;
 		int L1, L2;
 		L1 = (int) Math.round(1 / stepLength) + 1;
 		L2 = (int) Math.round(1 / stepLength) + 1;
@@ -250,28 +250,32 @@ public class SpatialPDGame implements Reporter {
 		}
 
 		int i, j;
-		for (w = .0f; w <= 1.0001f; w += stepLength2) {
+		for (w = .0f; w <= 1.0001f; w += stepLength) {
 			for (i = 0, Dr = 0; Dr <= 1.0001f; Dr += stepLength, i++) {
 				for (j = 0, Dg = 0; Dg <= 1.0001f; Dg += stepLength, j++) {
-					spdg.initSpatialPDGame(L, d0, Dr, Dg, pi, qi, 1.0f,
+					spdg.initSpatialPDGame(L, d0, Dr, Dg, pi, qi, w,
 							learningPattern, imigratePattern, strategyPattern,
 							neighbourCoverage);
 					spdg.run(maxTurn);
 					spdg.finalize();
-					// spdg.printPicture();
+					
 					FileUtils.outputTofile(
 							spdg.constructFileName(outputFilePath),
 							spdg.getDetailReport());
+					FileUtils.outputSnapshootToFile(
+							spdg.constructImageFilePath(outputFilePath),
+							spdg.getSnapshootMap());
 
 					cl[i][j] = spdg.getCooperationLevel();
 					System.out.println("" + learningPattern + ","
 							+ imigratePattern + "," + strategyPattern + ", Dr="
-							+ Dr + ", Dg=" + Dg + ", d0= " + d0 + " completed");
+							+ Dr + ", Dg=" + Dg + ", w= " + w + " completed");
 				}
 			}
 			FileUtils.outputTofile(spdg.constructFilePath(outputFilePath)
 					+ "\\CoopertationLevel.txt",
 					getCoopertationLevelsReport(cl, "Dg", "Dr", L1, L2));
+			
 		}
 	}
 
@@ -337,7 +341,7 @@ public class SpatialPDGame implements Reporter {
 
 	// float averageNeighbourNum = 0;
 	private Image getCurrentPicture() {
-		return Painter.getImage(400, 400, world);
+		return Painter.getPDGameImage(400, 400, world);
 	}
 
 	public String getDetailReport() {
@@ -413,12 +417,15 @@ public class SpatialPDGame implements Reporter {
 		this.d0 = d0;
 		this.pi = pi;
 		this.qi = qi;
+		this.w = w;
 		this.learningPattern = learningPattern;
 		this.migrationPattern = imigratePattern;
 		this.strategyPattern = strategyPattern;
 		turn = 0;
 		noChangeTurn = 0;
 		isFinished = false;
+		Snapshoot.clear();
+		worldDetailHistory.clear();
 	}
 
 	public void initSpatialPDGame(int L, float d0, float Dr, float Dg,
@@ -549,19 +556,19 @@ public class SpatialPDGame implements Reporter {
 		DecimalFormat df = new DecimalFormat("0.00");
 		return base + "\\" + learningPattern + "_$_" + migrationPattern + "_$_"
 				+ strategyPattern + "_$_pi=" + df.format(pi) + "_$_qi="
-				+ df.format(qi);
+				+ df.format(qi)+"_$_w="+df.format(w);
 	}
 
 	public String constructFileName(String base) {
 		DecimalFormat df = new DecimalFormat("0.00");
 		return constructFilePath(base) + "\\" + "gr=(" + df.format(gr.getR())
 				+ "," + df.format(gr.getS()) + "," + df.format(gr.getT()) + ","
-				+ df.format(gr.getP()) + ")" + "_$_d0=" + df.format(d0) +"_$_w="+df.format(w)
+				+ df.format(gr.getP()) + ")" + "_$_d0=" + df.format(d0) 
 				+ ".txt";
 	}
 
 	public String constructImageFilePath(String base) {
-		return constructFilePath(base).replace(".txt", "");
+		return constructFileName(base).replace(".txt", "");
 	}
 
 	@Override

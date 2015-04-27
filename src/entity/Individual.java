@@ -15,7 +15,7 @@ public class Individual {
 	/**
 	 * 交互强度变量最小值/
 	 */
-	public static final float MIN_W = 0.1f;
+	public static final float MIN_W = 0f;
 	
 	/** 个体采取的策略，取值[0.0,1.0]，0.0表示背叛(D)，1.0表示合作(C)，中间值表示中间策略 */
 	private float strategy;
@@ -51,7 +51,7 @@ public class Individual {
 		prePayoff = 0;
 		seat = null;
 		neighbours = new ArrayList<>(maxNeighbourNum);
-		w = 1.0f;
+		this.w = w;
 	}
 
 	public Seat getSeat() {
@@ -137,8 +137,8 @@ public class Individual {
 								.getAccumulatedPayoff()) / noise));
 				if (random.nextDouble() <= imitatePosibility) {
 					nextStrategy = neighbour.getStrategy();
-					// System.out.println(""+this+" learn from \n\t"+neighbour+" with "
-					// +imitatePosibility);
+//					 System.out.println(""+this+" learn from \n\t"+neighbour+" with "
+//					 +imitatePosibility);
 				}
 				break;
 			default:
@@ -278,7 +278,7 @@ public class Individual {
 	@Override
 	public String toString() {
 		return "Individual [s=" + strategy + ", ns=" + nextStrategy
-				+ ", payoff=" + accumulatedPayoff + ",(" + seat.seat_i + ","
+				+ ", payoff=" + accumulatedPayoff + ", w="+w+",(" + seat.seat_i + ","
 				+ seat.seat_j + ") ] ";
 	}
 

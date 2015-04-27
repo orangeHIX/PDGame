@@ -28,7 +28,7 @@ public class Window extends JFrame {
 	/**绘图，红色方块代表合作者，蓝色背叛者，紫色采取居中策略的人，黑色空位*/
 	public void paint(Graphics g) {
 		super.paint(g);
-		g.drawImage(Painter.getImage(getWidth()-MarginWith*2, getHeight()-MarginWith*2, world), MarginWith, MarginWith, null);
+		g.drawImage(Painter.getPDGameImage(getWidth()-MarginWith*2, getHeight()-MarginWith*2, world), MarginWith, MarginWith, null);
 //		//setSize(500, 500
 //		int width, height;
 //		int widPerCell, heiPerCell;
