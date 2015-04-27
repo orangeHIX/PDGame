@@ -24,6 +24,7 @@ import utils.FileUtils;
 import utils.Reporter;
 import entity.LearningPattern;
 import entity.MigrationPattern;
+import entity.NeighbourCoverage;
 import entity.StrategyPattern;
 import entity.World;
 import entity.WorldDetail;
@@ -113,12 +114,58 @@ public class SpatialPDGame implements Reporter {
 		// }
 		// float qi = 0;
 		long start = System.currentTimeMillis();
-		runOneTest3(LearningPattern.MAXPAYOFF, MigrationPattern.OPTIMISTIC,
-				StrategyPattern.CONTINUOUS, MAX_TURN_NUM,
-				"D:\\Users\\Jeff\\Desktop\\shuju2");
+		runOneTest4(LearningPattern.FERMI, MigrationPattern.NONE,
+				StrategyPattern.TWO, NeighbourCoverage.Von, MAX_TURN_NUM,
+				"F:\\交互强度任务\\data1");
 		long end = System.currentTimeMillis();
 		System.out.println("underwent: " + (end - start) + "ms");
 		// }
+	}
+
+	public static void runOneTest2(LearningPattern learningPattern,
+			MigrationPattern imigratePattern, StrategyPattern strategyPattern,
+			int maxTurn, String outputFilePath) {
+		int L = LENGTH;
+		float qi;
+		float pi = 0.5f;
+		float d0 = 0.2f;
+		float Dr, Dg;
+
+		SpatialPDGame spdg = new SpatialPDGame(false);
+		float stepLength = STEP_LENGTH;
+		float stepLength2 = 0.1f;
+		int L1, L2;
+		L1 = (int) Math.round(1 / stepLength) + 1;
+		L2 = (int) Math.round(1 / stepLength) + 1;
+		double[][] cl = new double[L1][];
+		for (int i = 0; i < L1; i++) {
+			cl[i] = new double[L2];
+		}
+
+		int i, j;
+		for (qi = 1.0f; qi <= 1.0001f; qi += stepLength2) {
+			for (i = 0, Dr = 0; Dr <= 1.0001f; Dr += stepLength, i++) {
+				for (j = 0, Dg = 0; Dg <= 1.0001f; Dg += stepLength, j++) {
+					spdg.initSpatialPDGame(L, d0, Dr, Dg, pi, qi, 1.0f,
+							learningPattern, imigratePattern, strategyPattern,
+							NeighbourCoverage.Classic);
+					spdg.run(maxTurn);
+					spdg.finalize();
+					// spdg.printPicture();
+					FileUtils.outputTofile(
+							spdg.constructFileName(outputFilePath),
+							spdg.getDetailReport());
+
+					cl[i][j] = spdg.getCooperationLevel();
+					System.out.println("" + learningPattern + ","
+							+ imigratePattern + "," + strategyPattern + ", Dr="
+							+ Dr + ", Dg=" + Dg + ", d0= " + d0 + " completed");
+				}
+			}
+			FileUtils.outputTofile(spdg.constructFilePath(outputFilePath)
+					+ "\\CoopertationLevel.txt",
+					getCoopertationLevelsReport(cl, "Dg", "Dr", L1, L2));
+		}
 	}
 
 	public static void runOneTest3(LearningPattern learningPattern,
@@ -135,8 +182,9 @@ public class SpatialPDGame implements Reporter {
 		float Dg = 0.9f;
 		for (float qi : qis) {
 
-			spdg.initSpatialPDGame(L, d0, Dr, Dg, pi, qi, learningPattern,
-					imigratePattern, strategyPattern);
+			spdg.initSpatialPDGame(L, d0, Dr, Dg, pi, qi, 1.0f,
+					learningPattern, imigratePattern, strategyPattern,
+					NeighbourCoverage.Classic);
 			spdg.run(maxTurn, new SampleCheck() {
 				int[] specialTurns = { 1, 2, 3, 4, 5, 6, 20, 50 };
 
@@ -167,17 +215,64 @@ public class SpatialPDGame implements Reporter {
 			});
 			spdg.finalize();
 			// spdg.printPicture();
-			FileUtils.outputTofile(FileUtils.constructFileName(outputFilePath,
-					learningPattern, imigratePattern, strategyPattern, pi, qi,
-					spdg.gr, d0), spdg.getDetailReport());
-			FileUtils.outputSnapshootToFile(FileUtils.constructImageFilePath(
-					outputFilePath, learningPattern, imigratePattern,
-					strategyPattern, pi, qi, spdg.gr, d0), spdg
-					.getSnapshootMap());
+			FileUtils.outputTofile(spdg.constructFileName(outputFilePath),
+					spdg.getDetailReport());
+			FileUtils.outputSnapshootToFile(
+					spdg.constructImageFilePath(outputFilePath),
+					spdg.getSnapshootMap());
 
 		}
 		// System.out.println("" + learningPattern + "," + imigratePattern + ","
 		// + strategyPattern + " gr=" + r + ", d0= " + d0 + " completed");
+	}
+
+	public static void runOneTest4(LearningPattern learningPattern,
+			MigrationPattern imigratePattern, StrategyPattern strategyPattern,
+			NeighbourCoverage neighbourCoverage, int maxTurn,
+			String outputFilePath) {
+		int L = LENGTH;
+		float qi = 0.0f;
+		;
+		float pi = 0.5f;
+		float w = 0.0f;
+		float d0 = 1.0f;
+		float Dr, Dg;
+
+		SpatialPDGame spdg = new SpatialPDGame(false);
+		float stepLength = STEP_LENGTH;
+		float stepLength2 = 0.1f;
+		int L1, L2;
+		L1 = (int) Math.round(1 / stepLength) + 1;
+		L2 = (int) Math.round(1 / stepLength) + 1;
+		double[][] cl = new double[L1][];
+		for (int i = 0; i < L1; i++) {
+			cl[i] = new double[L2];
+		}
+
+		int i, j;
+		for (w = .0f; w <= 1.0001f; w += stepLength2) {
+			for (i = 0, Dr = 0; Dr <= 1.0001f; Dr += stepLength, i++) {
+				for (j = 0, Dg = 0; Dg <= 1.0001f; Dg += stepLength, j++) {
+					spdg.initSpatialPDGame(L, d0, Dr, Dg, pi, qi, 1.0f,
+							learningPattern, imigratePattern, strategyPattern,
+							neighbourCoverage);
+					spdg.run(maxTurn);
+					spdg.finalize();
+					// spdg.printPicture();
+					FileUtils.outputTofile(
+							spdg.constructFileName(outputFilePath),
+							spdg.getDetailReport());
+
+					cl[i][j] = spdg.getCooperationLevel();
+					System.out.println("" + learningPattern + ","
+							+ imigratePattern + "," + strategyPattern + ", Dr="
+							+ Dr + ", Dg=" + Dg + ", d0= " + d0 + " completed");
+				}
+			}
+			FileUtils.outputTofile(spdg.constructFilePath(outputFilePath)
+					+ "\\CoopertationLevel.txt",
+					getCoopertationLevelsReport(cl, "Dg", "Dr", L1, L2));
+		}
 	}
 
 	private World world;
@@ -186,7 +281,7 @@ public class SpatialPDGame implements Reporter {
 
 	private LearningPattern learningPattern;
 
-	private MigrationPattern imigrationPattern;
+	private MigrationPattern migrationPattern;
 	private StrategyPattern strategyPattern;
 
 	private float d0;
@@ -194,6 +289,7 @@ public class SpatialPDGame implements Reporter {
 	private float pi;
 
 	private float qi;
+	private float w;
 
 	private int turn;
 
@@ -302,22 +398,23 @@ public class SpatialPDGame implements Reporter {
 	 * @param learningPattern
 	 *            学习模式，可以是学习最优邻居World.LEARNING_PATTERN_MAXPAYOFF,
 	 *            也可以是fermi学习模式World.LEARNING_PATTERN_FERMI
-	 * @param imigrationPattern
+	 * @param migrationPattern
 	 *            迁徙模式 ，可以是无迁徙World.IMIGRATE_PATTERN_NONE、随机迁徙World.
 	 *            IMIGRATE_PATTERN_RANDOM、机会迁徙World.IMIGRATE_PATTERN_OPTIMISTIC
 	 * 
 	 */
 	public void initSpatialPDGame(int L, float d0, float R, float S, float T,
-			float P, float pi, float qi, LearningPattern learningPattern,
-			MigrationPattern imigratePattern, StrategyPattern strategyPattern) {
+			float P, float pi, float qi, float w,
+			LearningPattern learningPattern, MigrationPattern imigratePattern,
+			StrategyPattern strategyPattern, NeighbourCoverage neighbourCoverage) {
 
-		world.init_world(L, d0, strategyPattern, 1);
+		world.init_world(L, d0, w, strategyPattern, neighbourCoverage);
 		gr = new GamblingRule(R, S, T, P);
 		this.d0 = d0;
 		this.pi = pi;
 		this.qi = qi;
 		this.learningPattern = learningPattern;
-		this.imigrationPattern = imigratePattern;
+		this.migrationPattern = imigratePattern;
 		this.strategyPattern = strategyPattern;
 		turn = 0;
 		noChangeTurn = 0;
@@ -325,20 +422,22 @@ public class SpatialPDGame implements Reporter {
 	}
 
 	public void initSpatialPDGame(int L, float d0, float Dr, float Dg,
-			float pi, float qi, LearningPattern learningPattern,
-			MigrationPattern imigratePattern, StrategyPattern strategyPattern) {
+			float pi, float qi, float w, LearningPattern learningPattern,
+			MigrationPattern imigratePattern, StrategyPattern strategyPattern,
+			NeighbourCoverage neighbourCoverage) {
 
-		initSpatialPDGame(L, d0, 1, -Dr, 1 + Dg, 0, pi, qi, learningPattern,
-				imigratePattern, strategyPattern);
+		initSpatialPDGame(L, d0, 1, -Dr, 1 + Dg, 0, pi, qi, w, learningPattern,
+				imigratePattern, strategyPattern, neighbourCoverage);
 
 	}
 
 	public void initSpatialPDGame(int L, float d0, float r, float pi, float qi,
-			LearningPattern learningPattern, MigrationPattern imigratePattern,
-			StrategyPattern strategyPattern) {
+			float w, LearningPattern learningPattern,
+			MigrationPattern imigratePattern, StrategyPattern strategyPattern,
+			NeighbourCoverage neighbourCoverage) {
 
-		initSpatialPDGame(L, d0, r, r, pi, qi, learningPattern,
-				imigratePattern, strategyPattern);
+		initSpatialPDGame(L, d0, r, r, pi, qi, w, learningPattern,
+				imigratePattern, strategyPattern, neighbourCoverage);
 
 	}
 
@@ -407,9 +506,6 @@ public class SpatialPDGame implements Reporter {
 
 				worldDetailHistory.put(turn, world.getWorldDetail());
 
-				// globalCoopertationLevelHistory.put(turn,
-				// world.getGlobalCooperationLevel());
-
 				recordSnapshoot();
 
 			}
@@ -420,7 +516,7 @@ public class SpatialPDGame implements Reporter {
 				turn++;
 				cumulativeTurnNum++;
 				world.gambling(gr);
-				if (world.evolute(pi, qi, learningPattern, imigrationPattern) < 2 / (float) population) {
+				if (world.evolute(pi, qi, learningPattern, migrationPattern) < 2 / (float) population) {
 					noChangeTurn++;
 					if (noChangeTurn >= 100) {
 						break;
@@ -449,12 +545,31 @@ public class SpatialPDGame implements Reporter {
 		return turn;
 	}
 
+	public String constructFilePath(String base) {
+		DecimalFormat df = new DecimalFormat("0.00");
+		return base + "\\" + learningPattern + "_$_" + migrationPattern + "_$_"
+				+ strategyPattern + "_$_pi=" + df.format(pi) + "_$_qi="
+				+ df.format(qi);
+	}
+
+	public String constructFileName(String base) {
+		DecimalFormat df = new DecimalFormat("0.00");
+		return constructFilePath(base) + "\\" + "gr=(" + df.format(gr.getR())
+				+ "," + df.format(gr.getS()) + "," + df.format(gr.getT()) + ","
+				+ df.format(gr.getP()) + ")" + "_$_d0=" + df.format(d0) +"_$_w="+df.format(w)
+				+ ".txt";
+	}
+
+	public String constructImageFilePath(String base) {
+		return constructFilePath(base).replace(".txt", "");
+	}
+
 	@Override
 	public String toString() {
-		DecimalFormat df = new DecimalFormat("0.000");
+		DecimalFormat df = new DecimalFormat("0.00");
 		return "[L=" + world.getLength() + ", d0=" + df.format(d0) + ", " + gr
 				+ ", learningPattern=" + learningPattern + ", imigratePattern="
-				+ imigrationPattern + ", strategyPattern=" + strategyPattern
+				+ migrationPattern + ", strategyPattern=" + strategyPattern
 				+ ", pi=" + pi + ", qi=" + qi + "]";
 	}
 

@@ -67,42 +67,7 @@ public class FileUtils {
 		return f;
 	}
 
-	public static String constructFileName(String base,
-			LearningPattern learningPattern, MigrationPattern imigratePattern,
-			StrategyPattern strategyPattern, float pi, float qi,
-			GamblingRule gr, float d0) {
-		DecimalFormat df = new DecimalFormat("0.00");
-		return constructFilePath(base, learningPattern, imigratePattern,
-				strategyPattern, pi, qi)
-				+ "\\"
-				+ "gr=("
-				+ df.format(gr.getR())
-				+ ","
-				+ df.format(gr.getS())
-				+ ","
-				+ df.format(gr.getT())
-				+ ","
-				+ df.format(gr.getP())
-				+ ")"
-				+ "_$_d0="
-				+ df.format(d0)
-				+ ".txt";
-	}
 
-	public static String constructFilePath(String base,
-			LearningPattern learningPattern, MigrationPattern imigratePattern,
-			StrategyPattern strategyPattern, float pi, float qi) {
-		DecimalFormat df = new DecimalFormat("0.00");
-		return base + "\\" + learningPattern + "_$_" + imigratePattern + "_$_"
-				+ strategyPattern + "_$_pi=" + df.format(pi) + "_$_qi="
-				+ df.format(qi);
-	}
 
-	public static String constructImageFilePath(String base,
-			LearningPattern learningPattern, MigrationPattern imigratePattern,
-			StrategyPattern strategyPattern, float pi, float qi,
-			GamblingRule gr, float d0) {
-		return constructFileName(base, learningPattern, imigratePattern,
-				strategyPattern, pi, qi, gr, d0).replace(".txt", "");
-	}
+	
 }

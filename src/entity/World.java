@@ -7,21 +7,22 @@ import java.util.Random;
 
 import rule.GamblingRule;
 import test.SpatialPDGame;
+import utils.Vector;
 
 /** 二维网格，包含L*L个空位，和若干个体 */
 public class World {
-//	public static final int LEARNING_PATTERN_MAXPAYOFF = 0;
-//	public static final int LEARNING_PATTERN_FERMI = 1;
-//
-//	public static final int IMIGRATION_PATTERN_NONE = 0;
-//	public static final int IMIGRATION_PATTERN_RANDOM = 1;
-//	public static final int IMIGRATION_PATTERN_OPTIMISTIC = 2;
-//	public static final int IMIGRATION_PATTERN_ESCAPE = 3;
-//
-//	public static final int STRATEGY_PATTERN_TWO = 0;
-//	public static final int STRATEGY_PATTERN_THREE = 1;
-//	public static final int STRATEGY_PATTERN_FIVE = 2;
-//	public static final int STRATEGY_PATTERN_CONTINUOUS = 3;
+	// public static final int LEARNING_PATTERN_MAXPAYOFF = 0;
+	// public static final int LEARNING_PATTERN_FERMI = 1;
+	//
+	// public static final int IMIGRATION_PATTERN_NONE = 0;
+	// public static final int IMIGRATION_PATTERN_RANDOM = 1;
+	// public static final int IMIGRATION_PATTERN_OPTIMISTIC = 2;
+	// public static final int IMIGRATION_PATTERN_ESCAPE = 3;
+	//
+	// public static final int STRATEGY_PATTERN_TWO = 0;
+	// public static final int STRATEGY_PATTERN_THREE = 1;
+	// public static final int STRATEGY_PATTERN_FIVE = 2;
+	// public static final int STRATEGY_PATTERN_CONTINUOUS = 3;
 
 	/** 记录所有个体的表 */
 	private ArrayList<Individual> IndividualList;
@@ -31,10 +32,12 @@ public class World {
 	private int L;
 	/** 二维网格中个体的密度 */
 	private float d0;
-	/**
-	 * 规定每个个体周围距离多远的个体算是直接邻居，例如： 个体周围距离为1的设为直接邻居，最大邻居数为8
-	 */
-	private int neighbourRange;
+	// /**
+	// * 规定每个个体周围距离多远的个体算是直接邻居，例如： 个体周围距离为1的设为直接邻居，最大邻居数为8
+	// */
+	// private int neighbourRange;
+
+	private NeighbourCoverage neighbourCoverage;
 	/** 记录个体所能采用的策略的代表数值 */
 	private float[] strategySample;
 
@@ -87,8 +90,8 @@ public class World {
 	 * @param neighbourRange
 	 *            每个个体周围直接邻居的最大距离
 	 */
-	public void init_world(int length, float density, StrategyPattern strategyPattern,
-			int neighbourRange) {
+	public void init_world(int length, float density, float w,
+			StrategyPattern strategyPattern, NeighbourCoverage neighbourCoverage) {
 		if (length > 0 && density >= 0
 				&& (density < 1.0 || density - 1.0f < 1.0e-5)) {
 			L = length;
@@ -99,10 +102,11 @@ public class World {
 					grid[i][j] = new Seat(i, j);
 				}
 			}
-			this.neighbourRange = neighbourRange;
+			// this.neighbourRange = neighbourRange;
+			this.neighbourCoverage = neighbourCoverage;
 			IndividualList = new ArrayList<>();
 			// 给每个个体随机分配初始策略
-			initIndividualStrategy(strategyPattern);
+			initIndividuals(strategyPattern,w);
 
 			// 给每个个体随机分配网格中的位置
 			randomAllocateSeat();
@@ -110,7 +114,7 @@ public class World {
 
 	}
 
-	private void initIndividualStrategy(StrategyPattern strategyPattern) {
+	private void initIndividuals(StrategyPattern strategyPattern, float w) {
 
 		int num = (int) (d0 * L * L); // 个体总数目
 		// System.out.println("initIndividualStrategy"+num);
@@ -118,16 +122,14 @@ public class World {
 
 		strategySample = new float[strategyNum];
 
-		// 每个个体最大邻居数目为=(2*M+1)*(2*M+1)-1,M为规定的直接邻居的最远距离
-		int maxNeighbourNum = (2 * neighbourRange + 1)
-				* (2 * neighbourRange + 1) - 1;
+		int maxNeighbourNum = neighbourCoverage.getCoverageVector().size();
 		// 依次向个体表中添加初始个体
 		int count = 0;
 		for (int i = 0; i < strategyNum; i++) {
 			strategySample[i] = 0 + i / (float) (strategyNum - 1);
 			for (int j = 0; j < num / strategyNum; j++) {
 				this.IndividualList.add(new Individual(strategySample[i],
-						maxNeighbourNum));
+						maxNeighbourNum,w));
 				count++;
 			}
 		}
@@ -135,7 +137,7 @@ public class World {
 		if (count < num) {
 			for (int i = 0; i < strategyNum; i++) {
 				this.IndividualList.add(new Individual(strategySample[i],
-						maxNeighbourNum));
+						maxNeighbourNum,w));
 				count++;
 				if (count >= num) {
 					break;
@@ -205,29 +207,38 @@ public class World {
 
 		Individual neighbour;
 		ArrayList<Seat> seatAround;
-		for (Individual in : IndividualList) {
 
+		for (Individual in : IndividualList) {
 			in.resetAccumulatedPayoff();
 			in.clearAllNeighbour();
+		}
 
-			seatAround = getAllSeatAround(in.getSeat());// 得到个体周围的所有座位
+		for (Individual in : IndividualList) {
+
+			seatAround = getOccupiedSeatAround(in.getSeat());// 得到个体周围的所有被占据座位
 
 			for (Seat s : seatAround) {
 				neighbour = s.getOwner();
-				if (neighbour != null) {
+				if (!in.hasNeighbour(neighbour)) {
 					// 将个体周围的所有邻居（如果有的话）添加到个体自己保留的邻居表中。
 					// 这样，即使有邻居迁移后，个体仍能找到本轮初始状态所有邻居
 					in.addNeighbour(neighbour);
-					// 个体与邻居的两两博弈后，累计收益
-					in.accumulatePayoff(gr.getPayOff(in.getStrategy(),
-							neighbour.getStrategy()));
+					neighbour.addNeighbour(in);
+
+					if (random.nextFloat() <= (in.getW() + neighbour.getW()) / 2) {
+						// 个体与邻居的两两博弈后，累计收益
+						in.accumulatePayoff(gr.getPayOff(in.getStrategy(),
+								neighbour.getStrategy()));
+						neighbour.accumulatePayoff(gr.getPayOff(
+								neighbour.getStrategy(), in.getStrategy()));
+					}
 				}
 			}
 		}
 	}
 
 	/**
-	 * 演化：以pi的概率学习邻居的策略，以qi的概率迁徙
+	 * 演化：以pi的概率学习邻居的策略，以qi的概率迁徙，同时更新个体的交互强度
 	 * 
 	 * @param pi
 	 *            学习邻居策略的概率
@@ -260,6 +271,10 @@ public class World {
 				change++;
 			}
 		}
+		for (Individual in : IndividualList) {
+			// 个体更新交互强度
+			in.updateInteractionIntensity(0, 0);
+		}
 		return change / (float) IndividualList.size();
 	}
 
@@ -272,7 +287,7 @@ public class World {
 		ArrayList<Seat> seatAround = getOccupiedSeatAround(s);
 		// int n = 0;
 		float seatCooperateLevel = 0.f;
-		//Individual in;
+		// Individual in;
 		for (Seat sa : seatAround) {
 			seatCooperateLevel += sa.owner.getStrategy();
 			// n++;
@@ -296,16 +311,29 @@ public class World {
 		i = s.seat_i;
 		j = s.seat_j;
 
-		for (int m = (i - neighbourRange > 0) ? i - neighbourRange : 0; (m < i
-				+ neighbourRange + 1)
-				&& m < L; m++) {
-			for (int n = (j - neighbourRange > 0) ? j - neighbourRange : 0; (n < j
-					+ neighbourRange + 1)
-					&& n < L; n++) {
-				if (m != i || n != j) {
-					if (test.test(grid[m][n])) {
-						seatAround.add(grid[m][n]);
-					}
+		// for (int m = (i - neighbourRange > 0) ? i - neighbourRange : 0; (m <
+		// i
+		// + neighbourRange + 1)
+		// && m < L; m++) {
+		// for (int n = (j - neighbourRange > 0) ? j - neighbourRange : 0; (n <
+		// j
+		// + neighbourRange + 1)
+		// && n < L; n++) {
+		// if (m != i || n != j) {
+		// if (test.test(grid[m][n])) {
+		// seatAround.add(grid[m][n]);
+		// }
+		// }
+		// }
+		// }
+		int x, y;
+		for (Vector v : neighbourCoverage.getCoverageVector()) {
+			x = i + v.x;
+			y = j + v.y;
+			if (x >= 0 && x < L && y >= 0 && y < L) {
+				// System.out.println("seat("+i+","+j+"): "+x+","+y);
+				if (test.test(grid[x][y])) {
+					seatAround.add(grid[x][y]);
 				}
 			}
 		}
