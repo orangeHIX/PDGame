@@ -1,7 +1,7 @@
 package entity;
 
 /** 网格中每一个格子，可以容纳一个个体 */
-class Seat {
+public class Seat {
 	/** 座位上的个体，没有个体时为null */
 	Individual owner;
 	/** 座位在网格中所处的位置 行号i */

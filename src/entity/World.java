@@ -11,10 +11,11 @@ import rule.MigrationPattern;
 import rule.NeighbourCoverage;
 import rule.StrategyPattern;
 import test.SpatialPDGame;
+import utils.RandomUtil;
 import utils.Vector;
 
 /** 二维网格，包含L*L个空位，和若干个体 */
-public class World {
+public class World implements WorldInfo {
 	// public static final int LEARNING_PATTERN_MAXPAYOFF = 0;
 	// public static final int LEARNING_PATTERN_FERMI = 1;
 	//
@@ -34,8 +35,8 @@ public class World {
 	private Seat[][] grid;
 	/** 二维网格的宽度 */
 	private int L;
-//	/** 二维网格中个体的密度 */
-//	private float d0;
+	// /** 二维网格中个体的密度 */
+	// private float d0;
 	// /**
 	// * 规定每个个体周围距离多远的个体算是直接邻居，例如： 个体周围距离为1的设为直接邻居，最大邻居数为8
 	// */
@@ -45,7 +46,7 @@ public class World {
 	/** 记录个体所能采用的策略的代表数值 */
 	private float[] strategySample;
 
-	private Random random = new Random();
+	// private Random random = new Random();
 
 	/**
 	 * 初始化模型
@@ -64,7 +65,7 @@ public class World {
 		if (length > 0 && density >= 0
 				&& (density < 1.0 || density - 1.0f < 1.0e-5)) {
 			L = length;
-			//d0 = density;
+			// d0 = density;
 			grid = new Seat[L][L];
 			for (int i = 0; i < L; i++) {
 				for (int j = 0; j < L; j++) {
@@ -75,7 +76,7 @@ public class World {
 			this.neighbourCoverage = neighbourCoverage;
 			IndividualList = new ArrayList<>();
 			// 给每个个体随机分配初始策略
-			initIndividuals(density, strategyPattern,w);
+			initIndividuals(density, strategyPattern, w);
 
 			// 给每个个体随机分配网格中的位置
 			randomAllocateSeat();
@@ -83,7 +84,8 @@ public class World {
 
 	}
 
-	private void initIndividuals(float d0, StrategyPattern strategyPattern, float w) {
+	private void initIndividuals(float d0, StrategyPattern strategyPattern,
+			float w) {
 
 		int num = (int) (d0 * L * L); // 个体总数目
 		// System.out.println("initIndividualStrategy"+num);
@@ -98,7 +100,7 @@ public class World {
 			strategySample[i] = 0 + i / (float) (strategyNum - 1);
 			for (int j = 0; j < num / strategyNum; j++) {
 				this.IndividualList.add(new Individual(strategySample[i],
-						maxNeighbourNum,w));
+						maxNeighbourNum, w));
 				count++;
 			}
 		}
@@ -106,7 +108,7 @@ public class World {
 		if (count < num) {
 			for (int i = 0; i < strategyNum; i++) {
 				this.IndividualList.add(new Individual(strategySample[i],
-						maxNeighbourNum,w));
+						maxNeighbourNum, w));
 				count++;
 				if (count >= num) {
 					break;
@@ -138,7 +140,8 @@ public class World {
 		}
 		// 实现个体随机分配座位，本质是一种洗牌算法，对座位“洗牌”
 		for (i = 0; i < L * L; i++) {
-			swapSeat(getSeat(i), getSeat((int) (random.nextFloat() * L * L)));
+			swapSeat(getSeat(i),
+					getSeat((int) (RandomUtil.nextFloat() * L * L)));
 		}
 	}
 
@@ -156,7 +159,7 @@ public class World {
 		return grid[i][j];
 	}
 
-	/** 返回二维网格的宽度 */
+	@Override
 	public int getLength() {
 		return L;
 	}
@@ -193,10 +196,11 @@ public class World {
 					// 这样，即使有邻居迁移后，个体仍能找到本轮初始状态所有邻居
 					in.addNeighbour(neighbour);
 					neighbour.addNeighbour(in);
-					//System.out.println( "interact :"+(in.getW() + neighbour.getW()) / 2);
-					if (random.nextFloat() <= (in.getW() + neighbour.getW()) / 2) {
+					// System.out.println( "interact :"+(in.getW() +
+					// neighbour.getW()) / 2);
+					if (RandomUtil.nextFloat() <= (in.getW() + neighbour.getW()) / 2) {
 						// 个体与邻居的两两博弈后，累计收益
-						//System.out.println("game : " +in+" and "+neighbour);
+						// System.out.println("game : " +in+" and "+neighbour);
 						in.accumulatePayoff(gr.getPayOff(in.getStrategy(),
 								neighbour.getStrategy()));
 						neighbour.accumulatePayoff(gr.getPayOff(
@@ -225,12 +229,12 @@ public class World {
 	public float evolute(float pi, float qi, LearningPattern learningPattern,
 			MigrationPattern imigrationPattern) {
 		for (Individual in : IndividualList) {
-			if (random.nextFloat() <= pi) {
-				in.learnFromNeighbours(learningPattern, random);
+			if (RandomUtil.nextFloat() <= pi) {
+				in.learnFromNeighbours(learningPattern);
 			}
-			if (random.nextFloat() <= qi) {
+			if (RandomUtil.nextFloat() <= qi) {
 				// 个体在本轮进行迁徙，每个个体在博弈阶段自己保留有邻居表，迁徙后邻居仍能找到该个体
-				in.imigrate(this, imigrationPattern, random);
+				in.imigrate(this, imigrationPattern);
 			}
 			// getEmptySeatAround(in);
 		}
@@ -248,11 +252,13 @@ public class World {
 		return change / (float) IndividualList.size();
 	}
 
+	@Override
 	public float getSeatDefectionLevel(Seat s) {
 		ArrayList<Seat> seatAround = getOccupiedSeatAround(s);
 		return seatAround.size() - getSeatCooperationLevel(s);
 	}
 
+	@Override
 	public float getSeatCooperationLevel(Seat s) {
 		ArrayList<Seat> seatAround = getOccupiedSeatAround(s);
 		// int n = 0;
@@ -310,7 +316,7 @@ public class World {
 		return seatAround;
 	}
 
-	/** 找到该座位周围所有在直接邻居距离范围内的所有座位 */
+	@Override
 	public ArrayList<Seat> getAllSeatAround(Seat s) {
 		return getSeatAround(s, new Condition<Seat>() {
 
@@ -325,7 +331,7 @@ public class World {
 
 	// ArrayList<Seat> emptySeatAround = new ArrayList<>();
 
-	/** 找到该座位周围所有在直接邻居距离范围内的“空”座位 */
+	@Override
 	public ArrayList<Seat> getEmptySeatAround(Seat s) {
 		return getSeatAround(s, new Condition<Seat>() {
 
@@ -338,7 +344,7 @@ public class World {
 		});
 	}
 
-	/** 找到该座位周围所有在直接邻居距离范围内的被占据的座位 */
+	@Override
 	public ArrayList<Seat> getOccupiedSeatAround(Seat s) {
 		return getSeatAround(s, new Condition<Seat>() {
 
@@ -351,6 +357,7 @@ public class World {
 		});
 	}
 
+	@Override
 	public float getGlobalCooperationLevel() {
 		float cp = 0;
 		for (Individual e : IndividualList) {
@@ -359,6 +366,7 @@ public class World {
 		return cp / IndividualList.size();
 	}
 
+	@Override
 	public WorldDetail getWorldDetail() {
 		int i;
 		float globalCooperationLevel = 0;
@@ -383,22 +391,25 @@ public class World {
 		return new WorldDetail(globalCooperationLevel, strategyProportion);
 	}
 
+	@Override
 	public float getAverageNeighbourNum() {
 		float ann = 0;
 		for (Individual e : IndividualList) {
 			ann += (getAllSeatAround(e.getSeat()).size() - getEmptySeatAround(
 					e.getSeat()).size());
-//			System.out.println("getAverageNeighbourNum "+getAllSeatAround(e.getSeat()).size() +","+ getEmptySeatAround(
-//					e.getSeat()).size());
+			// System.out.println("getAverageNeighbourNum "+getAllSeatAround(e.getSeat()).size()
+			// +","+ getEmptySeatAround(
+			// e.getSeat()).size());
 		}
 		return ann / IndividualList.size();
 	}
 
-	/** 返回个体总数 */
+	@Override
 	public int getPopulationNum() {
 		return IndividualList.size();
 	}
 
+	@Override
 	public String getIndividualStrategyPicture() {
 		StringBuilder sb = new StringBuilder();
 		Individual in;
