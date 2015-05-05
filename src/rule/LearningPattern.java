@@ -9,7 +9,7 @@ public enum LearningPattern {
 	/** MAXPAYOFF：从直接邻居学习策略，个体学习具有最大累积收益的邻居 */
 	MAXPAYOFF("max_payoff_learning") {
 		@Override
-		public void learn(Individual in) {
+		public float learn(Individual in) {
 			Individual maxPayoffNeighbour = in;
 			final ArrayList<Individual> neighbours = in.getNeighbours();
 			for (Individual nei : neighbours) {
@@ -17,7 +17,7 @@ public enum LearningPattern {
 						.getAccumulatedPayoff())
 					maxPayoffNeighbour = nei;
 			}
-			in.setNextStrategy(maxPayoffNeighbour.getStrategy());
+			return maxPayoffNeighbour.getStrategy();
 		}
 	},
 	/**
@@ -31,7 +31,7 @@ public enum LearningPattern {
 		float noise = 0.1f; // 噪声暂时设为0.1
 
 		@Override
-		public void learn(Individual in) {
+		public float learn(Individual in) {
 			// TODO Auto-generated method stub
 			double imitatePosibility = 0;
 			final ArrayList<Individual> neighbours = in.getNeighbours();
@@ -43,11 +43,12 @@ public enum LearningPattern {
 						.getAccumulatedPayoff())
 						/ noise));
 				if (RandomUtil.nextDouble() <= imitatePosibility) {
-					in.setNextStrategy(neighbour.getStrategy());
+					return neighbour.getStrategy();
 					// System.out.println(""+this+" learn from \n\t"+neighbour+" with "
 					// +imitatePosibility);
 				}
 			}
+			return in.getStrategy();
 		}
 	};
 	public String name;
@@ -55,9 +56,10 @@ public enum LearningPattern {
 	private LearningPattern(String s) {
 		name = s;
 	}
-
-	public void learn(Individual in) {
+	/**@return 学习到的新策略*/
+	public float learn(Individual in) {
 		// do nothing
+		return in.getStrategy();
 	}
 
 	@Override

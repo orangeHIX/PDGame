@@ -13,15 +13,16 @@ public enum MigrationPattern {
 	/** RANDOM，个体随机迁徙到直接邻居距离范围内的一个空位上 */
 	RANDOM("random_migrate") {
 		@Override
-		public void migrate(Individual in, WorldInfo world) {
+		public Seat migrate(Individual in, WorldInfo world) {
 			// TODO Auto-generated method stub
 			ArrayList<Seat> emptySeatAround = world.getEmptySeatAround(in
 					.getSeat());
 			if (!emptySeatAround.isEmpty()) {
 				Seat emptySeat = emptySeatAround.get((int) (RandomUtil
 						.nextFloat() * emptySeatAround.size()));
-				in.moveTo(emptySeat);
+				return emptySeat;
 			}
+			return in.getSeat();
 		}
 
 	},
@@ -33,10 +34,11 @@ public enum MigrationPattern {
 	 */
 	OPTIMISTIC("optimistic_migrate") {
 		@Override
-		public void migrate(Individual in, WorldInfo world) {
+		public Seat migrate(Individual in, WorldInfo world) {
 			// TODO Auto-generated method stub
 			ArrayList<Seat> emptySeatAround = world.getEmptySeatAround(in
 					.getSeat());
+			Seat result = in.getSeat();
 			if (!emptySeatAround.isEmpty()) {
 				Seat tmpSeat = in.getSeat();
 				Seat emptySeat = emptySeatAround.get((int) (RandomUtil
@@ -51,19 +53,19 @@ public enum MigrationPattern {
 				double imigratePosibility = 1 / (1 + Math.exp(scl - escl));
 
 				if (RandomUtil.nextDouble() < imigratePosibility) {
-					// 个体迁徙，保持之前的迁徙动作结果
-				} else {
-					// 回到原来的位置
-					in.moveTo(tmpSeat);
-				}
+					result = emptySeat;
+				} 
+				// 回到原来的位置
+				in.moveTo(tmpSeat);
 			}
+			return result;
 		}
 
 	},
-	/**个体统计周围邻居背叛者的数量nd，以nd/8的概率迁徙到空位上*/
+	/** 个体统计周围邻居背叛者的数量nd，以nd/8的概率迁徙到空位上 */
 	ESCAPE("escape_migrate") {
 		@Override
-		public void migrate(Individual in, WorldInfo world) {
+		public Seat migrate(Individual in, WorldInfo world) {
 			// TODO Auto-generated method stub
 			ArrayList<Seat> emptySeatAround = world.getEmptySeatAround(in
 					.getSeat());
@@ -73,9 +75,10 @@ public enum MigrationPattern {
 				float dl = world.getSeatDefectionLevel(in.getSeat());
 				double imigratePosibility = dl / 8;
 				if (RandomUtil.nextDouble() < imigratePosibility) {
-					in.moveTo(emptySeat);
+					return emptySeat;
 				}
 			}
+			return in.getSeat();
 		}
 
 	};
@@ -86,8 +89,9 @@ public enum MigrationPattern {
 		name = s;
 	}
 
-	public void migrate(Individual in, WorldInfo world) {
-		// do nothing
+	/** @return 应该迁徙到的位置 */
+	public Seat migrate(Individual in, WorldInfo world) {
+		return in.getSeat();
 	}
 
 	@Override

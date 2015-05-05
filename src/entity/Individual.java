@@ -108,8 +108,7 @@ public class Individual {
 	 *            用于生成随机数
 	 */
 	public void learnFromNeighbours(LearningPattern learningPattern) {
-		nextStrategy = strategy;
-		learningPattern.learn(this);
+		nextStrategy = learningPattern.learn(this);
 	}
 
 	/**
@@ -120,7 +119,7 @@ public class Individual {
 	 *            IMIGRATE_PATTERN_RANDOM、机会迁徙World.IMIGRATE_PATTERN_OPTIMISTIC
 	 */
 	public void imigrate(World world, MigrationPattern imigratePattern) {
-		imigratePattern.migrate(this, world);
+		moveTo(imigratePattern.migrate(this, world));
 	}
 
 	/**
@@ -135,10 +134,6 @@ public class Individual {
 		} else {
 			return false;
 		}
-	}
-
-	public void setNextStrategy(float strategy) {
-		nextStrategy = strategy;
 	}
 
 	public final ArrayList<Individual> getNeighbours() {
