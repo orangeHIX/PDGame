@@ -25,12 +25,12 @@ public class FileReorganize {
 		}
 	}
 
-	public static void reorganize(String filepath) {
+	public static void reorganize(String filepath, String fileKeyStr) {
 		File f = new File(filepath);
 		ArrayList<Data> dataSet = new ArrayList<>();
 		for (File file1 : f.listFiles()) {
 			if (file1.isDirectory() && file1.getName().endsWith("$") &&
-					 file1.getName().contains("data4")) {
+					 file1.getName().contains(fileKeyStr)) {
 				System.out.println(file1.getName());
 
 				//int i = 0;
@@ -52,7 +52,7 @@ public class FileReorganize {
 		try (PrintWriter pw = new PrintWriter(f)) {
 			pw.print("从上到下依次是：BCH（Dr=0）、BSH（Dg=0）、DRG（Dr=Dg）、ALLPD\r\n");
 			for (int i = 0; i < dataSet.size(); i++) {
-				pw.print("qi=0." + i);
+				pw.print("w=0." + i);
 				pw.print("\t\t");
 			}
 			pw.print("\r\n");
@@ -101,6 +101,6 @@ public class FileReorganize {
 	}
 
 	public static void main(String[] args) {
-		reorganize("F:\\毕设任务");
+		reorganize("F:\\交互强度任务","data1");
 	}
 }

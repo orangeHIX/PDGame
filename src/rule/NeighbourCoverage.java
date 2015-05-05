@@ -1,4 +1,4 @@
-package entity;
+package rule;
 
 import java.util.ArrayList;
 

@@ -94,23 +94,27 @@ public class Painter {
 
 	public static Image composing(ArrayList<NamedImage> images, int column,  int imageWidth,
 			int imageHeight, int marginLengthX, int marginLengthY, int spacingLengthX,  int spacingLengthY) {
-		int legendSpace = marginLengthX*3;
+		if(images == null){
+			return null;
+		}
+		
+		int legendSpace = (int)(imageWidth/3.5);
 		int width = column * (imageWidth + spacingLengthX) + 2 * marginLengthX
-				- spacingLengthX  + legendSpace;
+				- spacingLengthX  + legendSpace + spacingLengthX;
 		int row = (int) Math.ceil(images.size() / (double) column);
 		int height = row * (imageHeight + spacingLengthY) + 2 * marginLengthY
 				- spacingLengthY;
 
 		BufferedImage bi = new BufferedImage(width , height,
-				BufferedImage.TYPE_INT_ARGB);
+				BufferedImage.TYPE_INT_RGB);
 
 		Graphics2D g2 = bi.createGraphics();
 		//g2.setBackground(new Color(0,0,0,0));
-		g2.setBackground(Color.GRAY);
+		g2.setBackground(Color.WHITE);
 		g2.clearRect(0, 0, width, height);
 
-		g2.setColor(Color.RED);
-		g2.setFont(new Font("宋体", Font.BOLD, 20));
+		g2.setColor(Color.BLACK);
+		g2.setFont(new Font("宋体", Font.BOLD, spacingLengthY));
 		
 		sortImageList(images);
 		
@@ -119,14 +123,14 @@ public class Painter {
 		for (int i = 0; i < row; i++) {
 			drawY = spacingLengthY * i + marginLengthY
 					+ imageHeight * i;
-			g2.drawLine(0, drawY,
-					width, drawY);
+//			g2.drawLine(0, drawY,
+//					width, drawY);
 			for (int j = 0; j < column; j++) {
 				drawX = spacingLengthX * j + marginLengthX
 						+ imageWidth * j;
-				if (i == 0) {
-					g2.drawLine(drawX, 0, drawX, height);
-				}
+//				if (i == 0) {
+//					g2.drawLine(drawX, 0, drawX, height);
+//				}
 				g2.drawImage(images.get(k).image, drawX, drawY, imageWidth, imageHeight, null);
 				g2.drawString(""+images.get(k).getID(), drawX, drawY );
 				// g2.fillRect(spacingLength * (j + 1) + imageWidth * j,
@@ -139,24 +143,24 @@ public class Painter {
 			}
 		}
 		Image legend = getLegend(100);
-		g2.drawImage(legend, width - legendSpace -spacingLengthX, marginLengthY, legendSpace, legendSpace*5, null);
+		g2.drawImage(legend, width - legendSpace -marginLengthX, marginLengthY, legendSpace, (int)(legendSpace*7.5), null);
 		
 		g2.dispose();
-
+		
 		return bi;
 	}
 	
 	private static Image getLegend(int width){
-		int height = width*10;
+		int height = width*15;
 		int leftMargin = width;
 		
 		BufferedImage bi = new BufferedImage(width+leftMargin, height,
-				BufferedImage.TYPE_INT_ARGB);
+				BufferedImage.TYPE_INT_RGB);
 		Graphics2D g2 = bi.createGraphics();
 		
-		g2.setBackground(new Color(0,0,0,0));
+		g2.setBackground(Color.WHITE);
 		//g2.setBackground(Color.GRAY);
-		g2.clearRect(0, 0, width, height);
+		g2.clearRect(0, 0, width+leftMargin, height);
 		
 		
 		for( int i = 0; i < height; i++){
@@ -165,9 +169,9 @@ public class Painter {
 		}
 		
 		g2.setColor(Color.BLACK);
-		int fontSize = (int) (leftMargin/1.6);
+		int fontSize = (int) (leftMargin/1.5);
 		g2.setFont(new  Font("新宋", Font.PLAIN, fontSize));
-		g2.drawRect(0, 0, width-1, height-1);
+		//g2.drawRect(0, 0, width-1, height-1);
 		float[] scale = {0,0.2f, 0.4f, 0.6f, 0.8f,1.0f};
 		float scaleDepth = 0.3f;
 		int lineBold = height/200;
@@ -208,94 +212,9 @@ public class Painter {
 		});
 		return images;
 	}
-	
 
-	static class NamedImage
-	{
-		String name;
-		Image image;
-		public NamedImage(String name, Image image) {
-			super();
-			this.name = name;
-			this.image = image;
-		}
-		public int getID(){
-			return Integer.parseInt(name.substring(name.indexOf("_") +1, name.indexOf(".jpg")));
-		}
-		
-	}
-	
-	private static ArrayList<NamedImage> readImages(String path) {
-
-		File f = new File(path);
-		BufferedImage bi = null;
-		ArrayList<NamedImage> imageList =new ArrayList<>();
-
-		if (f != null && f.isDirectory()) {
-			File[] fs = f.listFiles(new FilenameFilter() {
-				
-				@Override
-				public boolean accept(File dir, String name) {
-					// TODO Auto-generated method stub
-					if(name.startsWith("turn_") && name.endsWith(".jpg")){
-						return true;
-					}
-					return false;
-				}
-			});
-
-			try {
-				for (File imagef : fs) {
-						bi = ImageIO.read(imagef);
-						if (bi != null) {
-							imageList.add(new NamedImage(imagef.getName(), bi));
-						}
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		return imageList;
-	}
-
-	public static void printPicture() {
-		BufferedImage bi = null;
-		final ArrayList<NamedImage> imageList = readImages("C:\\Users\\hyx\\Desktop\\补充微观数据\\shuju\\"
-				+ "max_payoff_learning_$_optimistic_migrate_$_continuous_strategy_$_pi=0.50_$_qi=0.00\\"
-				+ "gr=(1.00,-0.10,1.90,0.00)_$_d0=0.50");
-
-		// 创建frame
-		JFrame frame = new JFrame() {
-			public static final int MarginWith = 40;
-
-			@Override
-			public void paint(Graphics g) {
-				g.clearRect(0, 0, this.getWidth(), this.getHeight());
-				g.drawImage(composing(imageList, 6, 120, 120, 20, 20, 10, 20),
-						MarginWith, MarginWith, null);
-			}
-		};
-		// 调整frame的大小和初始位置
-		frame.setSize(1000, 880);
-		frame.setLocation(100, 100);
-		// 增加窗口监听事件，使用内部类方法，并用监听器的默认适配器
-		frame.addWindowListener(new WindowAdapter() {
-
-			// 重写窗口关闭事件
-			@Override
-			public void windowClosing(WindowEvent arg0) {
-				System.exit(0);
-			}
-
-		});
-		frame.setTitle("test");
-		// 显示窗体
-		frame.setVisible(true);
-	}
 
 	public static void main(String[] args) {
-		printPicture();
 		// int width = 100;
 		// int height = 100;
 		// String s = "你好";

@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
-import entity.World.Seat;
 import rule.GamblingRule;
+import rule.LearningPattern;
+import rule.MigrationPattern;
 import test.SpatialPDGame;
 
 /** 二维网格博弈中的个体或博弈参与者 */

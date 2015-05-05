@@ -19,13 +19,13 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
 import rule.GamblingRule;
+import rule.LearningPattern;
+import rule.MigrationPattern;
+import rule.NeighbourCoverage;
+import rule.StrategyPattern;
 import utils.ArraytoString;
 import utils.FileUtils;
 import utils.Reporter;
-import entity.LearningPattern;
-import entity.MigrationPattern;
-import entity.NeighbourCoverage;
-import entity.StrategyPattern;
 import entity.World;
 import entity.WorldDetail;
 import graphic.Painter;
@@ -116,8 +116,8 @@ public class SpatialPDGame implements Reporter {
 		// float qi = 0;
 		long start = System.currentTimeMillis();
 		runOneTest4(LearningPattern.FERMI, MigrationPattern.NONE,
-				StrategyPattern.TWO, NeighbourCoverage.Von, MAX_TURN_NUM,
-				"F:\\交互强度任务\\data1");
+				StrategyPattern.CONTINUOUS, NeighbourCoverage.Von, MAX_TURN_NUM,
+				"F:\\交互强度任务\\data2");
 		long end = System.currentTimeMillis();
 		System.out.println("underwent: " + (end - start) + "ms");
 		// }

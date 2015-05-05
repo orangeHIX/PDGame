@@ -17,7 +17,7 @@ import utils.FileUtils;
 
 public class FileFixer {
 
-	public static void FixFile(String filepath) {
+	public static void FixFile(String filepath, String fileKeyStr, String secFileKeyStr) {
 		File f = new File(filepath);
 		float[][] data = null;
 
@@ -26,10 +26,10 @@ public class FileFixer {
 			if (
 					//file1.getName().endsWith(")")
 					//&& !
-					file1.getName().contains("data4") && ! file1.getName().endsWith("$")) {
+					file1.getName().contains(fileKeyStr) && ! file1.getName().endsWith("$")) {
 				System.out.println(file1.getName());
 				for (File file2 : file1.listFiles()) {
-					if (file2.isDirectory() && file2.getName().contains("optimistic_imigrate_$_")) {
+					if (file2.isDirectory() && file2.getName().contains(secFileKeyStr)) {
 						System.out.println(file2.getName());
 						for (File file3 : file2.listFiles()) {
 							if (file3.getName().equals("CoopertationLevel.txt")) {
@@ -142,7 +142,7 @@ public class FileFixer {
 			}
 
 			try (Scanner sc = new Scanner(f)) {
-				for (int i = 0; i < 7; i++) {
+				for (int i = 0; i < 6; i++) {
 					System.out.println(sc.nextLine());
 				}
 				for (int i = 0; i < L; i++) {
@@ -164,6 +164,6 @@ public class FileFixer {
 	}
 
 	public static void main(String[] args) {
-		FixFile("F:\\毕设任务");
+		FixFile("F:\\交互强度任务","data1","w=");
 	}
 }

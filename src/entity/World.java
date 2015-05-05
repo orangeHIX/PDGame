@@ -6,6 +6,10 @@ import java.util.Iterator;
 import java.util.Random;
 
 import rule.GamblingRule;
+import rule.LearningPattern;
+import rule.MigrationPattern;
+import rule.NeighbourCoverage;
+import rule.StrategyPattern;
 import test.SpatialPDGame;
 import utils.Vector;
 
@@ -30,8 +34,8 @@ public class World {
 	private Seat[][] grid;
 	/** 二维网格的宽度 */
 	private int L;
-	/** 二维网格中个体的密度 */
-	private float d0;
+//	/** 二维网格中个体的密度 */
+//	private float d0;
 	// /**
 	// * 规定每个个体周围距离多远的个体算是直接邻居，例如： 个体周围距离为1的设为直接邻居，最大邻居数为8
 	// */
@@ -42,41 +46,6 @@ public class World {
 	private float[] strategySample;
 
 	private Random random = new Random();
-
-	/** 网格中每一个格子，可以容纳一个个体 */
-	class Seat {
-		/** 座位上的个体，没有个体时为null */
-		Individual owner;
-		/** 座位在网格中所处的位置 行号i */
-		public final int seat_i;
-		/** 座位在网格中所处的位置 列号j */
-		public final int seat_j;
-
-		public Seat(int i, int j) {
-			seat_i = i;
-			seat_j = j;
-		}
-
-		public Individual getOwner() {
-			return owner;
-		}
-
-		public void setOwner(Individual in) {
-			this.owner = in;
-			if (in != null)
-				in.setSeat(this);
-		}
-
-		/** 返回该座位是否是空的 */
-		public boolean isEmpty() {
-			return owner == null;
-		}
-
-		@Override
-		public String toString() {
-			return "(" + seat_i + "," + seat_j + ")\t";
-		}
-	}
 
 	/**
 	 * 初始化模型
@@ -95,7 +64,7 @@ public class World {
 		if (length > 0 && density >= 0
 				&& (density < 1.0 || density - 1.0f < 1.0e-5)) {
 			L = length;
-			d0 = density;
+			//d0 = density;
 			grid = new Seat[L][L];
 			for (int i = 0; i < L; i++) {
 				for (int j = 0; j < L; j++) {
@@ -106,7 +75,7 @@ public class World {
 			this.neighbourCoverage = neighbourCoverage;
 			IndividualList = new ArrayList<>();
 			// 给每个个体随机分配初始策略
-			initIndividuals(strategyPattern,w);
+			initIndividuals(density, strategyPattern,w);
 
 			// 给每个个体随机分配网格中的位置
 			randomAllocateSeat();
@@ -114,7 +83,7 @@ public class World {
 
 	}
 
-	private void initIndividuals(StrategyPattern strategyPattern, float w) {
+	private void initIndividuals(float d0, StrategyPattern strategyPattern, float w) {
 
 		int num = (int) (d0 * L * L); // 个体总数目
 		// System.out.println("initIndividualStrategy"+num);
@@ -307,7 +276,7 @@ public class World {
 	 */
 	public ArrayList<Seat> getSeatAround(Seat s, Condition<Seat> test) {
 		// seatAround.clear();
-		ArrayList<Seat> seatAround = new ArrayList<World.Seat>();
+		ArrayList<Seat> seatAround = new ArrayList<Seat>();
 		int i, j;
 		i = s.seat_i;
 		j = s.seat_j;
@@ -343,7 +312,7 @@ public class World {
 
 	/** 找到该座位周围所有在直接邻居距离范围内的所有座位 */
 	public ArrayList<Seat> getAllSeatAround(Seat s) {
-		return getSeatAround(s, new Condition<World.Seat>() {
+		return getSeatAround(s, new Condition<Seat>() {
 
 			@Override
 			public boolean test(Seat object) {
@@ -358,7 +327,7 @@ public class World {
 
 	/** 找到该座位周围所有在直接邻居距离范围内的“空”座位 */
 	public ArrayList<Seat> getEmptySeatAround(Seat s) {
-		return getSeatAround(s, new Condition<World.Seat>() {
+		return getSeatAround(s, new Condition<Seat>() {
 
 			@Override
 			public boolean test(Seat object) {
@@ -371,7 +340,7 @@ public class World {
 
 	/** 找到该座位周围所有在直接邻居距离范围内的被占据的座位 */
 	public ArrayList<Seat> getOccupiedSeatAround(Seat s) {
-		return getSeatAround(s, new Condition<World.Seat>() {
+		return getSeatAround(s, new Condition<Seat>() {
 
 			@Override
 			public boolean test(Seat object) {

@@ -16,10 +16,10 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import entity.LearningPattern;
-import entity.MigrationPattern;
-import entity.NeighbourCoverage;
-import entity.StrategyPattern;
+import rule.LearningPattern;
+import rule.MigrationPattern;
+import rule.NeighbourCoverage;
+import rule.StrategyPattern;
 import test.SpatialPDGame;
 import utils.CompleteListener;
 import utils.FileUtils;

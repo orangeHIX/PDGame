@@ -11,9 +11,9 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 
 import rule.GamblingRule;
-import entity.LearningPattern;
-import entity.MigrationPattern;
-import entity.StrategyPattern;
+import rule.LearningPattern;
+import rule.MigrationPattern;
+import rule.StrategyPattern;
 import entity.World;
 
 public class FileUtils {
@@ -31,12 +31,19 @@ public class FileUtils {
 
 	public static void outputSnapshootToFile(String filePath,
 			Map<Integer, Image> Snapshoot) {
+
+		FileUtils.deleteFile(filePath);
+		for (Integer i : Snapshoot.keySet()) {
+			File f = getFile(filePath + "\\turn_" + i + ".jpg");
+			outputImageToFile((RenderedImage) Snapshoot.get(i), "jpg", f);
+		}
+
+	}
+
+	public static void outputImageToFile(RenderedImage image,
+			String formatName, File output) {
 		try {
-			FileUtils.deleteFile(filePath);
-			for (Integer i : Snapshoot.keySet()) {
-				File f = getFile(filePath + "\\turn_" + i + ".jpg");
-				ImageIO.write((RenderedImage) Snapshoot.get(i), "jpg", f);
-			}
+			ImageIO.write((RenderedImage) image, "jpg", output);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -67,7 +74,4 @@ public class FileUtils {
 		return f;
 	}
 
-
-
-	
 }
