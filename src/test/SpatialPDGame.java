@@ -29,7 +29,7 @@ import utils.Reporter;
 import entity.World;
 import entity.WorldDetail;
 import graphic.Painter;
-import gui.Window;
+import gui.DebugWindow;
 
 public class SpatialPDGame implements Reporter {
 
@@ -452,7 +452,7 @@ public class SpatialPDGame implements Reporter {
 	public void printPicture() {
 
 		// 创建frame
-		JFrame frame = new Window(world);
+		JFrame frame = new DebugWindow(world);
 		// 调整frame的大小和初始位置
 		frame.setSize(880, 880);
 		frame.setLocation(100, 100);

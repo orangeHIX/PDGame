@@ -26,7 +26,7 @@ import javax.swing.JFrame;
 
 import entity.Individual;
 import entity.World;
-import gui.Window;
+import gui.DebugWindow;
 
 public class Painter {
 
