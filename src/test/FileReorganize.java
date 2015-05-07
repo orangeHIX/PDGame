@@ -101,6 +101,6 @@ public class FileReorganize {
 	}
 
 	public static void main(String[] args) {
-		reorganize("F:\\交互强度任务","data1");
+		reorganize("F:\\交互强度任务","data3");
 	}
 }

@@ -115,9 +115,9 @@ public class SpatialPDGame implements Reporter {
 		// }
 		// float qi = 0;
 		long start = System.currentTimeMillis();
-		runOneTest4(LearningPattern.FERMI, MigrationPattern.NONE,
-				StrategyPattern.CONTINUOUS, NeighbourCoverage.Von, MAX_TURN_NUM,
-				"F:\\交互强度任务\\data2");
+		runOneTest4(LearningPattern.MAXPAYOFF, MigrationPattern.NONE,
+				StrategyPattern.TWO, NeighbourCoverage.Von, MAX_TURN_NUM,
+				"F:\\交互强度任务\\data3");
 		long end = System.currentTimeMillis();
 		System.out.println("underwent: " + (end - start) + "ms");
 		// }
@@ -236,7 +236,7 @@ public class SpatialPDGame implements Reporter {
 		float pi = 1.0f;
 		float w = 0.0f;
 		float d0 = 1.0f;
-		float Dr, Dg;
+		float Dr = 0, Dg = 0;
 
 		SpatialPDGame spdg = new SpatialPDGame(true);
 		float stepLength = STEP_LENGTH;

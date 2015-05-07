@@ -164,6 +164,6 @@ public class FileFixer {
 	}
 
 	public static void main(String[] args) {
-		FixFile("F:\\交互强度任务","data1","w=");
+		FixFile("F:\\交互强度任务","data3","w=");
 	}
 }

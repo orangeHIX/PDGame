@@ -1,6 +1,5 @@
 package test;
 
-import graphic.NamedImage;
 import graphic.Painter;
 
 import java.awt.Graphics;
@@ -11,16 +10,60 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Scanner;
+import java.util.StringTokenizer;
+import java.util.function.Predicate;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
 import utils.FileUtils;
+import utils.NamedImage;
+import utils.TurnAndCooLev;
 
 public class ImageComposer {
+	public static void printPicture(final Image image) {
+		// BufferedImage bi = null;
+		// final ArrayList<graphic.NamedImage> imageList = //
+		// readImages("C:\\Users\\hyx\\Desktop\\补充微观数据\\shuju");
+		// readImages("C:\\Users\\hyx\\Desktop\\补充微观数据\\shuju\\"
+		// +
+		// "max_payoff_learning_$_optimistic_migrate_$_continuous_strategy_$_pi=0.50_$_qi=0.00\\"
+		// + "gr=(1.00,-0.10,1.90,0.00)_$_d0=0.50");
+
+		// 创建frame
+		JFrame frame = new JFrame() {
+			public static final int MarginWith = 40;
+
+			@Override
+			public void paint(Graphics g) {
+				g.clearRect(0, 0, this.getWidth(), this.getHeight());
+				g.drawImage(image, MarginWith, MarginWith, null);
+			}
+		};
+		// 调整frame的大小和初始位置
+		frame.setSize(1000, 880);
+		frame.setLocation(100, 100);
+		// 增加窗口监听事件，使用内部类方法，并用监听器的默认适配器
+		frame.addWindowListener(new WindowAdapter() {
+
+			// 重写窗口关闭事件
+			@Override
+			public void windowClosing(WindowEvent arg0) {
+				System.exit(0);
+			}
+
+		});
+		frame.setTitle("test");
+		// 显示窗体
+		frame.setVisible(true);
+	}
 
 	private static ArrayList<NamedImage> readImages(String path) {
 		return readImages(new File(path));
@@ -63,78 +106,152 @@ public class ImageComposer {
 		return imageList;
 	}
 
-	public static void printPicture(final Image image) {
-//		BufferedImage bi = null;
-//		final ArrayList<graphic.NamedImage> imageList = // readImages("C:\\Users\\hyx\\Desktop\\补充微观数据\\shuju");
-//		readImages("C:\\Users\\hyx\\Desktop\\补充微观数据\\shuju\\"
-//				+ "max_payoff_learning_$_optimistic_migrate_$_continuous_strategy_$_pi=0.50_$_qi=0.00\\"
-//				+ "gr=(1.00,-0.10,1.90,0.00)_$_d0=0.50");
-
-		// 创建frame
-		JFrame frame = new JFrame() {
-			public static final int MarginWith = 40;
-
-			@Override
-			public void paint(Graphics g) {
-				g.clearRect(0, 0, this.getWidth(), this.getHeight());
-				g.drawImage(image, MarginWith,
-						MarginWith, null);
+	private static ArrayList<TurnAndCooLev> readCooLev(File f) {
+		ArrayList<TurnAndCooLev> list = new ArrayList<>();
+		try (Scanner sc = new Scanner(f)) {
+			String s = "";
+			for (s = sc.nextLine(); sc.hasNext(); s = sc.nextLine()) {
+				if (s.contains("turn") && s.contains("coopLev")) {
+					break;
+				}
 			}
-		};
-		// 调整frame的大小和初始位置
-		frame.setSize(1000, 880);
-		frame.setLocation(100, 100);
-		// 增加窗口监听事件，使用内部类方法，并用监听器的默认适配器
-		frame.addWindowListener(new WindowAdapter() {
-
-			// 重写窗口关闭事件
-			@Override
-			public void windowClosing(WindowEvent arg0) {
-				System.exit(0);
+			String[] ss;
+			ss = sc.nextLine().split("\t");
+			for (; ss.length > 1; ss = sc.nextLine().split("\t")) {
+				list.add(new TurnAndCooLev(Integer.parseInt(ss[0]), Float
+						.parseFloat(ss[1])));
 			}
 
-		});
-		frame.setTitle("test");
-		// 显示窗体
-		frame.setVisible(true);
+		}
+		// turn coopLev
+		catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		// System.out.println(list);
+		return list;
 	}
 
-	public static void main(String[] args) {
-//		printPicture(6,2);
-		ArrayList<graphic.NamedImage> imageList;
-		int column = 6;
-		int zoom = 2;
-		Image image = null;
-		File[] fs1 = new File("C:\\Users\\hyx\\Desktop\\补充微观数据\\shuju")
-				.listFiles(new FilenameFilter() {
+	public static void composeImageFromFile(String dataFilePath) {
 
-					@Override
-					public boolean accept(File dir, String name) {
-						// TODO Auto-generated method stub
-						return name.contains("_$_");
-					}
-				});
+		File[] fs1 = new File(dataFilePath).listFiles(new FilenameFilter() {
+
+			@Override
+			public boolean accept(File dir, String name) {
+				// TODO Auto-generated method stub
+				return name.contains("_$_");
+			}
+		});
 		for (File f1 : fs1) {
+			// System.out.println(f1.getName());
 			if (f1.isDirectory()) {
 				File[] fs2 = f1.listFiles();
+				composePopulationImageFromFile(fs2, "");
+
+				// System.out.println("sss");
 				for (File f2 : fs2) {
-					imageList = readImages(f2);
-					image = Painter.composing(imageList, column,
-							(int) (120 * zoom), (int) (120 * zoom),
-							(int) (5 * zoom), (int) (15 * zoom),
-							(int) (3 * zoom), (int) (15 * zoom));
-					if (image != null) {
-						FileUtils.outputImageToFile((RenderedImage) image,
-								"png", new File(f2.getAbsolutePath() + "\\"
-										+ f1.getName() + ".png"));
-						printPicture(image);
+					if (!f2.isDirectory() && f2.getName().endsWith(".txt")) {
+						// File[] fs3 = f2.listFiles();
+						// System.out.println(f2.getName());
+						composeChartImageFromFile(
+								f2,
+								f1.getName() + "_$_" + f2.getName(),
+								getTurnFromImageList(new File(f2
+										.getAbsolutePath().replace(".txt", ""))));
+						// System.out.println();
 
 					}
 				}
+
 			}
 		}
-		// final ArrayList<graphic.NamedImage> imageList =
-		// readImages("C:\\Users\\hyx\\Desktop\\补充微观数据\\shuju");
+	}
 
+	public static void composePopulationImageFromFile(File[] fs,
+			String outputFileNamePre) {
+		ArrayList<utils.NamedImage> imageList;
+		int column = 6;
+		int zoom = 2;
+		Image image = null;
+		for (File f2 : fs) {
+			if (f2.isDirectory()) {
+				imageList = readImages(f2);
+				//System.out.println(f2.getAbsolutePath());
+				removeUnnecessaryImage(imageList);
+
+				image = Painter.composingPopulationImage(imageList, column,
+						(int) (120 * zoom), (int) (120 * zoom),
+						(int) (5 * zoom), (int) (15 * zoom), (int) (3 * zoom),
+						(int) (15 * zoom));
+				if (image != null) {
+					FileUtils.outputImageToFile((RenderedImage) image, "jpg",
+							new File(f2.getAbsolutePath() + "\\"
+									+ outputFileNamePre + "_$_" + f2.getName()
+									+ ".jpg"));
+					// printPicture(image);
+				}
+			}
+		}
+	}
+
+	public static void composeChartImageFromFile(File f, String outputFileName,
+			ArrayList<Integer> snapshotTurn) {
+		ArrayList<TurnAndCooLev> list = readCooLev(f);
+		Image image = Painter.drawCooperationLevelPolygon(list, snapshotTurn,
+				800, 500, 20, 20, 40, 20, 30);
+		if (image != null) {
+			FileUtils.outputImageToFile((RenderedImage) image, "jpg", new File(
+					f.getParentFile().getAbsolutePath() + "\\" + outputFileName
+							+ "_$_poly.jpg"));
+		}
+
+	}
+
+	private static ArrayList<Integer> getTurnFromImageList(File imageFile) {
+//		 System.out.println(imageFile.getAbsolutePath() + " "
+//		 + imageFile.isDirectory());
+		ArrayList<NamedImage> imageList = readImages(imageFile);
+		removeUnnecessaryImage(imageList);
+		ArrayList<Integer> list = new ArrayList<>();
+		for (NamedImage nim : imageList) {
+			list.add(nim.getID());
+		}
+		return list;
+	}
+
+	private static void removeUnnecessaryImage(ArrayList<NamedImage> imageList) {
+		// 省略多余图片
+		if (imageList.size() > 12) {
+			imageList.removeIf(new Predicate<NamedImage>() {
+
+				@Override
+				public boolean test(NamedImage t) {
+					// TODO Auto-generated method stub
+					int id = t.getID();
+					if (id == 6 || id == 10000) {
+						return true;
+					}
+					return false;
+				}
+			});
+		}
+	}
+public static void removeJPGExceptTurnImage(File f){
+	if(f.exists() && f.isDirectory()){
+		File[] fs = f.listFiles();
+		for(File f2 : fs){
+			if( f2.getName().endsWith(".jpg") && !f2.getName().contains("turn") ){
+				f2.delete();
+			}else{
+				removeJPGExceptTurnImage(f2);
+			}
+		}
+	}
+}
+	public static void main(String[] args) {
+
+		composeImageFromFile("C:\\Users\\hyx\\Desktop\\补充微观数据\\shuju");
+		//removeJPG(new File("C:\\Users\\hyx\\Desktop\\补充微观数据\\shuju"));
+		// printPicture(Painter.drawCooperationLevelPolygon(800, 800, 20, 20));
 	}
 }
