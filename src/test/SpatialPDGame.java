@@ -33,22 +33,6 @@ import gui.DebugWindow;
 
 public class SpatialPDGame implements Reporter {
 
-	public static interface SampleCheck {
-		/**
-		 * 判断是否需要采样，每隔间隔轮数进行一次采样，统计合作水平
-		 * 
-		 * @param 当前演化轮数
-		 */
-		public boolean isWorldDetailHistorySampleTurn(int turn);
-
-		/**
-		 * 判断是否需要记录演化斑图
-		 * 
-		 * @param 当前演化轮数
-		 */
-		public boolean isSnapshootSampleTurn(int turn);
-	}
-
 	/** 无变化门限，若连续超过此值的博弈演化轮数所有个体的策略保持不变，则认为模型已经稳定，不再进行演化 */
 	public static final int noChangeThreshold = 100;
 	/** 采样间隔，每隔间隔轮数进行一次采样，统计合作水平 */
@@ -60,49 +44,15 @@ public class SpatialPDGame implements Reporter {
 
 	public static final float STEP_LENGTH = 0.1f;
 
-	private static String getCoopertationLevelsReport(
-			double[][] coopertationLevels, String horizontalName,
-			String verticalName, int L1, int L2) {
-		StringBuilder sb = new StringBuilder();
-		float ALLPDCooLevel = 0.f;
-		float CooLevel2 = 0.f;
-		float CooLevel3 = 0.f;
-		float CooLevel4 = 0.f;
-		for (int i = 0; i < L1; i++) {
-			for (int j = 0; j < L2; j++) {
-				ALLPDCooLevel += coopertationLevels[i][j];
-				if (i == 0)
-					CooLevel2 += coopertationLevels[i][j];
-				if (j == 0)
-					CooLevel3 += coopertationLevels[i][j];
-				if (i == j)
-					CooLevel4 += coopertationLevels[i][j];
-			}
-		}
-		ALLPDCooLevel = ALLPDCooLevel / (L1 * L2);
-		CooLevel2 = CooLevel2 / L2;
-		CooLevel3 = CooLevel3 / L1;
-		CooLevel4 = CooLevel4 / (Math.min(L1, L2));
-		sb.append("整体平均合作水平：" + ALLPDCooLevel + "\r\n");
-		sb.append("第一行平均合作水平：" + CooLevel2 + "\r\n");
-		sb.append("第一列平均合作水平：" + CooLevel3 + "\r\n");
-		sb.append("左上到右下对角线平均合作水平：" + CooLevel4 + "\r\n");
-		sb.append("每行" + horizontalName + ":从0增大到1.0," + STEP_LENGTH
-				+ "为间隔；\r\n每列" + verticalName + ":从0增大到1.0," + STEP_LENGTH
-				+ "为间隔\r\n");
-		sb.append(ArraytoString.getTwoDeArrayString(coopertationLevels, L1, L2));
-		return sb.toString();
-	}
-
 	public static void main(String args[]) {
-//		 SpatialPDGame spdg = new SpatialPDGame(false);
-//		 spdg.initSpatialPDGame(10, 1.0f, 0.1f, 0.1f, 1.0f, 0, 1.0f,
-//					LearningPattern.FERMI, MigrationPattern.NONE, StrategyPattern.TWO,
-//					NeighbourCoverage.Von);
-//			spdg.run(1);
-//			spdg.finalize();
-//		 System.out.println(spdg.getDetailReport());
-//		 spdg.printPicture();
+		// SpatialPDGame spdg = new SpatialPDGame(false);
+		// spdg.initSpatialPDGame(10, 1.0f, 0.1f, 0.1f, 1.0f, 0, 1.0f,
+		// LearningPattern.FERMI, MigrationPattern.NONE, StrategyPattern.TWO,
+		// NeighbourCoverage.Von);
+		// spdg.run(1);
+		// spdg.finalize();
+		// System.out.println(spdg.getDetailReport());
+		// spdg.printPicture();
 
 		// for (int i = 0; i < 3; i++) {
 		// for (int j = 0; j < 4; j++) {
@@ -123,6 +73,7 @@ public class SpatialPDGame implements Reporter {
 		// }
 	}
 
+	/** 用于本科论文实验的启动方法 */
 	public static void runOneTest2(LearningPattern learningPattern,
 			MigrationPattern imigratePattern, StrategyPattern strategyPattern,
 			int maxTurn, String outputFilePath) {
@@ -169,6 +120,7 @@ public class SpatialPDGame implements Reporter {
 		}
 	}
 
+	/** 用于本科论文实验的启动方法 */
 	public static void runOneTest3(LearningPattern learningPattern,
 			MigrationPattern imigratePattern, StrategyPattern strategyPattern,
 			int maxTurn, String outputFilePath) {
@@ -227,6 +179,7 @@ public class SpatialPDGame implements Reporter {
 		// + strategyPattern + " gr=" + r + ", d0= " + d0 + " completed");
 	}
 
+	/** 这个方法是用于做交互强度试验的 */
 	public static void runOneTest4(LearningPattern learningPattern,
 			MigrationPattern imigratePattern, StrategyPattern strategyPattern,
 			NeighbourCoverage neighbourCoverage, int maxTurn,
@@ -240,7 +193,7 @@ public class SpatialPDGame implements Reporter {
 
 		SpatialPDGame spdg = new SpatialPDGame(true);
 		float stepLength = STEP_LENGTH;
-		//float stepLength2 = 0.1f;
+		// float stepLength2 = 0.1f;
 		int L1, L2;
 		L1 = (int) Math.round(1 / stepLength) + 1;
 		L2 = (int) Math.round(1 / stepLength) + 1;
@@ -258,7 +211,7 @@ public class SpatialPDGame implements Reporter {
 							neighbourCoverage);
 					spdg.run(maxTurn);
 					spdg.finalize();
-					
+
 					FileUtils.outputTofile(
 							spdg.constructFileName(outputFilePath),
 							spdg.getDetailReport());
@@ -275,9 +228,46 @@ public class SpatialPDGame implements Reporter {
 			FileUtils.outputTofile(spdg.constructFilePath(outputFilePath)
 					+ "\\CoopertationLevel.txt",
 					getCoopertationLevelsReport(cl, "Dg", "Dr", L1, L2));
-			
+
 		}
 	}
+
+	/** 生成本次实验产生的合作率数组文本文件 */
+	private static String getCoopertationLevelsReport(
+			double[][] coopertationLevels, String horizontalName,
+			String verticalName, int L1, int L2) {
+		StringBuilder sb = new StringBuilder();
+		float ALLPDCooLevel = 0.f;
+		float CooLevel2 = 0.f;
+		float CooLevel3 = 0.f;
+		float CooLevel4 = 0.f;
+		for (int i = 0; i < L1; i++) {
+			for (int j = 0; j < L2; j++) {
+				ALLPDCooLevel += coopertationLevels[i][j];
+				if (i == 0)
+					CooLevel2 += coopertationLevels[i][j];
+				if (j == 0)
+					CooLevel3 += coopertationLevels[i][j];
+				if (i == j)
+					CooLevel4 += coopertationLevels[i][j];
+			}
+		}
+		ALLPDCooLevel = ALLPDCooLevel / (L1 * L2);
+		CooLevel2 = CooLevel2 / L2;
+		CooLevel3 = CooLevel3 / L1;
+		CooLevel4 = CooLevel4 / (Math.min(L1, L2));
+		sb.append("整体平均合作水平：" + ALLPDCooLevel + "\r\n");
+		sb.append("第一行平均合作水平：" + CooLevel2 + "\r\n");
+		sb.append("第一列平均合作水平：" + CooLevel3 + "\r\n");
+		sb.append("左上到右下对角线平均合作水平：" + CooLevel4 + "\r\n");
+		sb.append("每行" + horizontalName + ":从0增大到1.0," + STEP_LENGTH
+				+ "为间隔；\r\n每列" + verticalName + ":从0增大到1.0," + STEP_LENGTH
+				+ "为间隔\r\n");
+		sb.append(ArraytoString.getTwoDeArrayString(coopertationLevels, L1, L2));
+		return sb.toString();
+	}
+
+	// =============================从这里开始，下面的是空间受限网络模拟器================================================//
 
 	private World world;
 
@@ -289,26 +279,32 @@ public class SpatialPDGame implements Reporter {
 	private StrategyPattern strategyPattern;
 
 	private float d0;
-
+	/** 学习的概率 */
 	private float pi;
-
+	/** 迁徙的概率 */
 	private float qi;
+	/** 初始所有个体的交互强度 */
 	private float w;
-
+	/** 当前实验进行到的轮数 */
 	private int turn;
-
+	/** 当前实验中个体策略不再发生变化的累计轮数，可能会因为个体策略发生变化而被重置为0 */
 	private int noChangeTurn;
-
+	/** 当前实验是否结束 */
 	private boolean isFinished;
-
+	/** 是否要记录实验过程中的人口斑图 */
 	private final boolean recordSnapShoot;
+	/** 用于输出调试信息的接口 */
 	private Reporter reporter;
-
+	/** 记录特定轮数模型快照的容器 */
 	private Map<Integer, WorldDetail> worldDetailHistory = new HashMap<>();
 
-	// Map<Integer, Float> globalCoopertationLevelHistory = new HashMap<>();
+	/** 记录实验过程中的人口斑图 的容器 */
 	private Map<Integer, Image> Snapshoot = new HashMap<>();
 
+	/**
+	 * @param recordSnapShoot
+	 *            是否要记录实验过程中的人口斑图
+	 */
 	public SpatialPDGame(boolean recordSnapShoot) {
 		world = new World();
 		this.recordSnapShoot = recordSnapShoot;
@@ -325,6 +321,7 @@ public class SpatialPDGame implements Reporter {
 		this.reporter = reporter;
 	}
 
+	/** 结束实验，模型将会被冻结，无法再进行演化（run） */
 	public void finalize() {
 		if (!isFinished) {
 			isFinished = true;
@@ -344,6 +341,7 @@ public class SpatialPDGame implements Reporter {
 		return Painter.getPDGameImage(400, 400, world);
 	}
 
+	/** 获取本次实验最终结果报告 */
 	public String getDetailReport() {
 		StringBuilder sb = new StringBuilder();
 		ArrayList<Integer> keyList = new ArrayList<>();
@@ -394,17 +392,17 @@ public class SpatialPDGame implements Reporter {
 		return Snapshoot;
 	}
 
-	/**
+	/**该实验所用囚徒矩阵((R，S),(T,P))
 	 * @param pi
 	 *            学习邻居策略的概率
 	 * @param qi
 	 *            迁徙的概率
+	 * @param w
+	 *            初始所有个体的交互强度
 	 * @param learningPattern
-	 *            学习模式，可以是学习最优邻居World.LEARNING_PATTERN_MAXPAYOFF,
-	 *            也可以是fermi学习模式World.LEARNING_PATTERN_FERMI
+	 *            学习模式，可以是学习最优邻居MAXPAYOFF, 也可以是fermi学习模式FERMI
 	 * @param migrationPattern
-	 *            迁徙模式 ，可以是无迁徙World.IMIGRATE_PATTERN_NONE、随机迁徙World.
-	 *            IMIGRATE_PATTERN_RANDOM、机会迁徙World.IMIGRATE_PATTERN_OPTIMISTIC
+	 *            迁徙模式 ，可以是无迁徙NONE、随机迁徙RANDOM、机会迁徙OPTIMISTIC
 	 * 
 	 */
 	public void initSpatialPDGame(int L, float d0, float R, float S, float T,
@@ -427,7 +425,19 @@ public class SpatialPDGame implements Reporter {
 		Snapshoot.clear();
 		worldDetailHistory.clear();
 	}
-
+	/**该实验所用囚徒矩阵((1，-Dr),(1+Dg,0))
+	 * @param pi
+	 *            学习邻居策略的概率
+	 * @param qi
+	 *            迁徙的概率
+	 * @param w
+	 *            初始所有个体的交互强度
+	 * @param learningPattern
+	 *            学习模式，可以是学习最优邻居MAXPAYOFF, 也可以是fermi学习模式FERMI
+	 * @param migrationPattern
+	 *            迁徙模式 ，可以是无迁徙NONE、随机迁徙RANDOM、机会迁徙OPTIMISTIC
+	 * 
+	 */
 	public void initSpatialPDGame(int L, float d0, float Dr, float Dg,
 			float pi, float qi, float w, LearningPattern learningPattern,
 			MigrationPattern imigratePattern, StrategyPattern strategyPattern,
@@ -437,7 +447,19 @@ public class SpatialPDGame implements Reporter {
 				imigratePattern, strategyPattern, neighbourCoverage);
 
 	}
-
+	/**该实验所用囚徒矩阵((1，-r),(1+r,0))
+	 * @param pi
+	 *            学习邻居策略的概率
+	 * @param qi
+	 *            迁徙的概率
+	 * @param w
+	 *            初始所有个体的交互强度
+	 * @param learningPattern
+	 *            学习模式，可以是学习最优邻居MAXPAYOFF, 也可以是fermi学习模式FERMI
+	 * @param migrationPattern
+	 *            迁徙模式 ，可以是无迁徙NONE、随机迁徙RANDOM、机会迁徙OPTIMISTIC
+	 * 
+	 */
 	public void initSpatialPDGame(int L, float d0, float r, float pi, float qi,
 			float w, LearningPattern learningPattern,
 			MigrationPattern imigratePattern, StrategyPattern strategyPattern,
@@ -477,7 +499,8 @@ public class SpatialPDGame implements Reporter {
 			reporter.report("snapshoot at turn " + turn);
 		}
 	}
-
+	/**实验进行若干轮
+	 * @param turnNum 实验要进行的轮数*/
 	public void run(int turnNum) {
 		run(turnNum, new SampleCheck() {
 
@@ -501,10 +524,13 @@ public class SpatialPDGame implements Reporter {
 
 		});
 	}
-
+	/**实验进行若干轮
+	 * @param turnNum 实验要进行的轮数
+	 * @param sampleCheck 是否是特定采样轮数的检查*/
 	public void run(int turnNum, SampleCheck sampleCheck) {
 		if (!isFinished) {
 			int cumulativeTurnNum = 0;
+			//如果是初次调用该方法，先进行一次采样记录模型初始状态
 			if (turn == 0) {
 				// globalCoopertationLevelHistory.clear();
 				worldDetailHistory.clear();
@@ -518,12 +544,12 @@ public class SpatialPDGame implements Reporter {
 			}
 
 			int population = world.getPopulationNum();
-
+			
 			while (cumulativeTurnNum < turnNum) {
 				turn++;
 				cumulativeTurnNum++;
 				world.gambling(gr);
-				if (world.evolute(pi, qi, learningPattern, migrationPattern) < 2 / (float) population) {
+				if (world.evolute(pi, qi, learningPattern, migrationPattern) < 1 / (float) population) {
 					noChangeTurn++;
 					if (noChangeTurn >= 100) {
 						break;
@@ -547,7 +573,7 @@ public class SpatialPDGame implements Reporter {
 		}
 
 	}
-
+	/**获取当前实验进行到的轮数*/
 	public int getTurn() {
 		return turn;
 	}
@@ -556,14 +582,14 @@ public class SpatialPDGame implements Reporter {
 		DecimalFormat df = new DecimalFormat("0.00");
 		return base + "\\" + learningPattern + "_$_" + migrationPattern + "_$_"
 				+ strategyPattern + "_$_pi=" + df.format(pi) + "_$_qi="
-				+ df.format(qi)+"_$_w="+df.format(w);
+				+ df.format(qi) + "_$_w=" + df.format(w);
 	}
 
 	public String constructFileName(String base) {
 		DecimalFormat df = new DecimalFormat("0.00");
 		return constructFilePath(base) + "\\" + "gr=(" + df.format(gr.getR())
 				+ "," + df.format(gr.getS()) + "," + df.format(gr.getT()) + ","
-				+ df.format(gr.getP()) + ")" + "_$_d0=" + df.format(d0) 
+				+ df.format(gr.getP()) + ")" + "_$_d0=" + df.format(d0)
 				+ ".txt";
 	}
 
@@ -584,5 +610,21 @@ public class SpatialPDGame implements Reporter {
 	public void report(String s) {
 		// TODO Auto-generated method stub
 		System.out.println(s);
+	}
+
+	public static interface SampleCheck {
+		/**
+		 * 判断是否需要采样，每隔间隔轮数进行一次采样，统计合作水平
+		 * 
+		 * @param 当前演化轮数
+		 */
+		public boolean isWorldDetailHistorySampleTurn(int turn);
+
+		/**
+		 * 判断是否需要记录演化斑图
+		 * 
+		 * @param 当前演化轮数
+		 */
+		public boolean isSnapshootSampleTurn(int turn);
 	}
 }

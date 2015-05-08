@@ -56,7 +56,9 @@ public enum LearningPattern {
 	private LearningPattern(String s) {
 		name = s;
 	}
-	/**@return 学习到的新策略*/
+	/**个体按照该实例所指的学习模式尝试学习新策略
+	 * @param in 要进行学习的个体
+	 * @return 学习到的新策略*/
 	public float learn(Individual in) {
 		// do nothing
 		return in.getStrategy();

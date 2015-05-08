@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import utils.FileUtils;
-
+/**用于数据后期处理的类，不必理会*/
 public class FileReorganize {
 
 	public static class Data {

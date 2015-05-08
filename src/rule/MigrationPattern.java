@@ -88,8 +88,10 @@ public enum MigrationPattern {
 	private MigrationPattern(String s) {
 		name = s;
 	}
-
-	/** @return 应该迁徙到的位置 */
+	/**个体按照该实例所指的迁徙模式尝试迁徙到某个位置上
+	 * @param in 要尝试迁徙的个体
+	 * @param world 能提供迁徙所需模型必要信息的接口
+	* @return 应该迁徙到的位置，也可能没有迁徙，返回的位置是个体原来所在的的位置 */
 	public Seat migrate(Individual in, WorldInfo world) {
 		return in.getSeat();
 	}

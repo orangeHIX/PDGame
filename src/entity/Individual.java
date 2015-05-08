@@ -37,6 +37,7 @@ public class Individual {
 	 */
 	private float w;
 
+	/**获得个体交互强度*/
 	public float getW() {
 		return w;
 	}
@@ -78,7 +79,7 @@ public class Individual {
 		prePayoff = accumulatedPayoff;
 		accumulatedPayoff = 0;
 	}
-
+	/**获取累计收益*/
 	public float getAccumulatedPayoff() {
 		return accumulatedPayoff;
 	}
@@ -104,8 +105,6 @@ public class Individual {
 	 * @param learningPattern
 	 *            学习邻居策略的方式，LEARNING_PATTERN_MAXPAYOFF表示学习具有最大收益的邻居，
 	 *            LEARNING_PATTERN_FERMI表示按照fermi策略学习邻居
-	 * @param random
-	 *            用于生成随机数
 	 */
 	public void learnFromNeighbours(LearningPattern learningPattern) {
 		nextStrategy = learningPattern.learn(this);
@@ -115,8 +114,8 @@ public class Individual {
 	 * 个体尝试迁徙到周围的空位，
 	 * 
 	 * @param imigratePattern
-	 *            迁徙模式 ，可以是无迁徙World.IMIGRATE_PATTERN_NONE、随机迁徙World.
-	 *            IMIGRATE_PATTERN_RANDOM、机会迁徙World.IMIGRATE_PATTERN_OPTIMISTIC
+	 *            迁徙模式 ，可以是无迁徙NONE、随机迁徙
+	 *            RANDOM、机会迁徙OPTIMISTIC
 	 */
 	public void imigrate(World world, MigrationPattern imigratePattern) {
 		moveTo(imigratePattern.migrate(this, world));
@@ -135,7 +134,7 @@ public class Individual {
 			return false;
 		}
 	}
-
+	/***获取邻居个体当前邻居列表*/
 	public final ArrayList<Individual> getNeighbours() {
 		return neighbours;
 	}

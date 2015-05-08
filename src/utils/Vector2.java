@@ -1,12 +1,15 @@
 package utils;
 
-public class Vector {
+/** ¶þÎ¬ÏòÁ¿ */
+public class Vector2 {
 
 	public int x, y;
-	public Vector(int i, int j){
-		x= i;
+
+	public Vector2(int i, int j) {
+		x = i;
 		y = j;
 	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -15,6 +18,7 @@ public class Vector {
 		result = prime * result + y;
 		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -23,7 +27,7 @@ public class Vector {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Vector other = (Vector) obj;
+		Vector2 other = (Vector2) obj;
 		if (x != other.x)
 			return false;
 		if (y != other.y)

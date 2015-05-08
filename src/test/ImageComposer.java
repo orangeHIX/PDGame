@@ -26,7 +26,7 @@ import javax.swing.JFrame;
 import utils.FileUtils;
 import utils.NamedImage;
 import utils.TurnAndCooLev;
-
+/**用于重排图表的类，不必理会*/
 public class ImageComposer {
 	public static void printPicture(final Image image) {
 		// BufferedImage bi = null;

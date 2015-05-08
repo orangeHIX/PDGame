@@ -1,7 +1,7 @@
 package utils;
 
 import java.util.Random;
-
+/**随机数包装类*/
 public class RandomUtil{
 
 	public static Random random = new Random();

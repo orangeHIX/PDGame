@@ -12,7 +12,7 @@ import rule.NeighbourCoverage;
 import rule.StrategyPattern;
 import test.SpatialPDGame;
 import utils.RandomUtil;
-import utils.Vector;
+import utils.Vector2;
 
 /** 二维网格，包含L*L个空位，和若干个体 */
 public class World implements WorldInfo {
@@ -41,9 +41,9 @@ public class World implements WorldInfo {
 	// * 规定每个个体周围距离多远的个体算是直接邻居，例如： 个体周围距离为1的设为直接邻居，最大邻居数为8
 	// */
 	// private int neighbourRange;
-
+	/***/
 	private NeighbourCoverage neighbourCoverage;
-	/** 记录个体所能采用的策略的代表数值 */
+	/** 记录个体所能采用的策略的代表数值，例如假如策略模式是TWO，则该数组经就该存储0.0和1.0 */
 	private float[] strategySample;
 
 	// private Random random = new Random();
@@ -53,12 +53,14 @@ public class World implements WorldInfo {
 	 * 
 	 * @param length
 	 *            网格长度
+	 * @param w
+	 *            设置全部个体的初始交互强度
 	 * @param density
 	 *            网格中个体的密度
 	 * @param strategyPattern
 	 *            所有个体采用的博弈策略类型
-	 * @param neighbourRange
-	 *            每个个体周围直接邻居的最大距离
+	 * @param neighbourCoverage
+	 *            每个个体周围直接邻居分布模式
 	 */
 	public void init_world(int length, float density, float w,
 			StrategyPattern strategyPattern, NeighbourCoverage neighbourCoverage) {
@@ -84,6 +86,16 @@ public class World implements WorldInfo {
 
 	}
 
+	/**
+	 * 初始化模型中的个体
+	 * 
+	 * @param d0
+	 *            网格中个体的密度
+	 * @param strategyPattern
+	 *            所有个体采用的博弈策略类型
+	 * @param w
+	 *            设置全部个体的初始交互强度
+	 */
 	private void initIndividuals(float d0, StrategyPattern strategyPattern,
 			float w) {
 
@@ -115,19 +127,6 @@ public class World implements WorldInfo {
 				}
 			}
 		}
-		// int[] countS = new int[strategyNum];
-		// for(int i = 0; i < strategyNum; i++){
-		// countS[i] = 0;
-		// }
-		// for(Individual in : IndividualList){
-		// countS[(int) (Math.floor((in.getStrategy()*(strategyNum-1))))]++;
-		// }
-		// int total = 0;
-		// for(int i = 0; i < strategyNum; i++){
-		// System.out.print("strategy " + i + ": "+ countS[i]+"\t");
-		// total += countS[i];
-		// }
-		// System.out.println("total: "+ total);
 	}
 
 	/** 给每个个体随机分配网格中的位置 */
@@ -179,7 +178,7 @@ public class World implements WorldInfo {
 
 		Individual neighbour;
 		ArrayList<Seat> seatAround;
-
+		// 重置所有个体的邻居列表（清空），重置所有个体累计收益（置零）
 		for (Individual in : IndividualList) {
 			in.resetAccumulatedPayoff();
 			in.clearAllNeighbour();
@@ -198,6 +197,7 @@ public class World implements WorldInfo {
 					neighbour.addNeighbour(in);
 					// System.out.println( "interact :"+(in.getW() +
 					// neighbour.getW()) / 2);
+					// 按照两个个体交互强度的平均值决定是否进行博弈
 					if (RandomUtil.nextFloat() <= (in.getW() + neighbour.getW()) / 2) {
 						// 个体与邻居的两两博弈后，累计收益
 						// System.out.println("game : " +in+" and "+neighbour);
@@ -239,14 +239,14 @@ public class World implements WorldInfo {
 			// getEmptySeatAround(in);
 		}
 		int change = 0;
+		// 个体更新下一轮要用的策略
 		for (Individual in : IndividualList) {
-			// 个体更新下一轮要用的策略
 			if (in.updateStrategy()) {
 				change++;
 			}
 		}
+		// 个体更新交互强度
 		for (Individual in : IndividualList) {
-			// 个体更新交互强度
 			in.updateInteractionIntensity(0, 0);
 		}
 		return change / (float) IndividualList.size();
@@ -286,24 +286,8 @@ public class World implements WorldInfo {
 		int i, j;
 		i = s.seat_i;
 		j = s.seat_j;
-
-		// for (int m = (i - neighbourRange > 0) ? i - neighbourRange : 0; (m <
-		// i
-		// + neighbourRange + 1)
-		// && m < L; m++) {
-		// for (int n = (j - neighbourRange > 0) ? j - neighbourRange : 0; (n <
-		// j
-		// + neighbourRange + 1)
-		// && n < L; n++) {
-		// if (m != i || n != j) {
-		// if (test.test(grid[m][n])) {
-		// seatAround.add(grid[m][n]);
-		// }
-		// }
-		// }
-		// }
 		int x, y;
-		for (Vector v : neighbourCoverage.getCoverageVector()) {
+		for (Vector2 v : neighbourCoverage.getCoverageVector()) {
 			x = i + v.x;
 			y = j + v.y;
 			if (x >= 0 && x < L && y >= 0 && y < L) {

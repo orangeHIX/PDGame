@@ -35,6 +35,8 @@ import entity.Individual;
 import entity.World;
 import gui.DebugWindow;
 
+
+/** 用于后期绘制各种图标的类 */
 public class Painter {
 
 	/** 图片格式：JPG */

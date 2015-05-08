@@ -1,5 +1,6 @@
 package rule;
 
+/** 囚徒困境博弈规则 */
 public class GamblingRule {
 
 	/** 策略-合作 取值1.0f */
@@ -31,12 +32,12 @@ public class GamblingRule {
 		this.T = T;
 		this.P = P;
 	}
+
 	/**
 	 * 初始化收益矩阵，收益R S T P分别为： 1 -Dr (1.0+Dg) 0
 	 */
-	public GamblingRule(float Dr, float Dg){
-		if (Dr < 0 || Dr > 1.0001f
-				|| Dg < 0 || Dg > 1.0001f)
+	public GamblingRule(float Dr, float Dg) {
+		if (Dr < 0 || Dr > 1.0001f || Dg < 0 || Dg > 1.0001f)
 			throw new IllegalArgumentException("Dr或者Dg取值区间不在[0,1.0]");
 		this.R = 1.0f;
 		this.S = -Dr;
@@ -68,20 +69,24 @@ public class GamblingRule {
 		// 无论策略是否是连续的，都可以按照这个公式计算
 		return (R - S - T + P) * s1 * s2 + (S - P) * s1 + (T - P) * s2 + P;
 	}
+
 	@Override
 	public String toString() {
-		return "[R=" + R + ", S=" + S + ", T=" + T + ", P=" + P
-				+ "]";
+		return "[R=" + R + ", S=" + S + ", T=" + T + ", P=" + P + "]";
 	}
+
 	public float getR() {
 		return R;
 	}
+
 	public float getS() {
 		return S;
 	}
+
 	public float getT() {
 		return T;
 	}
+
 	public float getP() {
 		return P;
 	}

@@ -14,7 +14,7 @@ import java.util.Scanner;
 
 import utils.ArraytoString;
 import utils.FileUtils;
-
+/**用于数据后期处理的类，不必理会*/
 public class FileFixer {
 
 	public static void FixFile(String filepath, String fileKeyStr, String secFileKeyStr) {
