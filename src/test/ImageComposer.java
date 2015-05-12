@@ -65,10 +65,6 @@ public class ImageComposer {
 		frame.setVisible(true);
 	}
 
-	private static ArrayList<NamedImage> readImages(String path) {
-		return readImages(new File(path));
-	}
-
 	private static ArrayList<NamedImage> readImages(File f) {
 
 		if (!f.isDirectory()) {
@@ -159,10 +155,8 @@ public class ImageComposer {
 								getTurnFromImageList(new File(f2
 										.getAbsolutePath().replace(".txt", ""))));
 						// System.out.println();
-
 					}
 				}
-
 			}
 		}
 	}
@@ -198,7 +192,8 @@ public class ImageComposer {
 			ArrayList<Integer> snapshotTurn) {
 		ArrayList<TurnAndCooLev> list = readCooLev(f);
 		Image image = Painter.drawCooperationLevelPolygon(list, snapshotTurn,
-				800, 500, 20, 20, 40, 20, 30);
+				800, 500, 20, 20, 80, 40, 30);
+//		printPicture(image);
 		if (image != null) {
 			FileUtils.outputImageToFile((RenderedImage) image, "jpg", new File(
 					f.getParentFile().getAbsolutePath() + "\\" + outputFileName

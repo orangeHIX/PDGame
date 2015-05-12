@@ -984,8 +984,8 @@ public class MainJFrame  extends javax.swing.JFrame implements Reporter,Complete
 	    		}
 	    		//System.out.println(spdg.getTurn());
 	    	}
-	    	spdg.finalize();
-	    	FileUtils.outputTofile(jTextFieldOutputFilePath.getText().concat("\\"+spdg.toString()+".txt"), spdg.getDetailReport());
+	    	spdg.done();
+	    	FileUtils.outputTofile(jTextFieldOutputFilePath.getText().concat("\\"+spdg.toString()+".txt"), spdg.dataPrinter.getDetailReport());
 	    	FileUtils.outputSnapshootToFile(jTextFieldOutputFilePath.getText().concat("\\"+spdg.toString()+"\\"), spdg.getSnapshootMap());
 	    	completeListener.notifyCompleted("underwent " + spdg.getTurn() +" turns");
 	    	//MainJFrame.this.setBounds(r);

@@ -340,25 +340,30 @@ public class Painter {
 
 	private static void drawCoordinateAxisY(Graphics2D g2, int x0, int y0,
 			int chartHeight, int chartWidth, int leftSpace) {
+		String nameY = "Cooperation Level";
 		g2.drawLine(x0, y0, x0, y0 - chartHeight);
 		// g2.drawLine(x0 + chartWidth, y0, x0 + chartWidth, y0 - chartHeight);
-		float step = chartHeight / 8.0f;
+		float step = chartHeight / 10.0f;
 		int fontSize = 20;
 		g2.setFont(new Font("ËÎÌו", Font.PLAIN, fontSize));
-		for (int i = 0; i <= 8; i++) {
+		for (int i = 0; i <= 10; i++) {
 			g2.drawLine(x0, (int) (y0 - step * i), x0 + 5,
 					(int) (y0 - step * i));
-			if (i % 2 == 0)
-				g2.drawString("" + i / 8.f, x0 - leftSpace, (int) (y0 - step
+				g2.drawString("" + i / 10.f, x0 - fontSize*2, (int) (y0 - step
 						* i + fontSize * 0.25));
 			g2.drawLine(x0 + chartWidth, (int) (y0 - step * i), x0 + chartWidth
 					- 5, (int) (y0 - step * i));
 		}
+		g2.rotate(Math.toRadians(-90));
+		g2.setFont(new Font("ËÎÌו", Font.BOLD, (int) (fontSize*1.2)));
+		g2.drawString(nameY, (int)(-y0+chartHeight/2-nameY.length()*fontSize/2.5), x0- fontSize*3);
+		g2.rotate(Math.toRadians(90));
 	}
 
 	private static void drawCoordinateAxisX(Graphics2D g2, int x0, int y0,
 			int chartHeight, int chartWidth, int BottomSpace, PolyLine pol,
 			int x[], ArrayList<Integer> snapshotTurn) {
+		String nameX = "Turn";
 		snapshotTurn.sort(new Comparator<Integer>() {
 
 			@Override
@@ -394,6 +399,8 @@ public class Painter {
 			g2.drawLine(x[i], y0 - chartHeight, x[i], y0 - chartHeight + 5);
 			g2.drawLine(x[i], y0, x[i], y0 - 5);
 		}
+		g2.setFont(new Font("ËÎÌו", Font.BOLD, (int) (fontSize*1.2)));
+		g2.drawString(nameX, x0+chartWidth/2-nameX.length()*fontSize/2, (int)(y0+fontSize*2.5));
 	}
 
 	public static void drawVertivalDottedLine(Graphics2D g2, int x0, int y0,

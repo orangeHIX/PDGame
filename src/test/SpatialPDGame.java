@@ -65,9 +65,9 @@ public class SpatialPDGame implements Reporter {
 		// }
 		// float qi = 0;
 		long start = System.currentTimeMillis();
-		runOneTest4(LearningPattern.MAXPAYOFF, MigrationPattern.NONE,
+		runOneTest4(LearningPattern.INTERACTIVE_FERMI, MigrationPattern.NONE,
 				StrategyPattern.TWO, NeighbourCoverage.Von, MAX_TURN_NUM,
-				"F:\\交互强度任务\\data3");
+				"F:\\交互强度任务\\data4");
 		long end = System.currentTimeMillis();
 		System.out.println("underwent: " + (end - start) + "ms");
 		// }
@@ -102,11 +102,11 @@ public class SpatialPDGame implements Reporter {
 							learningPattern, imigratePattern, strategyPattern,
 							NeighbourCoverage.Classic);
 					spdg.run(maxTurn);
-					spdg.finalize();
+					spdg.done();
 					// spdg.printPicture();
 					FileUtils.outputTofile(
-							spdg.constructFileName(outputFilePath),
-							spdg.getDetailReport());
+							spdg.dataPrinter.constructFileName(outputFilePath),
+							spdg.dataPrinter.getDetailReport());
 
 					cl[i][j] = spdg.getCooperationLevel();
 					System.out.println("" + learningPattern + ","
@@ -114,7 +114,7 @@ public class SpatialPDGame implements Reporter {
 							+ Dr + ", Dg=" + Dg + ", d0= " + d0 + " completed");
 				}
 			}
-			FileUtils.outputTofile(spdg.constructFilePath(outputFilePath)
+			FileUtils.outputTofile(spdg.dataPrinter.constructFilePath(outputFilePath)
 					+ "\\CoopertationLevel.txt",
 					getCoopertationLevelsReport(cl, "Dg", "Dr", L1, L2));
 		}
@@ -166,12 +166,12 @@ public class SpatialPDGame implements Reporter {
 					return false;
 				}
 			});
-			spdg.finalize();
+			spdg.done();
 			// spdg.printPicture();
-			FileUtils.outputTofile(spdg.constructFileName(outputFilePath),
-					spdg.getDetailReport());
+			FileUtils.outputTofile(spdg.dataPrinter.constructFileName(outputFilePath),
+					spdg.dataPrinter.getDetailReport());
 			FileUtils.outputSnapshootToFile(
-					spdg.constructImageFilePath(outputFilePath),
+					spdg.dataPrinter.constructImageFilePath(outputFilePath),
 					spdg.getSnapshootMap());
 
 		}
@@ -210,13 +210,13 @@ public class SpatialPDGame implements Reporter {
 							learningPattern, imigratePattern, strategyPattern,
 							neighbourCoverage);
 					spdg.run(maxTurn);
-					spdg.finalize();
+					spdg.done();
 
 					FileUtils.outputTofile(
-							spdg.constructFileName(outputFilePath),
-							spdg.getDetailReport());
+							spdg.dataPrinter.constructFileName(outputFilePath),
+							spdg.dataPrinter.getDetailReport());
 					FileUtils.outputSnapshootToFile(
-							spdg.constructImageFilePath(outputFilePath),
+							spdg.dataPrinter.constructImageFilePath(outputFilePath),
 							spdg.getSnapshootMap());
 
 					cl[i][j] = spdg.getCooperationLevel();
@@ -225,7 +225,7 @@ public class SpatialPDGame implements Reporter {
 							+ Dr + ", Dg=" + Dg + ", w= " + w + " completed");
 				}
 			}
-			FileUtils.outputTofile(spdg.constructFilePath(outputFilePath)
+			FileUtils.outputTofile(spdg.dataPrinter.constructFilePath(outputFilePath)
 					+ "\\CoopertationLevel.txt",
 					getCoopertationLevelsReport(cl, "Dg", "Dr", L1, L2));
 
@@ -300,6 +300,8 @@ public class SpatialPDGame implements Reporter {
 
 	/** 记录实验过程中的人口斑图 的容器 */
 	private Map<Integer, Image> Snapshoot = new HashMap<>();
+	
+	public DataPrinter dataPrinter = new DataPrinter();
 
 	/**
 	 * @param recordSnapShoot
@@ -322,7 +324,7 @@ public class SpatialPDGame implements Reporter {
 	}
 
 	/** 结束实验，模型将会被冻结，无法再进行演化（run） */
-	public void finalize() {
+	public void done() {
 		if (!isFinished) {
 			isFinished = true;
 			// globalCoopertationLevelHistory.put(turn,
@@ -337,56 +339,11 @@ public class SpatialPDGame implements Reporter {
 	}
 
 	// float averageNeighbourNum = 0;
-	private Image getCurrentPicture() {
+	public Image getCurrentPicture() {
 		return Painter.getPDGameImage(400, 400, world);
 	}
 
-	/** 获取本次实验最终结果报告 */
-	public String getDetailReport() {
-		StringBuilder sb = new StringBuilder();
-		ArrayList<Integer> keyList = new ArrayList<>();
-		// keyList.addAll(globalCoopertationLevelHistory.keySet());
-		// Collections.sort(keyList);
-		keyList.addAll(worldDetailHistory.keySet());
-		Collections.sort(keyList);
-
-		sb.append(this.toString());
-		sb.append("\r\n");
-		sb.append("Global cooperate level = "
-				+ world.getGlobalCooperationLevel());
-		sb.append("\tunderwent " + turn + " turns\r\n");
-		sb.append("average neigbour num: " + world.getAverageNeighbourNum()
-				+ "\r\n");
-		sb.append("turn\tcoopLev\t");
-
-		WorldDetail wd = worldDetailHistory.get(new Integer(0));
-		int strategyNum = 0;
-		if (wd != null) {
-			strategyNum = wd.strategyProportion.length;
-		}
-		for (int i = 0; i < strategyNum; i++) {
-			sb.append("s" + i + "\t");
-		}
-		sb.append("\r\n");
-
-		DecimalFormat df = new DecimalFormat("0.000");
-
-		for (Integer i : keyList) {
-			sb.append(i);
-			sb.append('\t');
-			wd = worldDetailHistory.get(i);
-			sb.append(df.format(wd.globalCooperationLevel));
-			sb.append('\t');
-			for (int j = 0; j < strategyNum; j++) {
-				sb.append(df.format(wd.strategyProportion[j]));
-				sb.append('\t');
-			}
-			sb.append("\r\n");
-		}
-		sb.append("\r\nfinal stragety picture:\r\n");
-		sb.append(world.getIndividualStrategyPicture());
-		return sb.toString();
-	}
+	
 
 	public Map<Integer, Image> getSnapshootMap() {
 		return Snapshoot;
@@ -470,28 +427,7 @@ public class SpatialPDGame implements Reporter {
 
 	}
 
-	/** 显示模型散点图 */
-	public void printPicture() {
 
-		// 创建frame
-		JFrame frame = new DebugWindow(world);
-		// 调整frame的大小和初始位置
-		frame.setSize(880, 880);
-		frame.setLocation(100, 100);
-		// 增加窗口监听事件，使用内部类方法，并用监听器的默认适配器
-		frame.addWindowListener(new WindowAdapter() {
-
-			// 重写窗口关闭事件
-			@Override
-			public void windowClosing(WindowEvent arg0) {
-				System.exit(0);
-			}
-
-		});
-		frame.setTitle(this.toString());
-		// 显示窗体
-		frame.setVisible(true);
-	}
 
 	private void recordSnapshoot() {
 		if (recordSnapShoot) {
@@ -578,24 +514,7 @@ public class SpatialPDGame implements Reporter {
 		return turn;
 	}
 
-	public String constructFilePath(String base) {
-		DecimalFormat df = new DecimalFormat("0.00");
-		return base + "\\" + learningPattern + "_$_" + migrationPattern + "_$_"
-				+ strategyPattern + "_$_pi=" + df.format(pi) + "_$_qi="
-				+ df.format(qi) + "_$_w=" + df.format(w);
-	}
-
-	public String constructFileName(String base) {
-		DecimalFormat df = new DecimalFormat("0.00");
-		return constructFilePath(base) + "\\" + "gr=(" + df.format(gr.getR())
-				+ "," + df.format(gr.getS()) + "," + df.format(gr.getT()) + ","
-				+ df.format(gr.getP()) + ")" + "_$_d0=" + df.format(d0)
-				+ ".txt";
-	}
-
-	public String constructImageFilePath(String base) {
-		return constructFileName(base).replace(".txt", "");
-	}
+	
 
 	@Override
 	public String toString() {
@@ -610,6 +529,96 @@ public class SpatialPDGame implements Reporter {
 	public void report(String s) {
 		// TODO Auto-generated method stub
 		System.out.println(s);
+	}
+	
+	public class DataPrinter
+	{
+		/** 获取本次实验最终结果报告 */
+		public String getDetailReport() {
+			StringBuilder sb = new StringBuilder();
+			ArrayList<Integer> keyList = new ArrayList<>();
+			// keyList.addAll(globalCoopertationLevelHistory.keySet());
+			// Collections.sort(keyList);
+			keyList.addAll(worldDetailHistory.keySet());
+			Collections.sort(keyList);
+
+			sb.append(this.toString());
+			sb.append("\r\n");
+			sb.append("Global cooperate level = "
+					+ world.getGlobalCooperationLevel());
+			sb.append("\tunderwent " + turn + " turns\r\n");
+			sb.append("average neigbour num: " + world.getAverageNeighbourNum()
+					+ "\r\n");
+			sb.append("turn\tcoopLev\t");
+
+			WorldDetail wd = worldDetailHistory.get(new Integer(0));
+			int strategyNum = 0;
+			if (wd != null) {
+				strategyNum = wd.strategyProportion.length;
+			}
+			for (int i = 0; i < strategyNum; i++) {
+				sb.append("s" + i + "\t");
+			}
+			sb.append("\r\n");
+
+			DecimalFormat df = new DecimalFormat("0.000");
+
+			for (Integer i : keyList) {
+				sb.append(i);
+				sb.append('\t');
+				wd = worldDetailHistory.get(i);
+				sb.append(df.format(wd.globalCooperationLevel));
+				sb.append('\t');
+				for (int j = 0; j < strategyNum; j++) {
+					sb.append(df.format(wd.strategyProportion[j]));
+					sb.append('\t');
+				}
+				sb.append("\r\n");
+			}
+			sb.append("\r\nfinal stragety picture:\r\n");
+			sb.append(world.getIndividualStrategyPicture());
+			return sb.toString();
+		}
+		/** 显示模型散点图 */
+		public void printPicture() {
+
+			// 创建frame
+			JFrame frame = new DebugWindow(world);
+			// 调整frame的大小和初始位置
+			frame.setSize(880, 880);
+			frame.setLocation(100, 100);
+			// 增加窗口监听事件，使用内部类方法，并用监听器的默认适配器
+			frame.addWindowListener(new WindowAdapter() {
+
+				// 重写窗口关闭事件
+				@Override
+				public void windowClosing(WindowEvent arg0) {
+					System.exit(0);
+				}
+
+			});
+			frame.setTitle(this.toString());
+			// 显示窗体
+			frame.setVisible(true);
+		}
+		public String constructFilePath(String base) {
+			DecimalFormat df = new DecimalFormat("0.00");
+			return base + "\\" + learningPattern + "_$_" + migrationPattern + "_$_"
+					+ strategyPattern + "_$_pi=" + df.format(pi) + "_$_qi="
+					+ df.format(qi) + "_$_w=" + df.format(w);
+		}
+
+		public String constructFileName(String base) {
+			DecimalFormat df = new DecimalFormat("0.00");
+			return constructFilePath(base) + "\\" + "gr=(" + df.format(gr.getR())
+					+ "," + df.format(gr.getS()) + "," + df.format(gr.getT()) + ","
+					+ df.format(gr.getP()) + ")" + "_$_d0=" + df.format(d0)
+					+ ".txt";
+		}
+
+		public String constructImageFilePath(String base) {
+			return constructFileName(base).replace(".txt", "");
+		}
 	}
 
 	public static interface SampleCheck {
