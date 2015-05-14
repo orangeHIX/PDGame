@@ -28,13 +28,14 @@ import java.util.SortedMap;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
+import rule.LearningPattern;
+import test.ImageComposer;
 import utils.NamedImage;
 import utils.PolyLine;
 import utils.TurnAndCooLev;
 import entity.Individual;
 import entity.World;
 import gui.DebugWindow;
-
 
 /** 用于后期绘制各种图标的类 */
 public class Painter {
@@ -102,18 +103,19 @@ public class Painter {
 	}
 
 	public static Image composingPopulationImage(ArrayList<NamedImage> images,
-			int column, int imageWidth, int imageHeight, int marginLengthX,
-			int marginLengthY, int spacingLengthX, int spacingLengthY) {
+			String caption, int column, int imageWidth, int imageHeight,
+			int marginLengthX, int marginLengthY, int spacingLengthX,
+			int spacingLengthY, int topCaptionSpace) {
 		if (images == null) {
 			return null;
 		}
 
-		int legendSpace = (int) (imageWidth / 3.5);
+		int legendSpace =0;// (int) (imageWidth / 3.5);
 		int width = column * (imageWidth + spacingLengthX) + 2 * marginLengthX
 				- spacingLengthX + legendSpace + spacingLengthX;
 		int row = (int) Math.ceil(images.size() / (double) column);
 		int height = row * (imageHeight + spacingLengthY) + 2 * marginLengthY
-				- spacingLengthY;
+				- spacingLengthY + topCaptionSpace;
 
 		BufferedImage bi = new BufferedImage(width, height,
 				BufferedImage.TYPE_INT_RGB);
@@ -123,24 +125,64 @@ public class Painter {
 		g2.setBackground(Color.WHITE);
 		g2.clearRect(0, 0, width, height);
 
+		// 画整理好的人口斑图
+		Image popuImage = drawPopulationImage(images, column, imageWidth,
+				imageHeight, spacingLengthX, spacingLengthY);
+		g2.drawImage(popuImage, marginLengthX, marginLengthY - spacingLengthY
+				+ topCaptionSpace, null);
+
+		// 画图例
+//		Image legend = getLegend(100, false);
+//		g2.drawImage(legend, width - legendSpace - marginLengthX,
+//				marginLengthY, legendSpace, (int) (legendSpace * 7.5), null);
+
+		// 画题注
+		int fontSize = (int) (topCaptionSpace);
+		Font font = new Font("黑体", Font.PLAIN, fontSize);
+		g2.setColor(Color.BLACK);
+		g2.setFont(font);
+		g2.drawString(caption, (int) (width / 2.0 - caption.length() * fontSize
+				/ 2.0 / 2.0), topCaptionSpace);
+		g2.dispose();
+
+		return bi;
+	}
+
+	public static Image drawPopulationImage(ArrayList<NamedImage> images,
+			int column, int imageWidth, int imageHeight, // int marginLengthX,
+															// int
+															// marginLengthY,
+			int spacingLengthX, int spacingLengthY) {
+
+		int row = (int) Math.ceil(images.size() / (double) column);
+		int width = column * (imageWidth + spacingLengthX) - spacingLengthX;
+		int height = row * (imageHeight + spacingLengthY);
+		BufferedImage bi = new BufferedImage(width, height,
+				BufferedImage.TYPE_INT_RGB);
+
+		Graphics2D g2 = bi.createGraphics();
+		// g2.setBackground(new Color(0,0,0,0));
+		g2.setBackground(Color.WHITE);
+		g2.clearRect(0, 0, width, height);
 		g2.setColor(Color.BLACK);
 		g2.setFont(new Font("宋体", Font.BOLD, spacingLengthY));
 
-		sortImageList(images);
+		// sortImageList(images);
 
 		int k = 0;
 		int drawX, drawY;
 		for (int i = 0; i < row; i++) {
-			drawY = spacingLengthY * i + marginLengthY + imageHeight * i;
+			drawY = spacingLengthY * i + imageHeight * i + spacingLengthY;
 			// g2.drawLine(0, drawY,
 			// width, drawY);
 			for (int j = 0; j < column; j++) {
-				drawX = spacingLengthX * j + marginLengthX + imageWidth * j;
+				drawX = spacingLengthX * j + imageWidth * j;
 				// if (i == 0) {
 				// g2.drawLine(drawX, 0, drawX, height);
 				// }
 				g2.drawImage(images.get(k).image, drawX, drawY, imageWidth,
 						imageHeight, null);
+				// System.out.println("" + images.get(k).getID());
 				g2.drawString("" + images.get(k).getID(), drawX, drawY);
 				// g2.fillRect(spacingLength * (j + 1) + imageWidth * j,
 				// spacingLength * (i + 1) + imageHeight * i, imageWidth,
@@ -151,16 +193,13 @@ public class Painter {
 				}
 			}
 		}
-		Image legend = getLegend(100);
-		g2.drawImage(legend, width - legendSpace - marginLengthX,
-				marginLengthY, legendSpace, (int) (legendSpace * 7.5), null);
-
+		// ImageComposer.printPicture(bi);
 		g2.dispose();
 
 		return bi;
 	}
 
-	private static Image getLegend(int width) {
+	private static Image getLegend(int width, boolean vertical) {
 		int height = width * 15;
 		int leftMargin = width;
 
@@ -211,19 +250,6 @@ public class Painter {
 		graphics2d.drawImage(bufferedimage, 0, 0, null);
 		graphics2d.dispose();
 		return img;
-	}
-
-	private static ArrayList<NamedImage> sortImageList(
-			ArrayList<NamedImage> images) {
-		images.sort(new Comparator<NamedImage>() {
-
-			@Override
-			public int compare(NamedImage o1, NamedImage o2) {
-				// TODO Auto-generated method stub
-				return o1.getID() - o2.getID();
-			}
-		});
-		return images;
 	}
 
 	public static Image drawCooperationLevelPolygon(
@@ -349,14 +375,15 @@ public class Painter {
 		for (int i = 0; i <= 10; i++) {
 			g2.drawLine(x0, (int) (y0 - step * i), x0 + 5,
 					(int) (y0 - step * i));
-				g2.drawString("" + i / 10.f, x0 - fontSize*2, (int) (y0 - step
-						* i + fontSize * 0.25));
+			g2.drawString("" + i / 10.f, x0 - fontSize * 2, (int) (y0 - step
+					* i + fontSize * 0.25));
 			g2.drawLine(x0 + chartWidth, (int) (y0 - step * i), x0 + chartWidth
 					- 5, (int) (y0 - step * i));
 		}
 		g2.rotate(Math.toRadians(-90));
-		g2.setFont(new Font("宋体", Font.BOLD, (int) (fontSize*1.2)));
-		g2.drawString(nameY, (int)(-y0+chartHeight/2-nameY.length()*fontSize/2.5), x0- fontSize*3);
+		g2.setFont(new Font("宋体", Font.BOLD, (int) (fontSize * 1.2)));
+		g2.drawString(nameY, (int) (-y0 + chartHeight / 2 - nameY.length()
+				* fontSize / 2.5), x0 - fontSize * 3);
 		g2.rotate(Math.toRadians(90));
 	}
 
@@ -399,8 +426,9 @@ public class Painter {
 			g2.drawLine(x[i], y0 - chartHeight, x[i], y0 - chartHeight + 5);
 			g2.drawLine(x[i], y0, x[i], y0 - 5);
 		}
-		g2.setFont(new Font("宋体", Font.BOLD, (int) (fontSize*1.2)));
-		g2.drawString(nameX, x0+chartWidth/2-nameX.length()*fontSize/2, (int)(y0+fontSize*2.5));
+		g2.setFont(new Font("宋体", Font.BOLD, (int) (fontSize * 1.2)));
+		g2.drawString(nameX, x0 + chartWidth / 2 - nameX.length() * fontSize
+				/ 2, (int) (y0 + fontSize * 2.5));
 	}
 
 	public static void drawVertivalDottedLine(Graphics2D g2, int x0, int y0,
@@ -410,6 +438,43 @@ public class Painter {
 			if (i % 2 == 0)
 				g2.drawLine(x0, y0 - 5 * i, x0, y0 - 5 * (i + 1));
 		}
+	}
+
+	public static Image assembleImages(ArrayList<Image> images, int marginX,
+			int marginY) {
+		if (images.size() != 4)
+			return null;
+		int imageWidth = images.get(0).getWidth(null);
+		int imageHeight = images.get(1).getHeight(null);
+		int legendSpace = (int)(imageHeight/3.5);
+		int width = imageWidth  + marginX *2;
+		int height = imageHeight * 4 + marginY * 5 +legendSpace;
+
+		BufferedImage bi = new BufferedImage(width, height,
+				BufferedImage.TYPE_INT_RGB);
+		Graphics2D g2 = bi.createGraphics();
+		g2.setBackground(Color.WHITE);
+		// g2.setBackground(Color.GRAY);
+		g2.clearRect(0, 0, width, height);
+		int fontSize = imageHeight / 8;
+		for (int i = 0; i < 4; i++) {
+			int dx = marginX ;
+			int dy = marginY + (marginY + imageHeight) * i;
+			g2.drawImage(images.get(i), dx, dy, null);
+			g2.setFont(new Font("黑体", Font.PLAIN, fontSize));
+			g2.setColor(Color.BLACK);
+			g2.drawString("(" + (char) ('a' + i) + ")", dx + fontSize / 4, dy
+					+fontSize);
+		}
+		Image legend = getLegend(100, true);
+		g2.rotate(Math.toRadians(90));
+		int legendwidth =legendSpace;
+		int legendHeight = (int) (legendSpace * 7.5);
+		g2.drawImage(legend, height-legendwidth,
+				-(width/2 +legendHeight/2), legendwidth, legendHeight, null);
+		//ImageComposer.printPicture(bi);
+		g2.dispose();
+		return bi;
 	}
 
 	public static void main(String[] args) {

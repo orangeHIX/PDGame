@@ -60,14 +60,15 @@ public enum LearningPattern {
 			double imitatePosibility = 0;
 			final ArrayList<Individual> neighbours = in.getNeighbours();
 			if (!neighbours.isEmpty()) {
-				Individual neighbour = null;	//neighbour to learn from
+				Individual neighbour = null; // neighbour to learn from
 
 				float neighboursPayoff = 0.0f;
 				for (Individual nei : neighbours) {
 					neighboursPayoff += nei.getAccumulatedPayoff();
 				}
-//				there are instances where neighboursPayoff is equal to zero. Where this occurs, player x will
-//				randomly select one player y from its adjacent neighbors.
+				// there are instances where neighboursPayoff is equal to zero.
+				// Where this occurs, player x will
+				// randomly select one player y from its adjacent neighbors.
 				if (neighboursPayoff < 0.e-6) {
 					neighbour = neighbours
 							.get((int) (RandomUtil.nextFloat() * neighbours
@@ -85,7 +86,7 @@ public enum LearningPattern {
 						preA = A;
 					}
 				}
-				
+
 				imitatePosibility = 1 / (1 + Math.exp((in
 						.getAccumulatedPayoff() - neighbour
 						.getAccumulatedPayoff())

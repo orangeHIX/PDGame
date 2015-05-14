@@ -13,7 +13,8 @@ public class Seat {
 		seat_i = i;
 		seat_j = j;
 	}
-	/**获取处于该位置的个体，没有返回null*/
+
+	/** 获取处于该位置的个体，没有返回null */
 	public Individual getOwner() {
 		return owner;
 	}

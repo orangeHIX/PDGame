@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.Scanner;
 
 import utils.FileUtils;
-/**用于数据后期处理的类，不必理会*/
+
+/** 用于数据后期处理的类，不必理会 */
 public class FileReorganize {
 
 	public static class Data {
@@ -29,11 +30,11 @@ public class FileReorganize {
 		File f = new File(filepath);
 		ArrayList<Data> dataSet = new ArrayList<>();
 		for (File file1 : f.listFiles()) {
-			if (file1.isDirectory() && file1.getName().endsWith("$") &&
-					 file1.getName().contains(fileKeyStr)) {
+			if (file1.isDirectory() && file1.getName().endsWith("$")
+					&& file1.getName().contains(fileKeyStr)) {
 				System.out.println(file1.getName());
 
-				//int i = 0;
+				// int i = 0;
 				for (File file2 : file1.listFiles()) {
 					if (file2.getName()
 							.endsWith("_CooperationLevelSummary.txt")) {
@@ -101,6 +102,6 @@ public class FileReorganize {
 	}
 
 	public static void main(String[] args) {
-		reorganize("F:\\交互强度任务","data3");
+		reorganize("F:\\交互强度任务", "data5");
 	}
 }

@@ -1,5 +1,6 @@
 package utils;
-/**’€œﬂ*/
+
+/** ’€œﬂ */
 public class PolyLine {
 
 	public float[] pointX;
@@ -9,6 +10,7 @@ public class PolyLine {
 	public float xRangeE;
 	public float yRangeS;
 	public float yRangeE;
+
 	public PolyLine(float[] pointX, float[] pointY, int pointNum,
 			float xRangeS, float xRangeE, float yRangeS, float yRangeE) {
 		super();
@@ -20,6 +22,5 @@ public class PolyLine {
 		this.yRangeS = yRangeS;
 		this.yRangeE = yRangeE;
 	}
-	
-	
+
 }

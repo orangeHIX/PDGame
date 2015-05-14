@@ -14,28 +14,32 @@ import java.util.Scanner;
 
 import utils.ArraytoString;
 import utils.FileUtils;
-/**用于数据后期处理的类，不必理会*/
+
+/** 用于数据后期处理的类，不必理会 */
 public class FileFixer {
 
-	public static void FixFile(String filepath, String fileKeyStr, String secFileKeyStr) {
+	public static void FixFile(String filepath, String fileKeyStr,
+			String secFileKeyStr) {
 		File f = new File(filepath);
 		float[][] data = null;
 
 		File[] filelist = f.listFiles();
 		for (File file1 : filelist) {
 			if (
-					//file1.getName().endsWith(")")
-					//&& !
-					file1.getName().contains(fileKeyStr) && ! file1.getName().endsWith("$")) {
+			// file1.getName().endsWith(")")
+			// && !
+			file1.getName().contains(fileKeyStr)
+					&& !file1.getName().endsWith("$")) {
 				System.out.println(file1.getName());
 				for (File file2 : file1.listFiles()) {
-					if (file2.isDirectory() && file2.getName().contains(secFileKeyStr)) {
+					if (file2.isDirectory()
+							&& file2.getName().contains(secFileKeyStr)) {
 						System.out.println(file2.getName());
 						for (File file3 : file2.listFiles()) {
 							if (file3.getName().equals("CoopertationLevel.txt")) {
 								System.out.println(file3.getName());
 								data = readData(file3);
-								//rewriteFile(file3,data);
+								// rewriteFile(file3,data);
 								break;
 							}
 						}
@@ -44,14 +48,15 @@ public class FileFixer {
 									+ file1.getName() + "$\\" + file2.getName()
 									+ "_CooperationLevelSummary.txt";
 							writeFile(outFileName, data);
-							
+
 						}
 					}
 				}
 			}
 		}
 	}
-	public static void rewriteFile(File f, float[][] data){
+
+	public static void rewriteFile(File f, float[][] data) {
 
 		int L1, L2;
 		L1 = L2 = 11;
@@ -91,6 +96,7 @@ public class FileFixer {
 			e.printStackTrace();
 		}
 	}
+
 	public static void writeFile(String filename, float[][] data) {
 		File f = FileUtils.getFile(filename);
 		int L1, L2;
@@ -164,6 +170,6 @@ public class FileFixer {
 	}
 
 	public static void main(String[] args) {
-		FixFile("F:\\交互强度任务","data3","w=");
+		FixFile("F:\\交互强度任务", "data5", "w=");
 	}
 }

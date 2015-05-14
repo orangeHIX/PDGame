@@ -2,7 +2,6 @@ package utils;
 
 import java.text.DecimalFormat;
 
-
 public class ArraytoString {
 	public static String getTwoDeArrayString(double[][] a, int L1, int L2) {
 		StringBuilder sb = new StringBuilder();
@@ -16,6 +15,7 @@ public class ArraytoString {
 		}
 		return sb.toString();
 	}
+
 	public static String getTwoDeArrayString(float[][] a, int L1, int L2) {
 		StringBuilder sb = new StringBuilder();
 		DecimalFormat df = new DecimalFormat("0.000");

@@ -37,7 +37,7 @@ public class Individual {
 	 */
 	private float w;
 
-	/**获得个体交互强度*/
+	/** 获得个体交互强度 */
 	public float getW() {
 		return w;
 	}
@@ -79,7 +79,8 @@ public class Individual {
 		prePayoff = accumulatedPayoff;
 		accumulatedPayoff = 0;
 	}
-	/**获取累计收益*/
+
+	/** 获取累计收益 */
 	public float getAccumulatedPayoff() {
 		return accumulatedPayoff;
 	}
@@ -114,8 +115,7 @@ public class Individual {
 	 * 个体尝试迁徙到周围的空位，
 	 * 
 	 * @param imigratePattern
-	 *            迁徙模式 ，可以是无迁徙NONE、随机迁徙
-	 *            RANDOM、机会迁徙OPTIMISTIC
+	 *            迁徙模式 ，可以是无迁徙NONE、随机迁徙 RANDOM、机会迁徙OPTIMISTIC
 	 */
 	public void imigrate(World world, MigrationPattern imigratePattern) {
 		moveTo(imigratePattern.migrate(this, world));
@@ -134,7 +134,8 @@ public class Individual {
 			return false;
 		}
 	}
-	/***获取邻居个体当前邻居列表*/
+
+	/*** 获取邻居个体当前邻居列表 */
 	public final ArrayList<Individual> getNeighbours() {
 		return neighbours;
 	}
@@ -166,9 +167,13 @@ public class Individual {
 			w = MIN_W;
 		}
 	}
-	
-	/**个体移动到新的位置。如果位置不为空，个体不移动
-	 * @param emptySeat 要移动到的空位置*/
+
+	/**
+	 * 个体移动到新的位置。如果位置不为空，个体不移动
+	 * 
+	 * @param emptySeat
+	 *            要移动到的空位置
+	 */
 	public boolean moveTo(Seat emptySeat) {
 		if (emptySeat.isEmpty()) {
 			seat.setOwner(null);
