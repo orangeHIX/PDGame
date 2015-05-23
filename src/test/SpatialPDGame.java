@@ -124,13 +124,13 @@ public class SpatialPDGame implements Reporter {
 	 *            初始所有个体的交互强度
 	 * @param learningPattern
 	 *            学习模式，可以是学习最优邻居MAXPAYOFF, 也可以是fermi学习模式FERMI
-	 * @param migrationPattern
+	 * @param migratePattern
 	 *            迁徙模式 ，可以是无迁徙NONE、随机迁徙RANDOM、机会迁徙OPTIMISTIC
 	 * 
 	 */
 	public void initSpatialPDGame(int L, float d0, float R, float S, float T,
 			float P, float pi, float qi, float w,
-			LearningPattern learningPattern, MigrationPattern imigratePattern,
+			LearningPattern learningPattern, MigrationPattern migratePattern,
 			StrategyPattern strategyPattern, NeighbourCoverage neighbourCoverage) {
 
 		world.init_world(L, d0, w, strategyPattern, neighbourCoverage);
@@ -140,7 +140,7 @@ public class SpatialPDGame implements Reporter {
 		this.qi = qi;
 		this.w = w;
 		this.learningPattern = learningPattern;
-		this.migrationPattern = imigratePattern;
+		this.migrationPattern = migratePattern;
 		this.strategyPattern = strategyPattern;
 		this.neighbourCoverage = neighbourCoverage;
 		turn = 0;
@@ -148,6 +148,7 @@ public class SpatialPDGame implements Reporter {
 		isFinished = false;
 		Snapshoot.clear();
 		worldDetailHistory.clear();
+		param.clear();
 
 		param.add(new Parameter<Integer>("L", world.getLength()));
 		param.add(new Parameter<Float>("d0", this.d0));
@@ -177,17 +178,17 @@ public class SpatialPDGame implements Reporter {
 	 *            初始所有个体的交互强度
 	 * @param learningPattern
 	 *            学习模式，可以是学习最优邻居MAXPAYOFF, 也可以是fermi学习模式FERMI
-	 * @param migrationPattern
+	 * @param migratePattern
 	 *            迁徙模式 ，可以是无迁徙NONE、随机迁徙RANDOM、机会迁徙OPTIMISTIC
 	 * 
 	 */
 	public void initSpatialPDGame(int L, float d0, float Dr, float Dg,
 			float pi, float qi, float w, LearningPattern learningPattern,
-			MigrationPattern imigratePattern, StrategyPattern strategyPattern,
+			MigrationPattern migratePattern, StrategyPattern strategyPattern,
 			NeighbourCoverage neighbourCoverage) {
 
 		initSpatialPDGame(L, d0, 1, -Dr, 1 + Dg, 0, pi, qi, w, learningPattern,
-				imigratePattern, strategyPattern, neighbourCoverage);
+				migratePattern, strategyPattern, neighbourCoverage);
 
 	}
 
@@ -202,17 +203,17 @@ public class SpatialPDGame implements Reporter {
 	 *            初始所有个体的交互强度
 	 * @param learningPattern
 	 *            学习模式，可以是学习最优邻居MAXPAYOFF, 也可以是fermi学习模式FERMI
-	 * @param migrationPattern
+	 * @param migratePattern
 	 *            迁徙模式 ，可以是无迁徙NONE、随机迁徙RANDOM、机会迁徙OPTIMISTIC
 	 * 
 	 */
 	public void initSpatialPDGame(int L, float d0, float r, float pi, float qi,
 			float w, LearningPattern learningPattern,
-			MigrationPattern imigratePattern, StrategyPattern strategyPattern,
+			MigrationPattern migratePattern, StrategyPattern strategyPattern,
 			NeighbourCoverage neighbourCoverage) {
 
 		initSpatialPDGame(L, d0, r, r, pi, qi, w, learningPattern,
-				imigratePattern, strategyPattern, neighbourCoverage);
+				migratePattern, strategyPattern, neighbourCoverage);
 
 	}
 
@@ -440,14 +441,14 @@ public class SpatialPDGame implements Reporter {
 		/**
 		 * 判断是否需要采样，每隔间隔轮数进行一次采样，统计合作水平
 		 * 
-		 * @param 当前演化轮数
+		 * @param turn 当前演化轮数
 		 */
 		public boolean isWorldDetailHistorySampleTurn(int turn);
 
 		/**
 		 * 判断是否需要记录演化斑图
 		 * 
-		 * @param 当前演化轮数
+		 * @param turn 当前演化轮数
 		 */
 		public boolean isSnapshootSampleTurn(int turn);
 	}

@@ -69,7 +69,7 @@ public enum LearningPattern {
 				// there are instances where neighboursPayoff is equal to zero.
 				// Where this occurs, player x will
 				// randomly select one player y from its adjacent neighbors.
-				if (neighboursPayoff < 0.e-6) {
+				if (neighboursPayoff <= 1.e-6) {
 					neighbour = neighbours
 							.get((int) (RandomUtil.nextFloat() * neighbours
 									.size()));
