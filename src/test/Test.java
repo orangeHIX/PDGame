@@ -28,21 +28,28 @@ public class Test {
     public static final float STEP_LENGTH = 0.1f;
 
     public static void main(String args[]) {
-        // SpatialPDGame spdg = new SpatialPDGame(false);
-        // spdg.initSpatialPDGame(10, 1.0f, 0.1f, 0.1f, 1.0f, 0, 1.0f,
-        // LearningPattern.FERMI, MigrationPattern.NONE,
-        // StrategyPattern.TWO, NeighbourCoverage.Von);
-        // spdg.run(1);
-        // spdg.done();
-        // System.out.println(spdg.dataPrinter.getDetailReport());
-        // spdg.printPicture();
+         SpatialPDGame spdg = new SpatialPDGame(true);
+         spdg.initSpatialPDGame(100, 1.0f, 0.1f, 0.1f, 1.0f, 0, .1f,
+                 LearningPattern.INTERACTIVE_FERMI, MigrationPattern.NONE,
+                 StrategyPattern.CONTINUOUS, NeighbourCoverage.Von);
+         spdg.run(MAX_TURN_NUM);
+         spdg.done();
+        FileUtils.outputToFile(
+                spdg.dataPrinter.constructFileName("C:\\Users\\hyx\\Desktop\\kk"),
+                spdg.dataPrinter.getDetailReport());
+        //FileUtils.outputImageToFile();
+        FileUtils.outputSnapshootToFile(
+                spdg.dataPrinter.constructImageFilePath("C:\\Users\\hyx\\Desktop\\kk"),
+                spdg.getSnapshootMap());
+         System.out.println(spdg.dataPrinter.getDetailReport());
+         //spdg.printPicture();
 
-        long start = System.currentTimeMillis();
-        runOneTest4(LearningPattern.INTERACTIVE_FERMI, MigrationPattern.NONE,
-                StrategyPattern.CONTINUOUS, NeighbourCoverage.Von,
-                MAX_TURN_NUM, "F:\\交互强度任务\\data5");
-        long end = System.currentTimeMillis();
-        System.out.println("underwent: " + (end - start) + "ms");
+//        long start = System.currentTimeMillis();
+//        runOneTest4(LearningPattern.INTERACTIVE_FERMI, MigrationPattern.NONE,
+//                StrategyPattern.CONTINUOUS, NeighbourCoverage.Von,
+//                MAX_TURN_NUM, "F:\\交互强度任务\\data5");
+//        long end = System.currentTimeMillis();
+//        System.out.println("underwent: " + (end - start) + "ms");
 
     }
 
@@ -79,7 +86,7 @@ public class Test {
                     spdg.run(maxTurn);
                     spdg.done();
                     // spdg.printPicture();
-                    FileUtils.outputTofile(
+                    FileUtils.outputToFile(
                             spdg.dataPrinter.constructFileName(outputFilePath),
                             spdg.dataPrinter.getDetailReport());
 
@@ -89,7 +96,7 @@ public class Test {
                             + Dr + ", Dg=" + Dg + ", d0= " + d0 + " completed");
                 }
             }
-            FileUtils.outputTofile(
+            FileUtils.outputToFile(
                     spdg.dataPrinter.constructFilePath(outputFilePath)
                             + "\\CoopertationLevel.txt",
                     getCoopertationLevelsReport(cl, "Dg", "Dr", L1, L2));
@@ -146,9 +153,10 @@ public class Test {
             });
             spdg.done();
             // spdg.printPicture();
-            FileUtils.outputTofile(
+            FileUtils.outputToFile(
                     spdg.dataPrinter.constructFileName(outputFilePath),
                     spdg.dataPrinter.getDetailReport());
+            //FileUtils.outputImageToFile();
             FileUtils.outputSnapshootToFile(
                     spdg.dataPrinter.constructImageFilePath(outputFilePath),
                     spdg.getSnapshootMap());
@@ -193,7 +201,7 @@ public class Test {
                     spdg.run(maxTurn);
                     spdg.done();
 
-                    FileUtils.outputTofile(
+                    FileUtils.outputToFile(
                             spdg.dataPrinter.constructFileName(outputFilePath),
                             spdg.dataPrinter.getDetailReport());
                     FileUtils.outputSnapshootToFile(spdg.dataPrinter
@@ -206,7 +214,7 @@ public class Test {
                             + Dr + ", Dg=" + Dg + ", w= " + w + " completed");
                 }
             }
-            FileUtils.outputTofile(
+            FileUtils.outputToFile(
                     spdg.dataPrinter.constructFilePath(outputFilePath)
                             + "\\CoopertationLevel.txt",
                     getCoopertationLevelsReport(cl, "Dg", "Dr", L1, L2));
@@ -247,7 +255,7 @@ public class Test {
         sb.append("每行" + horizontalName + ":从0增大到1.0," + STEP_LENGTH
                 + "为间隔；\r\n每列" + verticalName + ":从0增大到1.0," + STEP_LENGTH
                 + "为间隔\r\n");
-        sb.append(ArrayUtils.getTwoDeArrayString(coopertationLevels, L1, L2));
+        sb.append(ArrayUtils.getTwoDeArrayString(coopertationLevels));
         return sb.toString();
     }
 }

@@ -1,10 +1,7 @@
 package entity;
 
 import rule.*;
-import utils.ArrayUtils;
-import utils.RandomUtil;
-import utils.Vector2;
-import utils.WorldDetail;
+import utils.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -190,7 +187,6 @@ public class World implements WorldInfo {
             in.clearAllNeighbour();
         }
 
-        clearMatrix();
 
         float inStra, neiStra;
         int inStraIndex, neiStraIndex;
@@ -387,13 +383,13 @@ public class World implements WorldInfo {
             strategyProportion[i] = strategyProportion[i]
                     / IndividualList.size();
         }
-
+        float[][] PM = ArrayUtils.copyFloatMatrix(
+                strategyPayoffMatrix, strategyNum, strategyNum);
+        int[][] GM = ArrayUtils.copyIntMatrix(
+                strategyGamblingMatrix, strategyNum, strategyNum);
+        clearMatrix();
         return new WorldDetail(globalCooperationLevel,
-                strategyProportion,
-                ArrayUtils.copyIntMatrix(
-                        strategyGamblingMatrix, strategyNum, strategyNum),
-                ArrayUtils.copyFloatMatrix(
-                        strategyPayoffMatrix, strategyNum, strategyNum));
+                strategyProportion, GM, PM);
     }
 
     @Override
@@ -429,6 +425,24 @@ public class World implements WorldInfo {
         return sb.toString();
     }
 
+    @Override
+    public String getIndividualPayoffPicture() {
+        StringBuilder sb = new StringBuilder();
+        Individual in;
+        for (int i = 0; i < L; i++) {
+            for (int j = 0; j < L; j++) {
+                in = grid[i][j].getOwner();
+                sb.append(in == null ? null : in.getAccumulatedPayoff());
+                sb.append('\t');
+            }
+            sb.append("\r\n");
+        }
+        return sb.toString();
+    }
+
+    public Snapshot getSnapshot(){
+        return new Snapshot(getIndividualStrategyPicture(), getIndividualPayoffPicture());
+    }
     public void printIndividualPayoff() {
         StringBuilder sb = new StringBuilder();
         Individual in;

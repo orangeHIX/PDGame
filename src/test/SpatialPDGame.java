@@ -1,22 +1,20 @@
 package test;
 
 import entity.World;
-import utils.WorldDetail;
 import graphic.Painter;
 import gui.DebugWindow;
 import rule.*;
 import utils.Parameter;
 import utils.Reporter;
+import utils.Snapshot;
+import utils.WorldDetail;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class SpatialPDGame implements Reporter {
 
@@ -68,7 +66,7 @@ public class SpatialPDGame implements Reporter {
     /**
      * 记录实验过程中的人口斑图 的容器
      */
-    private Map<Integer, Image> Snapshoot = new HashMap<>();
+    private Map<Integer, Snapshot> snapshotMap = new HashMap<>();
 
     /**
      * @param recordSnapShoot 是否要记录实验过程中的人口斑图
@@ -95,7 +93,7 @@ public class SpatialPDGame implements Reporter {
     public void done() {
         if (!isFinished) {
             isFinished = true;
-            // globalCoopertationLevelHistory.put(turn,
+            // globalCooperationLevelHistory.put(turn,
             // world.getGlobalCooperationLevel());
             worldDetailHistory.put(turn, world.getWorldDetail());
             recordSnapshoot();
@@ -111,8 +109,8 @@ public class SpatialPDGame implements Reporter {
         return Painter.getPDGameImage(400, 400, world);
     }
 
-    public Map<Integer, Image> getSnapshootMap() {
-        return Snapshoot;
+    public Map<Integer, Snapshot> getSnapshootMap() {
+        return snapshotMap;
     }
 
     /**
@@ -142,7 +140,7 @@ public class SpatialPDGame implements Reporter {
         turn = 0;
         noChangeTurn = 0;
         isFinished = false;
-        Snapshoot.clear();
+        snapshotMap.clear();
         worldDetailHistory.clear();
         param.clear();
 
@@ -203,8 +201,8 @@ public class SpatialPDGame implements Reporter {
 
     private void recordSnapshoot() {
         if (recordSnapShoot) {
-            Snapshoot.put(turn, getCurrentPicture());
-            reporter.report("snapshoot at turn " + turn);
+            snapshotMap.put(turn, world.getSnapshot());//getCurrentPicture());
+            reporter.report("snapshot at turn " + turn);
         }
     }
 
@@ -215,11 +213,14 @@ public class SpatialPDGame implements Reporter {
      */
     public void run(int turnNum) {
         run(turnNum, new SampleCheck() {
+            final int[] ids = {0, 1, 2, 3, 4, 5, 6,20,50 };
 
             @Override
             public boolean isWorldDetailHistorySampleTurn(int turn) {
                 // TODO Auto-generated method stub
-                if ((turn) % 100 == 0) {
+                if (Arrays.binarySearch(ids, turn) >= 0) {
+                    return true;
+                } else if ((turn) % 100 == 0) {
                     return true;
                 }
                 return false;
@@ -228,8 +229,16 @@ public class SpatialPDGame implements Reporter {
             @Override
             public boolean isSnapshootSampleTurn(int turn) {
                 // TODO Auto-generated method stub
-                if (turn == Math.pow(10, Snapshoot.size())) {
+                if (Arrays.binarySearch(ids, turn) >= 0) {
                     return true;
+                } else {
+                    int i = 1;
+                    while(turn > Math.pow(10, i)){
+                        i++;
+                    }
+                    if( turn == Math.pow(10,i)){
+                        return true;
+                    }
                 }
                 return false;
             }
@@ -250,7 +259,7 @@ public class SpatialPDGame implements Reporter {
             if (turn == 0) {
                 // globalCoopertationLevelHistory.clear();
                 worldDetailHistory.clear();
-                Snapshoot.clear();
+                snapshotMap.clear();
                 noChangeTurn = 0;
 
                 worldDetailHistory.put(turn, world.getWorldDetail());
@@ -376,7 +385,7 @@ public class SpatialPDGame implements Reporter {
                 strategyNum = wd.strategyProportion.length;
             }
             for (int i = 0; i < strategyNum; i++) {
-                sb.append("s" + i + "\t");
+                sb.append("stra" + i + "\t");
             }
             sb.append("\r\n");
 
@@ -392,6 +401,10 @@ public class SpatialPDGame implements Reporter {
                     sb.append(df.format(wd.strategyProportion[j]));
                     sb.append('\t');
                 }
+                //sb.append("GM = ");
+                //sb.append(ArrayUtils.getTwoDeArrayStringinOneLine(wd.strategyGamblingMatrix));
+                //sb.append("\tPM = ");
+                //sb.append(ArrayUtils.getTwoDeArrayStringinOneLine(wd.strategyPayoffMatrix));
                 sb.append("\r\n");
             }
             sb.append("\r\nfinal stragety picture:\r\n");

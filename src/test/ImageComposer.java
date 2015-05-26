@@ -173,7 +173,7 @@ public class ImageComposer {
     }
 
     private static String getStrategyPatternString(String s) {
-        int index = -1;
+        int index;
         if ((index = s.indexOf("strategy")) != -1
                 && (s.charAt(index - 1) == '_' || s.charAt(index - 1) == ' ')) {
             int i = index - 2;
@@ -202,7 +202,7 @@ public class ImageComposer {
     }
 
     public static Float getQi(String s) {
-        int index = -1;
+        int index;
         if ((index = s.indexOf("qi=")) != -1) {
             int end = s.indexOf("_", index);
 

@@ -1545,7 +1545,7 @@ public class MainJFrame extends javax.swing.JFrame implements Reporter,
                 // System.out.println(spdg.getTurn());
             }
             spdg.done();
-            FileUtils.outputTofile(
+            FileUtils.outputToFile(
                     jTextFieldOutputFilePath.getText().concat(
                             "\\" + spdg.toString() + ".txt"),
                     spdg.dataPrinter.getDetailReport());

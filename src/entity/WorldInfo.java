@@ -61,4 +61,9 @@ public interface WorldInfo {
      */
     String getIndividualStrategyPicture();
 
+    /**
+     * 以字符串的形式返回当前模型人口收益分布图
+     */
+    String getIndividualPayoffPicture();
+
 }

@@ -1,8 +1,11 @@
 package utils;
 
+import graphic.Painter;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.RenderedImage;
+import java.awt.image.renderable.RenderableImage;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -22,17 +25,40 @@ public class FileUtils {
         }
         file.delete();
     }
-
     public static void outputSnapshootToFile(String filePath,
-                                             Map<Integer, Image> Snapshoot) {
-
+                                             Map<Integer, Snapshot> Snapshoot){
         FileUtils.deleteFile(filePath);
         for (Integer i : Snapshoot.keySet()) {
+            //File f = getFile();
+            outputToFile(filePath + "\\txt_format\\turn_" + i + ".txt",
+                    Snapshoot.get(i).individualStrategyPicture);
+            RenderedImage im = (RenderedImage)Painter.getPDGameImage(
+                    400,
+                    400,
+                    Snapshoot.get(i).individualStrategyPicture);
             File f = getFile(filePath + "\\turn_" + i + ".jpg");
-            outputImageToFile((RenderedImage) Snapshoot.get(i), "jpg", f);
-        }
+            outputImageToFile(im, "jpg", f);
 
+            outputToFile(filePath + "\\txt_format\\payoff_" + i + ".txt",
+                    Snapshoot.get(i).individualPayoffPicture);
+            RenderedImage im2 = (RenderedImage)Painter.getPDGameImage(
+                    400,
+                    400,
+                    Snapshoot.get(i).individualPayoffPicture);
+            File f2 = getFile(filePath + "\\payoff_" + i + ".jpg");
+            outputImageToFile(im2, "jpg", f2);
+        }
     }
+//    public static void outputSnapshotToFile(String filePath,
+//                                             Map<Integer, Image> Snapshot) {
+//
+//        FileUtils.deleteFile(filePath);
+//        for (Integer i : Snapshot.keySet()) {
+//            File f = getFile(filePath + "\\turn_" + i + ".jpg");
+//            outputImageToFile((RenderedImage) Snapshot.get(i), "jpg", f);
+//        }
+//
+//    }
 
     public static void outputImageToFile(RenderedImage image,
                                          String formatName, File output) {
@@ -45,10 +71,10 @@ public class FileUtils {
     }
 
     /**
-     * @param filename String The system-dependent filename
+     * @param fileName String The system-dependent filename
      * @param str      要输出到文件的内容
      */
-    public static void outputTofile(String fileName, String str) {
+    public static void outputToFile(String fileName, String str) {
         File f = getFile(fileName);
         try (FileWriter w = new FileWriter(f.getAbsolutePath())) {
             w.write(str);

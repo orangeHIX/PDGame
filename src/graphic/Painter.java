@@ -1,6 +1,5 @@
 package graphic;
 
-import entity.Individual;
 import entity.World;
 import utils.NamedImage;
 import utils.PolyLine;
@@ -49,8 +48,7 @@ public class Painter {
         }
     }
 
-    public static Image getPDGameImage(int width, int height, World world) {
-
+    public static Image getPDGameImage(int width, int height, String individualStrategyPicture) {
         BufferedImage bi = new BufferedImage(width, height,
                 BufferedImage.TYPE_INT_RGB);
 
@@ -60,16 +58,17 @@ public class Painter {
         g2.clearRect(0, 0, width, height);
 
         int widPerCell, heiPerCell;
-        int L = world.getLength();
-        widPerCell = (int) (width / L);
-        heiPerCell = (int) (height / L);
-        Individual in;
+        String[] ss = individualStrategyPicture.split("\r\n");
+        int L = ss.length;
+        widPerCell = (width / L);
+        heiPerCell =  (height / L);
 
         for (int i = 0; i < L; i++) {
+            String[] straStrs = ss[i].split("\t");
             for (int j = 0; j < L; j++) {
-                if ((in = world.getIndividual(i, j)) != null) {
+                if (straStrs[j].compareTo("null") != 0) {
                     g2.setColor(getGradient(DColor, MColor, CColor,
-                            in.getStrategy()));
+                            Float.parseFloat(straStrs[j])));
                 } else {
                     g2.setColor(new Color(0, 0, 0));
                 }
@@ -79,6 +78,38 @@ public class Painter {
         }
         g2.dispose();
         return bi;
+    }
+
+    public static Image getPDGameImage(int width, int height, World world) {
+
+//        BufferedImage bi = new BufferedImage(width, height,
+//                BufferedImage.TYPE_INT_RGB);
+//
+//        Graphics2D g2 = (Graphics2D) bi.getGraphics();
+//
+//        g2.setBackground(Color.WHITE);
+//        g2.clearRect(0, 0, width, height);
+//
+//        int widPerCell, heiPerCell;
+//        int L = world.getLength();
+//        widPerCell = (int) (width / L);
+//        heiPerCell = (int) (height / L);
+//        Individual in;
+//
+//        for (int i = 0; i < L; i++) {
+//            for (int j = 0; j < L; j++) {
+//                if ((in = world.getIndividual(i, j)) != null) {
+//                    g2.setColor(getGradient(DColor, MColor, CColor,
+//                            in.getStrategy()));
+//                } else {
+//                    g2.setColor(new Color(0, 0, 0));
+//                }
+//                g2.fillRect(j * widPerCell, i * heiPerCell, widPerCell,
+//                        heiPerCell);
+//            }
+//        }
+//        g2.dispose();
+        return getPDGameImage(width, height, world.getIndividualStrategyPicture());
     }
 
     public static Image composingPopulationImage(ArrayList<NamedImage> images,
@@ -116,7 +147,7 @@ public class Painter {
 //				marginLengthY, legendSpace, (int) (legendSpace * 7.5), null);
 
         // »­Ìâ×¢
-        int fontSize = (int) (topCaptionSpace);
+        int fontSize =  (topCaptionSpace);
         Font font = new Font("ºÚÌå", Font.PLAIN, fontSize);
         g2.setColor(Color.BLACK);
         g2.setFont(font);

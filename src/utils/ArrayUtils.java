@@ -1,9 +1,11 @@
 package utils;
 
+import java.lang.reflect.Array;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
 public class ArrayUtils {
+
 
     public static int[][] getIntMatrix(int length) {
         int a[][] = new int[length][];
@@ -75,7 +77,7 @@ public class ArrayUtils {
                 sb.append(df.format(a[i][j]));
                 sb.append(", ");
             }
-            sb.replace(sb.length()-", ".length(),sb.length(),"");
+            sb.replace(sb.length() - ", ".length(), sb.length(), "");
             sb.append("], ");
         }
         sb.replace(sb.length()-", ".length(),sb.length(),"");
@@ -83,11 +85,11 @@ public class ArrayUtils {
         return sb.toString();
     }
 
-    public static String getTwoDeArrayString(double[][] a, int L1, int L2) {
+    public static String getTwoDeArrayString(double[][] a){//, int L1, int L2) {
         StringBuilder sb = new StringBuilder();
         DecimalFormat df = new DecimalFormat("0.000");
-        for (int i = 0; i < L1; i++) {
-            for (int j = 0; j < L2; j++) {
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[i].length; j++) {
                 sb.append(df.format(a[i][j]));
                 sb.append('\t');
             }
@@ -107,6 +109,29 @@ public class ArrayUtils {
             sb.append("\r\n");
         }
         return sb.toString();
+    }
+
+    public static double getMaxNumber( double[][] m ){
+        double max = m[0][0];
+        for(int i = 0; i < m.length; i++){
+            for(int j = 0; j < m[i].length; j++){
+                if(max < m[i][j]){
+                    max= m[i][j];
+                }
+            }
+        }
+        return max;
+    }
+    public static double getMinNumber( double[][] m ){
+        double min = m[0][0];
+        for(int i = 0; i < m.length; i++){
+            for(int j = 0; j < m[i].length; j++){
+                if(min > m[i][j]){
+                    min= m[i][j];
+                }
+            }
+        }
+        return min;
     }
 
     public static void main(String[] args){
