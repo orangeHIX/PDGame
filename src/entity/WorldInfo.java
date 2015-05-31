@@ -66,4 +66,6 @@ public interface WorldInfo {
      */
     String getIndividualPayoffPicture();
 
+    String getIndividualAllPicture();
+
 }

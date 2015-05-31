@@ -1,5 +1,7 @@
 package entity;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import rule.GamblingRule;
 import rule.LearningPattern;
 import rule.MigrationPattern;
@@ -9,7 +11,7 @@ import java.util.ArrayList;
 /**
  * 二维网格博弈中的个体或博弈参与者
  */
-public class Individual {
+public class Individual implements JsonEntity{
     /**
      * 交互强度变量最大值
      */
@@ -19,10 +21,16 @@ public class Individual {
      */
     public static final float MIN_W = 0f;
 
+    public int id;
+
     /**
      * 个体采取的策略，取值[0.0,1.0]，0.0表示背叛(D)，1.0表示合作(C)，中间值表示中间策略
      */
     private float strategy;
+    /**
+     * 本轮策略演化，学习新策略时的学习对象。没有则为null
+     */
+    private int teacherId;
     /**
      * 个体下一轮博弈要采取的策略,进行策略更新应所有个体一起执行
      */
@@ -31,6 +39,8 @@ public class Individual {
      * 累计收益，该个体与每个直接邻居博弈收益的总和
      */
     private float accumulatedPayoff;
+
+    private ArrayList<Integer> gambleIndivIds;
     /**
      * 上一轮的累计收益
      */
@@ -49,21 +59,24 @@ public class Individual {
      */
     private float w;
 
-    public Individual(float strategy, int maxNeighbourNum, float w) {
+    public Individual(int id, float strategy, int maxNeighbourNum, float w) {
         super();
+        this.id = id;
         if (strategy >= 0.0f && strategy <= 1.0f) {
             this.strategy = strategy;
             this.nextStrategy = this.strategy;
         } else {
             this.strategy = GamblingRule.STRATEGY_D;
         }
+        teacherId = -1;
         accumulatedPayoff = 0;
         prePayoff = 0;
         seat = null;
         neighbours = new ArrayList<>(maxNeighbourNum);
+        gambleIndivIds = new ArrayList<>(maxNeighbourNum);
         this.w = w;
-    }
 
+    }
     /**
      * 获得个体交互强度
      */
@@ -120,10 +133,11 @@ public class Individual {
     }
 
     /**
-     * 清空直接邻居表
+     * 清空上轮直接邻居表和与之博弈个体id列表
      */
-    public void clearAllNeighbour() {
+    public void clearLastTurnInfo() {
         this.neighbours.clear();
+        this.gambleIndivIds.clear();
     }
 
     /**
@@ -133,7 +147,15 @@ public class Individual {
      *                        LEARNING_PATTERN_FERMI表示按照fermi策略学习邻居
      */
     public void learnFromNeighbours(LearningPattern learningPattern) {
-        nextStrategy = learningPattern.learn(this);
+        Individual teacher = learningPattern.getTeacher(this);
+        if(teacher == null) {
+            nextStrategy = strategy;
+            teacherId = -1;
+        }
+        else {
+            nextStrategy = teacher.getStrategy();
+            teacherId = teacher.id;
+        }
     }
 
     /**
@@ -206,11 +228,65 @@ public class Individual {
         return false;
     }
 
+    public void gamble(Individual other, GamblingRule gr){
+        accumulatePayoff(gr.getPayOff(this.getStrategy(), other.getStrategy()));
+        gambleIndivIds.add(other.id);
+    }
+
+
+
     @Override
     public String toString() {
         return "Individual [s=" + strategy + ", ns=" + nextStrategy
                 + ", payoff=" + accumulatedPayoff + ", w=" + w + ",("
-                + seat.seat_i + "," + seat.seat_j + ") ] ";
+                + seat.seat_i + "," + seat.seat_j + ") ] ";// + gambleIndivIds;
     }
 
+
+    @Override
+    public JSONObject getJSONObject() {
+        //gambleIndivIds.add(99);
+        return new JSONObject().put("id", id).put("stra", strategy)
+                .put("teaId", teacherId).put("nextStra", nextStrategy)
+                .put("gamIds",new JSONArray(gambleIndivIds.toArray()))
+                .put("payoff", accumulatedPayoff)
+                .put("seat", seat.getJSONObject())
+                .put("w", w);
+    }
+
+    @Override
+    public void initFromJSONSource(String source) {
+        initFromJSONObject(new JSONObject(source));
+    }
+
+    @Override
+    public void initFromJSONObject(JSONObject jsonObject) {
+        id = jsonObject.getInt("id");
+        strategy = new Float(jsonObject.getDouble("stra"));
+        teacherId = jsonObject.getInt("teaId");
+        nextStrategy = new Float(jsonObject.getDouble("nextStra"));
+        gambleIndivIds.clear();
+        JSONArray ja = jsonObject.getJSONArray("gamIds");
+        int len = ja.length();
+        for(int i = 0; i < len; i++) {
+            gambleIndivIds.add(ja.getInt(i));
+        }
+        accumulatedPayoff = new Float(jsonObject.getDouble("payoff"));
+        seat = new Seat(0,0);
+        seat.initFromJSONObject(jsonObject.getJSONObject("seat"));
+        w = new Float(jsonObject.getDouble("w"));
+    }
+
+    public static void main(String[] args){
+        Individual in = new Individual(1,0.5f, 8, 1);
+        in.setSeat(new Seat(8, 9));
+        JSONObject jo = in.getJSONObject();
+        System.out.println(jo);
+
+        Individual in2 = new Individual(3, 0.2f, 4, 0.5f);
+        in2.setSeat(new Seat(10, 10));
+        System.out.println(in2);
+        in2.initFromJSONObject(jo);
+        System.out.println(in2);
+    }
 }

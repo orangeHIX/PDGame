@@ -11,15 +11,23 @@ public enum LearningPattern {
      */
     MAXPAYOFF("max_payoff_learning") {
         @Override
-        public float learn(Individual in) {
-            Individual maxPayoffNeighbour = in;
+        public Individual getTeacher(Individual in) {
+            Individual maxPayoffNeighbour = null;
             final ArrayList<Individual> neighbours = in.getNeighbours();
-            for (Individual nei : neighbours) {
-                if (nei.getAccumulatedPayoff() > maxPayoffNeighbour
-                        .getAccumulatedPayoff())
-                    maxPayoffNeighbour = nei;
+            if (!neighbours.isEmpty()) {
+                maxPayoffNeighbour = neighbours.get(0);
+                for (Individual nei : neighbours) {
+                    if (nei.getAccumulatedPayoff() > maxPayoffNeighbour
+                            .getAccumulatedPayoff())
+                        maxPayoffNeighbour = nei;
+                }
             }
-            return maxPayoffNeighbour.getStrategy();
+            if (maxPayoffNeighbour != null
+                    && maxPayoffNeighbour.getAccumulatedPayoff() > in.getAccumulatedPayoff())
+                return maxPayoffNeighbour;
+            else {
+                return null;
+            }
         }
     },
     /**
@@ -33,7 +41,7 @@ public enum LearningPattern {
         float noise = 0.1f; // 噪声暂时设为0.1
 
         @Override
-        public float learn(Individual in) {
+        public Individual getTeacher(Individual in) {
             // TODO Auto-generated method stub
             double imitatePosibility = 0;
             final ArrayList<Individual> neighbours = in.getNeighbours();
@@ -45,19 +53,19 @@ public enum LearningPattern {
                         .getAccumulatedPayoff())
                         / noise));
                 if (RandomUtil.nextDouble() <= imitatePosibility) {
-                    return neighbour.getStrategy();
+                    return neighbour;
                     // System.out.println(""+this+" learn from \n\t"+neighbour+" with "
                     // +imitatePosibility);
                 }
             }
-            return in.getStrategy();
+            return null;
         }
     },
     INTERACTIVE_FERMI("interactive_fermi") {
         float noise = 0.1f; // 噪声暂时设为0.1
 
         @Override
-        public float learn(Individual in) {
+        public Individual getTeacher(Individual in) {
             // TODO Auto-generated method stub
             double imitatePosibility = 0;
             final ArrayList<Individual> neighbours = in.getNeighbours();
@@ -94,12 +102,12 @@ public enum LearningPattern {
                         .getAccumulatedPayoff())
                         / noise));
                 if (RandomUtil.nextDouble() <= imitatePosibility) {
-                    return neighbour.getStrategy();
+                    return neighbour;
                     // System.out.println(""+this+" learn from \n\t"+neighbour+" with "
                     // +imitatePosibility);
                 }
             }
-            return in.getStrategy();
+            return null;
         }
     };
 
@@ -117,7 +125,23 @@ public enum LearningPattern {
      */
     public float learn(Individual in) {
         // do nothing
-        return in.getStrategy();
+        Individual teacher = getTeacher(in);
+        if (teacher == null)
+            return in.getStrategy();
+        else
+            return teacher.getStrategy();
+    }
+
+
+    /**
+     * 个体按照该实例所指的学习模式尝试学习新策略
+     *
+     * @param in 要进行学习的个体
+     * @return 学习对象
+     */
+    public Individual getTeacher(Individual in) {
+        // do nothing
+        return null;
     }
 
     @Override

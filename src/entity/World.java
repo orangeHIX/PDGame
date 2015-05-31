@@ -28,8 +28,9 @@ public class World implements WorldInfo {
     private NeighbourCoverage neighbourCoverage;
     private StrategyPattern strategyPattern;
 
-    private int[][] strategyGamblingMatrix;
-    private float[][] strategyPayoffMatrix;
+//    private int[][] strategyGamblingMatrix;
+//    private float[][] strategyPayoffMatrix;
+
 //    /**
 //     * 记录个体所能采用的策略的代表数值，例如假如策略模式是TWO，则该数组经就该存储0.0和1.0
 //     */
@@ -63,7 +64,7 @@ public class World implements WorldInfo {
             this.strategyPattern = strategyPattern;
             IndividualList = new ArrayList<>();
 
-            initMatrix();
+            //initMatrix();
 
             // 给每个个体随机分配初始策略
             initIndividuals(density, w);
@@ -74,17 +75,17 @@ public class World implements WorldInfo {
 
     }
 
-    private void initMatrix() {
-        int len = strategyPattern.getStrategyNum();
-        strategyGamblingMatrix = ArrayUtils.getIntMatrix(len);
-        strategyPayoffMatrix = ArrayUtils.getFloatMatrix(len);
-    }
-
-    private void clearMatrix() {
-        int len = strategyPattern.getStrategyNum();
-        ArrayUtils.clearIntMatrix(strategyGamblingMatrix, len, len);
-        ArrayUtils.clearFloatMatrix(strategyPayoffMatrix, len, len);
-    }
+//    private void initMatrix() {
+//        int len = strategyPattern.getStrategyNum();
+//        strategyGamblingMatrix = ArrayUtils.getIntMatrix(len);
+//        strategyPayoffMatrix = ArrayUtils.getFloatMatrix(len);
+//    }
+//
+//    private void clearMatrix() {
+//        int len = strategyPattern.getStrategyNum();
+//        ArrayUtils.clearIntMatrix(strategyGamblingMatrix, len, len);
+//        ArrayUtils.clearFloatMatrix(strategyPayoffMatrix, len, len);
+//    }
 
     /**
      * 初始化模型中的个体
@@ -94,6 +95,8 @@ public class World implements WorldInfo {
      */
     private void initIndividuals(float d0,
                                  float w) {
+
+        int inId = 1;
 
         int num = (int) (d0 * L * L); // 个体总数目
         // System.out.println("initIndividualStrategy"+num);
@@ -107,7 +110,7 @@ public class World implements WorldInfo {
         for (int i = 0; i < strategyNum; i++) {
             //strategySample[i] = 0 + i / (float) (strategyNum - 1);
             for (int j = 0; j < num / strategyNum; j++) {
-                this.IndividualList.add(new Individual(strategyPattern.getStrategySample(i),//strategySample[i],
+                this.IndividualList.add(new Individual(inId++, strategyPattern.getStrategySample(i),//strategySample[i],
                         maxNeighbourNum, w));
                 count++;
             }
@@ -115,7 +118,7 @@ public class World implements WorldInfo {
         // 由于采取各种策略的个体数目在某些情况下不可能全部相等，平均分配后余下的若干个体按次序分配剩下的名额
         if (count < num) {
             for (int i = 0; i < strategyNum; i++) {
-                this.IndividualList.add(new Individual(strategyPattern.getStrategySample(i),//strategySample[i],
+                this.IndividualList.add(new Individual(inId++, strategyPattern.getStrategySample(i),//strategySample[i],
                         maxNeighbourNum, w));
                 count++;
                 if (count >= num) {
@@ -184,13 +187,13 @@ public class World implements WorldInfo {
         // 重置所有个体的邻居列表（清空），重置所有个体累计收益（置零）
         for (Individual in : IndividualList) {
             in.resetAccumulatedPayoff();
-            in.clearAllNeighbour();
+            in.clearLastTurnInfo();
         }
 
 
-        float inStra, neiStra;
-        int inStraIndex, neiStraIndex;
-        float inPayoff, neiPayoff;
+//        float inStra, neiStra;
+//        int inStraIndex, neiStraIndex;
+//        float inPayoff, neiPayoff;
         for (Individual in : IndividualList) {
 
             seatAround = getOccupiedSeatAround(in.getSeat());// 得到个体周围的所有被占据座位
@@ -202,28 +205,28 @@ public class World implements WorldInfo {
                     // 这样，即使有邻居迁移后，个体仍能找到本轮初始状态所有邻居
                     in.addNeighbour(neighbour);
                     neighbour.addNeighbour(in);
-                    // System.out.println( "interact :"+(in.getW() +
-                    // neighbour.getW()) / 2);
                     // 按照两个个体交互强度的平均值决定是否进行博弈
                     if (RandomUtil.nextFloat() <= (in.getW() + neighbour.getW()) / 2) {
                         // 个体与邻居的两两博弈后，累计收益
                         // System.out.println("game : " +in+" and "+neighbour);
-                        inStra = in.getStrategy();
-                        neiStra = neighbour.getStrategy();
-                        inStraIndex = strategyPattern.getStrategyIndex(inStra);
-                        neiStraIndex = strategyPattern.getStrategyIndex(neiStra);
-
-                        strategyGamblingMatrix[inStraIndex][neiStraIndex]++;
-                        strategyGamblingMatrix[neiStraIndex][inStraIndex]++;
-
-                        inPayoff = gr.getPayOff(inStra, neiStra);
-                        neiPayoff = gr.getPayOff(neiStra, inStra);
-
-                        strategyPayoffMatrix[inStraIndex][neiStraIndex] += inPayoff;
-                        strategyPayoffMatrix[neiStraIndex][inStraIndex] += neiPayoff;
-
-                        in.accumulatePayoff(inPayoff);
-                        neighbour.accumulatePayoff(neiPayoff);
+//                        inStra = in.getStrategy();
+//                        neiStra = neighbour.getStrategy();
+//                        inStraIndex = strategyPattern.getStrategyIndex(inStra);
+//                        neiStraIndex = strategyPattern.getStrategyIndex(neiStra);
+//
+//                        strategyGamblingMatrix[inStraIndex][neiStraIndex]++;
+//                        strategyGamblingMatrix[neiStraIndex][inStraIndex]++;
+//
+//                        inPayoff = gr.getPayOff(inStra, neiStra);
+//                        neiPayoff = gr.getPayOff(neiStra, inStra);
+//
+//                        strategyPayoffMatrix[inStraIndex][neiStraIndex] += inPayoff;
+//                        strategyPayoffMatrix[neiStraIndex][inStraIndex] += neiPayoff;
+//
+//                        in.accumulatePayoff(inPayoff);
+//                        neighbour.accumulatePayoff(neiPayoff);
+                        in.gamble(neighbour, gr);
+                        neighbour.gamble(in, gr);
                     }
                 }
             }
@@ -383,13 +386,13 @@ public class World implements WorldInfo {
             strategyProportion[i] = strategyProportion[i]
                     / IndividualList.size();
         }
-        float[][] PM = ArrayUtils.copyFloatMatrix(
-                strategyPayoffMatrix, strategyNum, strategyNum);
-        int[][] GM = ArrayUtils.copyIntMatrix(
-                strategyGamblingMatrix, strategyNum, strategyNum);
-        clearMatrix();
+//        float[][] PM = ArrayUtils.copyFloatMatrix(
+//                strategyPayoffMatrix, strategyNum, strategyNum);
+//        int[][] GM = ArrayUtils.copyIntMatrix(
+//                strategyGamblingMatrix, strategyNum, strategyNum);
+//        clearMatrix();
         return new WorldDetail(globalCooperationLevel,
-                strategyProportion, GM, PM);
+                strategyProportion,null, null);// GM, PM);
     }
 
     @Override
@@ -440,9 +443,26 @@ public class World implements WorldInfo {
         return sb.toString();
     }
 
-    public Snapshot getSnapshot(){
-        return new Snapshot(getIndividualStrategyPicture(), getIndividualPayoffPicture());
+    @Override
+    public String getIndividualAllPicture() {
+        StringBuilder sb = new StringBuilder();
+        Individual in;
+        for (int i = 0; i < L; i++) {
+            for (int j = 0; j < L; j++) {
+                in = grid[i][j].getOwner();
+                sb.append(in == null ? null : in.getJSONObject());
+                sb.append('\t');
+            }
+            sb.append("\r\n");
+        }
+        return sb.toString();
     }
+
+    public Snapshot getSnapshot() {
+        //return new Snapshot(getIndividualStrategyPicture(), getIndividualPayoffPicture());
+        return new Snapshot(getIndividualAllPicture());
+    }
+
     public void printIndividualPayoff() {
         StringBuilder sb = new StringBuilder();
         Individual in;
