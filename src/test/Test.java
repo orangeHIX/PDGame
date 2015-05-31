@@ -29,7 +29,7 @@ public class Test {
 
     public static void main(String args[]) {
          SpatialPDGame spdg = new SpatialPDGame(true);
-         spdg.initSpatialPDGame(100, 1.0f, 0.1f, 0.1f, 1.0f, 0, .1f,
+         spdg.initSpatialPDGame(5, 1.0f, 0.1f, 0.1f, 1.0f, 0, 1.0f,
                  LearningPattern.INTERACTIVE_FERMI, MigrationPattern.NONE,
                  StrategyPattern.CONTINUOUS, NeighbourCoverage.Von);
          spdg.run(MAX_TURN_NUM);

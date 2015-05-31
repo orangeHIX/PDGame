@@ -1175,7 +1175,7 @@ public class MainJFrame extends javax.swing.JFrame implements Reporter,
         jTextFieldGridLength.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-                // TODO Auto-generated method stub
+                
                 // JOptionPane.showMessageDialog(MainJFrame.this, new
                 // String(""));
                 int i = 0;
@@ -1216,7 +1216,7 @@ public class MainJFrame extends javax.swing.JFrame implements Reporter,
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
+                
                 setClassicPayoffMatrixSpinnerGroupEnable(false);
                 jSpinnerBCH.setEnabled(true);
                 jSpinnerBSH.setEnabled(false);
@@ -1229,7 +1229,7 @@ public class MainJFrame extends javax.swing.JFrame implements Reporter,
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
+
                 setClassicPayoffMatrixSpinnerGroupEnable(false);
                 jSpinnerBCH.setEnabled(false);
                 jSpinnerBSH.setEnabled(true);
@@ -1242,7 +1242,7 @@ public class MainJFrame extends javax.swing.JFrame implements Reporter,
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
+
                 setClassicPayoffMatrixSpinnerGroupEnable(false);
                 jSpinnerBCH.setEnabled(false);
                 jSpinnerBSH.setEnabled(false);
@@ -1255,7 +1255,7 @@ public class MainJFrame extends javax.swing.JFrame implements Reporter,
 
             @Override
             public void stateChanged(ChangeEvent e) {
-                // TODO Auto-generated method stub
+
                 updateJTextFieldPayoffMatrix(
                         (Number) jSpinnerPayoffR.getValue(),
                         (Number) jSpinnerPayoffS.getValue(),
@@ -1272,7 +1272,7 @@ public class MainJFrame extends javax.swing.JFrame implements Reporter,
 
             @Override
             public void stateChanged(ChangeEvent e) {
-                // TODO Auto-generated method stub
+
                 Number Dg = (Number) jSpinnerBCH.getValue();
                 updateJTextFieldPayoffMatrixBCH(Dg);
             }
@@ -1281,7 +1281,7 @@ public class MainJFrame extends javax.swing.JFrame implements Reporter,
 
             @Override
             public void stateChanged(ChangeEvent e) {
-                // TODO Auto-generated method stub
+
                 Number Dr = (Number) jSpinnerBSH.getValue();
                 updateJTextFieldPayoffMatrixBSH(Dr);
             }
@@ -1290,7 +1290,7 @@ public class MainJFrame extends javax.swing.JFrame implements Reporter,
 
             @Override
             public void stateChanged(ChangeEvent e) {
-                // TODO Auto-generated method stub
+
                 Number DrOrDg = (Number) jSpinnerDRG.getValue();
                 updateJTextFieldPayoffMatrixDRG(DrOrDg);
             }
@@ -1310,7 +1310,7 @@ public class MainJFrame extends javax.swing.JFrame implements Reporter,
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
+
                 jFileChooserReportOutputPath.showOpenDialog(MainJFrame.this);
                 File selectedFilePath = jFileChooserReportOutputPath
                         .getSelectedFile();
@@ -1323,7 +1323,7 @@ public class MainJFrame extends javax.swing.JFrame implements Reporter,
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
+
                 setMigratePatternText((JRadioButton) e.getSource());
             }
         };
@@ -1335,7 +1335,7 @@ public class MainJFrame extends javax.swing.JFrame implements Reporter,
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
+
                 setLearningPatternText((JRadioButton) e.getSource());
             }
         };
@@ -1348,7 +1348,6 @@ public class MainJFrame extends javax.swing.JFrame implements Reporter,
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
 
                 if (!isRunning) {
                     thread = new WorkThread(Integer

@@ -319,7 +319,7 @@ public class World implements WorldInfo {
 
             @Override
             public boolean test(Seat object) {
-                // TODO 自动生成的方法存根
+
                 return true;
             }
 
@@ -332,7 +332,6 @@ public class World implements WorldInfo {
 
             @Override
             public boolean test(Seat object) {
-                // TODO 自动生成的方法存根
                 return object.isEmpty();
             }
 
@@ -347,7 +346,6 @@ public class World implements WorldInfo {
 
             @Override
             public boolean test(Seat object) {
-                // TODO 自动生成的方法存根
                 return !object.isEmpty();
             }
 
@@ -460,7 +458,7 @@ public class World implements WorldInfo {
 
     public Snapshot getSnapshot() {
         //return new Snapshot(getIndividualStrategyPicture(), getIndividualPayoffPicture());
-        return new Snapshot(getIndividualAllPicture());
+        return new Snapshot(getIndividualStrategyPicture(), getIndividualAllPicture());
     }
 
     public void printIndividualPayoff() {

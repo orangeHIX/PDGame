@@ -330,7 +330,6 @@ public class Painter {
 
             @Override
             public int compare(TurnAndCooLev o1, TurnAndCooLev o2) {
-                // TODO Auto-generated method stub
                 return o1.turn - o2.turn;
             }
         });
@@ -517,7 +516,7 @@ public class Painter {
         // try {
         // ImageIO.write(bi, "jpg", file);
         // } catch (IOException e) {
-        // // TODO Auto-generated catch block
+        // 
         // e.printStackTrace();
         // }
 

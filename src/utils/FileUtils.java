@@ -39,14 +39,14 @@ public class FileUtils {
             File f = getFile(filePath + "\\turn_" + i + ".jpg");
             outputImageToFile(im, "jpg", f);
 
-            outputToFile(filePath + "\\txt_format\\payoff_" + i + ".txt",
-                    Snapshoot.get(i).individualPayoffPicture);
-            RenderedImage im2 = (RenderedImage)Painter.getPDGameImage(
-                    400,
-                    400,
-                    Snapshoot.get(i).individualPayoffPicture);
-            File f2 = getFile(filePath + "\\payoff_" + i + ".jpg");
-            outputImageToFile(im2, "jpg", f2);
+            outputToFile(filePath + "\\txt_format\\all_" + i + ".txt",
+                    Snapshoot.get(i).allPicture);
+//            RenderedImage im2 = (RenderedImage)Painter.getPDGameImage(
+//                    400,
+//                    400,
+//                    Snapshoot.get(i).individualPayoffPicture);
+//            File f2 = getFile(filePath + "\\payoff_" + i + ".jpg");
+            //outputImageToFile(im2, "jpg", f2);
         }
     }
 //    public static void outputSnapshotToFile(String filePath,
