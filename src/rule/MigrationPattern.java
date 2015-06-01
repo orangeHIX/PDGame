@@ -11,11 +11,12 @@ public enum MigrationPattern {
     /**
      * NONE,个体什么也不做
      */
-    NONE("no_migrate"),
+    NONE//("no_migrate")
+    ,
     /**
      * RANDOM，个体随机迁徙到直接邻居距离范围内的一个空位上
      */
-    RANDOM("random_migrate") {
+    RANDOM{//("random_migrate") {
         @Override
         public Seat migrate(Individual in, WorldInfo world) {
             // TODO Auto-generated method stub
@@ -36,7 +37,7 @@ public enum MigrationPattern {
      * 其中，fck表示个体位于k位置时邻居的平均合作程度，公式5表示个体i在随机邻居中选取一个空位l（没有则不移），
      * 如果该空位l周围的邻居的平均合作程度fcl大于fck，则agent i有更大的可能性进行迁移。
      */
-    OPTIMISTIC("optimistic_migrate") {
+    OPTIMISTIC{//("optimistic_migrate") {
         @Override
         public Seat migrate(Individual in, WorldInfo world) {
             // TODO Auto-generated method stub
@@ -69,7 +70,7 @@ public enum MigrationPattern {
     /**
      * 个体统计周围邻居背叛者的数量nd，以nd/8的概率迁徙到空位上
      */
-    ESCAPE("escape_migrate") {
+    ESCAPE{//("escape_migrate") {
         @Override
         public Seat migrate(Individual in, WorldInfo world) {
             // TODO Auto-generated method stub
@@ -89,11 +90,11 @@ public enum MigrationPattern {
 
     };
 
-    public String name;
-
-    private MigrationPattern(String s) {
-        name = s;
-    }
+//    public String name;
+//
+//    private MigrationPattern(String s) {
+//        name = s;
+//    }
 
     /**
      * 个体按照该实例所指的迁徙模式尝试迁徙到某个位置上
@@ -106,8 +107,8 @@ public enum MigrationPattern {
         return in.getSeat();
     }
 
-    @Override
-    public String toString() {
-        return name;
-    }
+//    @Override
+//    public String toString() {
+//        return name;
+//    }
 }

@@ -1,12 +1,14 @@
 package rule;
 
 import Jama.Matrix;
+import entity.JsonEntity;
+import org.json.JSONObject;
 import utils.ArrayUtils;
 
 /**
  * 囚徒困境博弈规则
  */
-public class GamblingRule {
+public class GamblingRule implements JsonEntity {
 
     /**
      * 策略-合作 取值1.0f
@@ -96,6 +98,28 @@ public class GamblingRule {
         return P;
     }
 
+    @Override
+    public JSONObject getJSONObject() {
+        JSONObject jo = new JSONObject();
+        jo.put("R", R);
+        jo.put("S", S);
+        jo.put("T", T);
+        jo.put("P", P);
+        return jo;
+    }
+
+    @Override
+    public void initFromJSONObject(JSONObject jsonObject) {
+        R = new Float(jsonObject.getDouble("R"));
+        S = new Float(jsonObject.getDouble("S"));
+        T = new Float(jsonObject.getDouble("T"));
+        P = new Float(jsonObject.getDouble("P"));
+    }
+
+    @Override
+    public void initFromJSONSource(String source) {
+        initFromJSONObject(new JSONObject(source));
+    }
 
     public static void main(String[] args) {
         GamblingRule gr = new GamblingRule(0.1f, 0.1f);
@@ -103,14 +127,14 @@ public class GamblingRule {
         int len = sp.getStrategyNum();
         Matrix pm = new Matrix(len, len);
         for (int i = 0; i < len; i++) {
-            for (int j = 0; j < len; j++){
-                pm.set(i,j,gr.getPayOff(sp.getStrategySample(i),sp.getStrategySample(j)));
+            for (int j = 0; j < len; j++) {
+                pm.set(i, j, gr.getPayOff(sp.getStrategySample(i), sp.getStrategySample(j)));
             }
         }
 
         System.out.println(ArrayUtils.getTwoDeArrayString(pm.getArray()));
-        Matrix straPro = new Matrix(len,1, 1);
-       // System.out.println(ArrayUtils.getTwoDeArrayString(straPro.getArray()));
+        Matrix straPro = new Matrix(len, 1, 1);
+        // System.out.println(ArrayUtils.getTwoDeArrayString(straPro.getArray()));
         double max = ArrayUtils.getMaxNumber(pm.getArray());
         double min = ArrayUtils.getMinNumber(pm.getArray());
         pm = pm.times(straPro);

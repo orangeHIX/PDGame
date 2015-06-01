@@ -6,22 +6,44 @@
 package gui;
 
 
+import entity.SpatialPDGame;
+import entity.World;
+import utils.FileUtils;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.io.File;
+import java.io.FileFilter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * @author hyx
  */
 public class PDGameReaderJFrame extends JFrame {
 
+    ArrayList<File> allPicFiles;
+    ArrayList<World> worldlist;
+    SpatialPDGame PDgame;
+
+
     /**
      * Creates new form PDGameReaderJFrame
      */
     public PDGameReaderJFrame() {
+        allPicFiles = new ArrayList<>();
+        worldlist = new ArrayList<>();
+        PDgame = new SpatialPDGame();
         initComponents();
+        jTextFieldPath.setEditable(false);
         jTabbedPanePopuPic.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
         for (int i = 0; i < 10; i++) {
-            jTabbedPanePopuPic.addTab("nihao"+i, new Label("sds"));
+            jTabbedPanePopuPic.addTab("nihao" + i, new Label("sds"));
         }
     }
 
@@ -49,7 +71,7 @@ public class PDGameReaderJFrame extends JFrame {
         jSliderTurn = new JSlider();
         jLabel1 = new JLabel();
         jLabel2 = new JLabel();
-        jTextField1 = new JTextField();
+        jTextFieldTurn = new JTextField();
         jButtonBackward = new JButton();
         jButtonForward = new JButton();
         jTextFieldPath = new JTextField();
@@ -72,6 +94,8 @@ public class PDGameReaderJFrame extends JFrame {
         jScrollPane1 = new JScrollPane();
         jListPDGameInfo = new JList();
         jLabel13 = new JLabel();
+
+        jFileChooserFilePath = new JFileChooser();
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -98,7 +122,7 @@ public class PDGameReaderJFrame extends JFrame {
 
         jLabel2.setText("max turn");
 
-        jTextField1.setText("100");
+        jTextFieldTurn.setText("100");
 
         jButtonBackward.setText("Backward");
 
@@ -143,7 +167,7 @@ public class PDGameReaderJFrame extends JFrame {
                                                 .addGap(18, 18, 18)
                                                 .addComponent(jButtonBackward)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jTextField1, GroupLayout.PREFERRED_SIZE, 72, GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(jTextFieldTurn, GroupLayout.PREFERRED_SIZE, 72, GroupLayout.PREFERRED_SIZE)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                                 .addComponent(jButtonForward)
                                                 .addGap(18, 18, 18)
@@ -161,7 +185,7 @@ public class PDGameReaderJFrame extends JFrame {
                                         .addComponent(jLabel10, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addGroup(jPanel2Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                        .addComponent(jTextField1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(jTextFieldTurn, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(jButtonBackward)
                                         .addComponent(jButtonForward)
                                         .addComponent(jLabelNextTurn)
@@ -309,8 +333,111 @@ public class PDGameReaderJFrame extends JFrame {
                                 .addContainerGap())
         );
 
+        jFileChooserFilePath
+                .setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        jTextFieldPath.setText(jFileChooserFilePath
+                .getCurrentDirectory().getAbsolutePath());
+
+        addComponentsListener();
+
         pack();
     }// </editor-fold>
+
+    private void addComponentsListener() {
+        jTextFieldTurn.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                super.focusLost(e);
+                int i = -1;
+                try {
+                    i = Integer.parseUnsignedInt(((JTextField) e.getSource())
+                            .getText().trim());
+                } catch (NumberFormatException ne) {
+
+                }
+                if (i <= 0) {
+                    JOptionPane.showMessageDialog(PDGameReaderJFrame.this,
+                            "网格边长必须是一个有效的正整数");
+                    jTextFieldTurn.requestFocusInWindow();
+                    jTextFieldTurn.selectAll();
+                }
+            }
+        });
+        jButtonPath.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                jFileChooserFilePath.showOpenDialog(PDGameReaderJFrame.this);
+                File selectedFilePath = jFileChooserFilePath
+                        .getSelectedFile();
+                if (selectedFilePath != null && selectedFilePath.isDirectory()) {
+                    File[] fs = selectedFilePath.listFiles(
+                            new FileFilter() {
+                                @Override
+                                public boolean accept(File pathname) {
+                                    if (pathname.isFile()) {
+                                        if (pathname.getName().endsWith(FileUtils.PDGameJSONFileSuffix)
+                                                || pathname.getName().startsWith(FileUtils.PDGameAllPicFilePrefix))
+                                            return true;
+                                    }
+                                    return false;
+                                }
+                            }
+                    );
+                    File desc = findPDGameDescFile(fs);
+                    if (desc == null) {
+                        JOptionPane.showMessageDialog(PDGameReaderJFrame.this,
+                                "can not find \""
+                                        + FileUtils.PDGameJSONFileSuffix
+                                        + "\" file in the directory");
+                        jTextFieldPath.requestFocusInWindow();
+                        jTextFieldPath.selectAll();
+                    } else {
+                        PDgame.initFromJSONSource(FileUtils.readStringFromFile(desc));
+                        allPicFiles.addAll(Arrays.asList(fs));
+                        allPicFiles.remove(desc);
+                        sortAllPicFiles();
+                        System.out.println(allPicFiles);
+                    }
+                }
+
+                jTextFieldPath.setText(selectedFilePath
+                        .getAbsolutePath());
+            }
+
+        });
+    }
+
+    private File findPDGameDescFile(File[] fs) {
+        for (File f : fs) {
+            if (f.isFile()
+                    && f.getName().endsWith(
+                    FileUtils.PDGameJSONFileSuffix)) {
+                return f;
+            }
+        }
+        return null;
+    }
+
+    private void sortAllPicFiles(){
+        allPicFiles.sort(new Comparator<File>() {
+            @Override
+            public int compare(File o1, File o2) {
+                return getTurn(o1.getName())- getTurn(o2.getName());
+            }
+            private int getTurn(String filename){
+                int index1 = FileUtils.PDGameAllPicFilePrefix.length();
+                int index2 = filename.indexOf('.');
+                return new Integer(filename.substring(index1,index2));
+            }
+
+        });
+    }
+
+    private void updatePDGameInfo(){
+        //jListIndivInfo.add
+    }
 
     /**
      * @param args the command line arguments
@@ -386,9 +513,11 @@ public class PDGameReaderJFrame extends JFrame {
     private JScrollPane jScrollPane2;
     private JSlider jSliderTurn;
     private YiTabbedPane jTabbedPanePopuPic;
-    private JTextField jTextField1;
+    private JTextField jTextFieldTurn;
     private JTextField jTextFieldPath;
     private JTextField jTextFieldX;
     private JTextField jTextFieldY;
+
+    private JFileChooser jFileChooserFilePath;
     // End of variables declaration                   
 }

@@ -4,7 +4,7 @@ import rule.LearningPattern;
 import rule.MigrationPattern;
 import rule.NeighbourCoverage;
 import rule.StrategyPattern;
-import test.SpatialPDGame;
+import entity.SpatialPDGame;
 import utils.CompleteListener;
 import utils.FileUtils;
 import utils.Reporter;
@@ -1200,7 +1200,7 @@ public class MainJFrame extends javax.swing.JFrame implements Reporter,
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO Auto-generated method stub
+
                 setClassicPayoffMatrixSpinnerGroupEnable(true);
                 jSpinnerBCH.setEnabled(false);
                 jSpinnerBSH.setEnabled(false);

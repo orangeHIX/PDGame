@@ -3,6 +3,9 @@ package entity;
 import rule.*;
 import utils.*;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -31,12 +34,8 @@ public class World implements WorldInfo {
 //    private int[][] strategyGamblingMatrix;
 //    private float[][] strategyPayoffMatrix;
 
-//    /**
-//     * 记录个体所能采用的策略的代表数值，例如假如策略模式是TWO，则该数组经就该存储0.0和1.0
-//     */
-    //private float[] strategySample;
+    public World(){}
 
-    // private Random random = new Random();
 
     /**
      * 初始化模型
@@ -49,12 +48,14 @@ public class World implements WorldInfo {
      */
     public void init_world(int length, float density, float w,
                            StrategyPattern strategyPattern, NeighbourCoverage neighbourCoverage) {
+
         if (length > 0 && density >= 0
                 && (density < 1.0 || density - 1.0f < 1.0e-5)) {
             L = length;
             // d0 = density;
-            grid = new Seat[L][L];
+            grid = new Seat[L][];
             for (int i = 0; i < L; i++) {
+                grid[i] = new Seat[L];
                 for (int j = 0; j < L; j++) {
                     grid[i][j] = new Seat(i, j);
                 }
@@ -269,6 +270,7 @@ public class World implements WorldInfo {
         return change / (float) IndividualList.size();
     }
 
+
     @Override
     public float getSeatDefectionLevel(Seat s) {
         ArrayList<Seat> seatAround = getOccupiedSeatAround(s);
@@ -390,7 +392,7 @@ public class World implements WorldInfo {
 //                strategyGamblingMatrix, strategyNum, strategyNum);
 //        clearMatrix();
         return new WorldDetail(globalCooperationLevel,
-                strategyProportion,null, null);// GM, PM);
+                strategyProportion, null, null);// GM, PM);
     }
 
     @Override
@@ -461,6 +463,25 @@ public class World implements WorldInfo {
         return new Snapshot(getIndividualStrategyPicture(), getIndividualAllPicture());
     }
 
+    public void initFromIndividualAllPicture(String individualAllPicture) {
+
+        String[] ss = individualAllPicture.split("\r\n");
+
+        IndividualList = new ArrayList<>();
+        L = ss.length;
+        grid = new Seat[ss.length][];
+
+        for (int i = 0; i < ss.length; i++) {
+            String[] ss2 = ss[i].split("\t");
+            grid[i] = new Seat[ss2.length];
+            for (int j = 0; j < ss2.length; j++) {
+                Individual in = new Individual(ss2[j]);
+                grid[i][j] = in.getSeat();
+                IndividualList.add(in);
+            }
+        }
+    }
+
     public void printIndividualPayoff() {
         StringBuilder sb = new StringBuilder();
         Individual in;
@@ -491,4 +512,15 @@ public class World implements WorldInfo {
         public boolean test(E object);
     }
 
+    public static void main(String[] args){
+        World world= new World();
+        world.initFromIndividualAllPicture(
+                FileUtils.readStringFromFile(
+                        new File("C:\\Users\\hyx\\Desktop\\kk" +
+                                "\\interactive_fermi_$_no_migrate_$_continuous_strategy_$_pi=1.00_$_qi=0.00_$_w=1.00" +
+                                "\\gr=(1.00,-0.10,1.10,0.00)_$_d0=1.00" +
+                                "\\txt_format\\all_1.txt")));
+        System.out.println(world.getIndividualAllPicture());
+
+    }
 }

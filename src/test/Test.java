@@ -1,10 +1,11 @@
 package test;
 
+import entity.SpatialPDGame;
 import rule.LearningPattern;
 import rule.MigrationPattern;
 import rule.NeighbourCoverage;
 import rule.StrategyPattern;
-import test.SpatialPDGame.SampleCheck;
+import entity.SpatialPDGame.SampleCheck;
 import utils.ArrayUtils;
 import utils.FileUtils;
 
@@ -35,13 +36,14 @@ public class Test {
          spdg.run(MAX_TURN_NUM);
          spdg.done();
         FileUtils.outputToFile(
-                spdg.dataPrinter.constructFileName("C:\\Users\\hyx\\Desktop\\kk"),
+                spdg.dataPrinter.constructDetailReportFileName("C:\\Users\\hyx\\Desktop\\kk"),
                 spdg.dataPrinter.getDetailReport());
         //FileUtils.outputImageToFile();
         FileUtils.outputSnapshootToFile(
                 spdg.dataPrinter.constructImageFilePath("C:\\Users\\hyx\\Desktop\\kk"),
+                spdg.dataPrinter.getJsonString(),
                 spdg.getSnapshootMap());
-         System.out.println(spdg.dataPrinter.getDetailReport());
+        System.out.println(spdg.dataPrinter.getDetailReport());
          //spdg.printPicture();
 
 //        long start = System.currentTimeMillis();
@@ -87,7 +89,7 @@ public class Test {
                     spdg.done();
                     // spdg.printPicture();
                     FileUtils.outputToFile(
-                            spdg.dataPrinter.constructFileName(outputFilePath),
+                            spdg.dataPrinter.constructDetailReportFileName(outputFilePath),
                             spdg.dataPrinter.getDetailReport());
 
                     cl[i][j] = spdg.getCooperationLevel();
@@ -154,7 +156,7 @@ public class Test {
             spdg.done();
             // spdg.printPicture();
             FileUtils.outputToFile(
-                    spdg.dataPrinter.constructFileName(outputFilePath),
+                    spdg.dataPrinter.constructDetailReportFileName(outputFilePath),
                     spdg.dataPrinter.getDetailReport());
             //FileUtils.outputImageToFile();
             FileUtils.outputSnapshootToFile(
@@ -202,7 +204,7 @@ public class Test {
                     spdg.done();
 
                     FileUtils.outputToFile(
-                            spdg.dataPrinter.constructFileName(outputFilePath),
+                            spdg.dataPrinter.constructDetailReportFileName(outputFilePath),
                             spdg.dataPrinter.getDetailReport());
                     FileUtils.outputSnapshootToFile(spdg.dataPrinter
                             .constructImageFilePath(outputFilePath), spdg

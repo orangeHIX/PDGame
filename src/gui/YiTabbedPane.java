@@ -71,9 +71,9 @@ public class YiTabbedPane extends JTabbedPane implements MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        if (SwingUtilities.isRightMouseButton(e)) {
-            showPopupMenu(e);
-        }
+//        if (SwingUtilities.isRightMouseButton(e)) {
+//            showPopupMenu(e);
+//        }
     }
 
     @Override
@@ -90,7 +90,7 @@ public class YiTabbedPane extends JTabbedPane implements MouseListener {
                 return;
             }
             Rectangle rect = ((CloseTabIcon) getIconAt(tabNumber)).getBounds();
-            if (rect.contains(e.getX() - rect.getWidth(), e.getY())) {
+            if (rect.contains(e.getX(), e.getY())) {
                 this.removeTabAt(tabNumber);
             }
         } else if (SwingUtilities.isRightMouseButton(e)) {
@@ -105,15 +105,16 @@ public class YiTabbedPane extends JTabbedPane implements MouseListener {
             final int index = ((YiTabbedPane) event.getComponent()).getUI().tabForCoordinate(this, event.getX(), event.getY());
             final int count = ((YiTabbedPane) event.getComponent()).getTabCount();
             JPopupMenu pop = new JPopupMenu();
-            JMenuItem closeCurrent = new JMenuItem("关闭当前");
-            closeCurrent.addMouseListener(new MouseAdapter() {
-                public void mouseReleased(MouseEvent e) {
+            JMenuItem closeCurrent = new JMenuItem("Close");
+            closeCurrent.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
                     ((YiTabbedPane) event.getComponent()).removeTabAt(index);
                 }
             });
             pop.add(closeCurrent);
 
-            JMenuItem closeLeft = new JMenuItem("关闭左侧标签");
+            JMenuItem closeLeft = new JMenuItem("Close Left Tabs");
             closeLeft.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -122,18 +123,12 @@ public class YiTabbedPane extends JTabbedPane implements MouseListener {
                     }
                 }
             });
-//            closeLeft.addMouseListener(new MouseAdapter() {
-//                public void mouseReleased(MouseEvent e) {
-//                    for(int j=(index-1);j>=0;j--) {
-//                        ((YiTabbedPane)event.getComponent()).removeTabAt(j);
-//                    }
-//                }
-//            });
             pop.add(closeLeft);
 
-            JMenuItem closeRight = new JMenuItem("关闭右侧标签");
-            closeRight.addMouseListener(new MouseAdapter() {
-                public void mouseReleased(MouseEvent e) {
+            JMenuItem closeRight = new JMenuItem("Close Right Tabs");
+            closeRight.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
                     for (int j = (count - 1); j > index; j--) {
                         ((YiTabbedPane) event.getComponent()).removeTabAt(j);
                     }
@@ -236,19 +231,19 @@ class CloseTabIcon implements Icon {
         this.x_pos = x;
         this.y_pos = y;
         int y_p = y + 2;  
-        /*Color col = g.getColor();  
-        g.setColor(Color.black);  
-        g.drawLine(x + 1, y_p, x + 12, y_p);  
-        g.drawLine(x + 1, y_p + 13, x + 12, y_p + 13);  
-        g.drawLine(x, y_p + 1, x, y_p + 12);  
-        g.drawLine(x + 13, y_p + 1, x + 13, y_p + 12);  
-        g.drawLine(x + 3, y_p + 3, x + 10, y_p + 10);  
-        g.drawLine(x + 3, y_p + 4, x + 9, y_p + 10);  
-        g.drawLine(x + 4, y_p + 3, x + 10, y_p + 9);  
-        g.drawLine(x + 10, y_p + 3, x + 3, y_p + 10);  
-        g.drawLine(x + 10, y_p + 4, x + 4, y_p + 10);  
-        g.drawLine(x + 9, y_p + 3, x + 3, y_p + 9);  
-        g.setColor(col);  */
+        Color col = g.getColor();
+        g.setColor(Color.black);
+        g.drawLine(x + 1, y_p, x + 12, y_p);
+        g.drawLine(x + 1, y_p + 13, x + 12, y_p + 13);
+        g.drawLine(x, y_p + 1, x, y_p + 12);
+        g.drawLine(x + 13, y_p + 1, x + 13, y_p + 12);
+        g.drawLine(x + 3, y_p + 3, x + 10, y_p + 10);
+        g.drawLine(x + 3, y_p + 4, x + 9, y_p + 10);
+        g.drawLine(x + 4, y_p + 3, x + 10, y_p + 9);
+        g.drawLine(x + 10, y_p + 3, x + 3, y_p + 10);
+        g.drawLine(x + 10, y_p + 4, x + 4, y_p + 10);
+        g.drawLine(x + 9, y_p + 3, x + 3, y_p + 9);
+        g.setColor(col);
         if (fileIcon != null) {
             fileIcon.paintIcon(c, g, x + width, y_p);
         }

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 /**
  * 二维网格博弈中的个体或博弈参与者
  */
-public class Individual implements JsonEntity{
+public class Individual implements JsonEntity {
     /**
      * 交互强度变量最大值
      */
@@ -59,6 +59,13 @@ public class Individual implements JsonEntity{
      */
     private float w;
 
+    /**
+     * 此构造方法邻居表neighbours没有正确还原!!!
+     */
+    public Individual(String jsonSouce) {
+        initFromJSONSource(jsonSouce);
+    }
+
     public Individual(int id, float strategy, int maxNeighbourNum, float w) {
         super();
         this.id = id;
@@ -77,6 +84,7 @@ public class Individual implements JsonEntity{
         this.w = w;
 
     }
+
     /**
      * 获得个体交互强度
      */
@@ -148,11 +156,10 @@ public class Individual implements JsonEntity{
      */
     public void learnFromNeighbours(LearningPattern learningPattern) {
         Individual teacher = learningPattern.getTeacher(this);
-        if(teacher == null) {
+        if (teacher == null) {
             nextStrategy = strategy;
             teacherId = -1;
-        }
-        else {
+        } else {
             nextStrategy = teacher.getStrategy();
             teacherId = teacher.id;
         }
@@ -228,11 +235,10 @@ public class Individual implements JsonEntity{
         return false;
     }
 
-    public void gamble(Individual other, GamblingRule gr){
+    public void gamble(Individual other, GamblingRule gr) {
         accumulatePayoff(gr.getPayOff(this.getStrategy(), other.getStrategy()));
         gambleIndivIds.add(other.id);
     }
-
 
 
     @Override
@@ -247,8 +253,9 @@ public class Individual implements JsonEntity{
     public JSONObject getJSONObject() {
         //gambleIndivIds.add(99);
         return new JSONObject().put("id", id).put("stra", strategy)
-                .put("teaId", teacherId).put("nextStra", nextStrategy)
-                .put("gamIds",new JSONArray(gambleIndivIds.toArray()))
+                .put("teaId", teacherId)
+                //.put("nextStra", nextStrategy)
+                .put("gamIds", new JSONArray(gambleIndivIds.toArray()))
                 .put("payoff", accumulatedPayoff)
                 .put("seat", seat.getJSONObject())
                 .put("w", w);
@@ -261,24 +268,29 @@ public class Individual implements JsonEntity{
 
     @Override
     public void initFromJSONObject(JSONObject jsonObject) {
+
+        neighbours = new ArrayList<>();
+        gambleIndivIds = new ArrayList<>();
+
         id = jsonObject.getInt("id");
         strategy = new Float(jsonObject.getDouble("stra"));
         teacherId = jsonObject.getInt("teaId");
-        nextStrategy = new Float(jsonObject.getDouble("nextStra"));
+        //nextStrategy = new Float(jsonObject.getDouble("nextStra"));
         gambleIndivIds.clear();
         JSONArray ja = jsonObject.getJSONArray("gamIds");
         int len = ja.length();
-        for(int i = 0; i < len; i++) {
+        for (int i = 0; i < len; i++) {
             gambleIndivIds.add(ja.getInt(i));
         }
         accumulatedPayoff = new Float(jsonObject.getDouble("payoff"));
-        seat = new Seat(0,0);
+        seat = new Seat(0, 0);
         seat.initFromJSONObject(jsonObject.getJSONObject("seat"));
+        seat.setOwner(this);
         w = new Float(jsonObject.getDouble("w"));
     }
 
-    public static void main(String[] args){
-        Individual in = new Individual(1,0.5f, 8, 1);
+    public static void main(String[] args) {
+        Individual in = new Individual(1, 0.5f, 8, 1);
         in.setSeat(new Seat(8, 9));
         JSONObject jo = in.getJSONObject();
         System.out.println(jo);
