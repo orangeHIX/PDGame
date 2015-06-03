@@ -53,15 +53,33 @@ public class Painter {
                 BufferedImage.TYPE_INT_RGB);
 
         Graphics2D g2 = (Graphics2D) bi.getGraphics();
+        drawPDGameImage(g2, 0, 0, width, height, individualStrategyPicture);
+        g2.dispose();
+        return bi;
+    }
+
+    public static Image getPDGameImage(int width, int height, World world) {
+
+        return getPDGameImage(width, height, world.getIndividualStrategyPicture());
+    }
+
+    public static void drawPDGameImage(Graphics2D g2, int x, int y, int width, int height, World world) {
+        drawPDGameImage(g2, x, y, width, height, world.getIndividualStrategyPicture());
+    }
+
+    public static void drawPDGameImage(Graphics2D g2, int x, int y, int width, int height, String individualStrategyPicture) {
+
+        Color back = g2.getBackground();
+        Color col = g2.getColor();
 
         g2.setBackground(Color.WHITE);
-        g2.clearRect(0, 0, width, height);
+        g2.clearRect(x, y, width, height);
 
         int widPerCell, heiPerCell;
         String[] ss = individualStrategyPicture.split("\r\n");
         int L = ss.length;
         widPerCell = (width / L);
-        heiPerCell =  (height / L);
+        heiPerCell = (height / L);
 
         for (int i = 0; i < L; i++) {
             String[] straStrs = ss[i].split("\t");
@@ -72,50 +90,20 @@ public class Painter {
                 } else {
                     g2.setColor(new Color(0, 0, 0));
                 }
-                g2.fillRect(j * widPerCell, i * heiPerCell, widPerCell,
+                g2.fillRect(x + j * widPerCell, y + i * heiPerCell, widPerCell,
                         heiPerCell);
             }
         }
-        g2.dispose();
-        return bi;
+
+        g2.setBackground(back);
+        g2.setColor(col);
     }
 
-    public static Image getPDGameImage(int width, int height, World world) {
 
-//        BufferedImage bi = new BufferedImage(width, height,
-//                BufferedImage.TYPE_INT_RGB);
-//
-//        Graphics2D g2 = (Graphics2D) bi.getGraphics();
-//
-//        g2.setBackground(Color.WHITE);
-//        g2.clearRect(0, 0, width, height);
-//
-//        int widPerCell, heiPerCell;
-//        int L = world.getLength();
-//        widPerCell = (int) (width / L);
-//        heiPerCell = (int) (height / L);
-//        Individual in;
-//
-//        for (int i = 0; i < L; i++) {
-//            for (int j = 0; j < L; j++) {
-//                if ((in = world.getIndividual(i, j)) != null) {
-//                    g2.setColor(getGradient(DColor, MColor, CColor,
-//                            in.getStrategy()));
-//                } else {
-//                    g2.setColor(new Color(0, 0, 0));
-//                }
-//                g2.fillRect(j * widPerCell, i * heiPerCell, widPerCell,
-//                        heiPerCell);
-//            }
-//        }
-//        g2.dispose();
-        return getPDGameImage(width, height, world.getIndividualStrategyPicture());
-    }
-
-    public static Image composingPopulationImage(ArrayList<NamedImage> images,
-                                                 String caption, int column, int imageWidth, int imageHeight,
-                                                 int marginLengthX, int marginLengthY, int spacingLengthX,
-                                                 int spacingLengthY, int topCaptionSpace) {
+    public static Image composingEvolutionImage(ArrayList<NamedImage> images,
+                                                String caption, int column, int imageWidth, int imageHeight,
+                                                int marginLengthX, int marginLengthY, int spacingLengthX,
+                                                int spacingLengthY, int topCaptionSpace) {
         if (images == null) {
             return null;
         }
@@ -136,7 +124,7 @@ public class Painter {
         g2.clearRect(0, 0, width, height);
 
         // 画整理好的人口斑图
-        Image popuImage = drawPopulationImage(images, column, imageWidth,
+        Image popuImage = drawEvolutionImage(images, column, imageWidth,
                 imageHeight, spacingLengthX, spacingLengthY);
         g2.drawImage(popuImage, marginLengthX, marginLengthY - spacingLengthY
                 + topCaptionSpace, null);
@@ -147,7 +135,7 @@ public class Painter {
 //				marginLengthY, legendSpace, (int) (legendSpace * 7.5), null);
 
         // 画题注
-        int fontSize =  (topCaptionSpace);
+        int fontSize = (topCaptionSpace);
         Font font = new Font("黑体", Font.PLAIN, fontSize);
         g2.setColor(Color.BLACK);
         g2.setFont(font);
@@ -158,11 +146,11 @@ public class Painter {
         return bi;
     }
 
-    public static Image drawPopulationImage(ArrayList<NamedImage> images,
-                                            int column, int imageWidth, int imageHeight, // int marginLengthX,
-                                            // int
-                                            // marginLengthY,
-                                            int spacingLengthX, int spacingLengthY) {
+    public static Image drawEvolutionImage(ArrayList<NamedImage> images,
+                                           int column, int imageWidth, int imageHeight, // int marginLengthX,
+                                           // int
+                                           // marginLengthY,
+                                           int spacingLengthX, int spacingLengthY) {
 
         int row = (int) Math.ceil(images.size() / (double) column);
         int width = column * (imageWidth + spacingLengthX) - spacingLengthX;
@@ -449,8 +437,8 @@ public class Painter {
         }
     }
 
-    public static Image assembleImages(ArrayList<Image> images, int marginX,
-                                       int marginY) {
+    public static Image assembleEvolutionImages(ArrayList<Image> images, int marginX,
+                                                int marginY) {
         if (images.size() != 4)
             return null;
         int imageWidth = images.get(0).getWidth(null);

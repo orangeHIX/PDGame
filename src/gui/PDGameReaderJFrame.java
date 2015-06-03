@@ -6,45 +6,46 @@
 package gui;
 
 
+import entity.Individual;
 import entity.SpatialPDGame;
 import entity.World;
+import org.json.JSONObject;
 import utils.FileUtils;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.event.*;
 import java.io.File;
 import java.io.FileFilter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author hyx
  */
-public class PDGameReaderJFrame extends JFrame {
+public class PDGameReaderJFrame extends JFrame implements TabChangeListener, MouseClickLocationChangeListener {
 
-    ArrayList<File> allPicFiles;
-    ArrayList<World> worldlist;
-    SpatialPDGame PDgame;
-
+    LinkedList<ReaderModel> tabModelList;
+    ReaderModel currReaderModel;
 
     /**
      * Creates new form PDGameReaderJFrame
      */
     public PDGameReaderJFrame() {
-        allPicFiles = new ArrayList<>();
-        worldlist = new ArrayList<>();
-        PDgame = new SpatialPDGame();
+        tabModelList = new LinkedList<>();
+        setResizable(false);
         initComponents();
-        jTextFieldPath.setEditable(false);
+        //tabModelList.set(1, null);
+
         jTabbedPanePopuPic.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-        for (int i = 0; i < 10; i++) {
-            jTabbedPanePopuPic.addTab("nihao" + i, new Label("sds"));
+        for (int i = 0; i < 1; i++) {
+            jTabbedPanePopuPic.addTab("nihao" + i, new PicturePanel(this));
         }
+
+        tabModelList.add(new ReaderModel());
+        updateAll();
     }
 
     /**
@@ -64,13 +65,13 @@ public class PDGameReaderJFrame extends JFrame {
         jLabel5 = new JLabel();
         jButtonRight = new JButton();
         jLabel6 = new JLabel();
-        jButtonDownn = new JButton();
+        jButtonDown = new JButton();
         jLabel7 = new JLabel();
         jTabbedPanePopuPic = new YiTabbedPane();
         jPanel2 = new JPanel();
-        jSliderTurn = new JSlider();
-        jLabel1 = new JLabel();
-        jLabel2 = new JLabel();
+        jSliderTurn = new JSlider(0, 50000, 0);
+        jLabelMinTurn = new JLabel();
+        jLabelMaxTurn = new JLabel();
         jTextFieldTurn = new JTextField();
         jButtonBackward = new JButton();
         jButtonForward = new JButton();
@@ -88,11 +89,13 @@ public class PDGameReaderJFrame extends JFrame {
         jPanel6 = new JPanel();
         jPanel4 = new JPanel();
         jScrollPane2 = new JScrollPane();
-        jListIndivInfo = new JList();
+        jListIndivInfoModel = new DefaultListModel<>();
+        jListIndivInfo = new JList<>(jListIndivInfoModel);
         jLabel14 = new JLabel();
         jPanel5 = new JPanel();
         jScrollPane1 = new JScrollPane();
-        jListPDGameInfo = new JList();
+        jListPDGameInfoModel = new DefaultListModel<>();
+        jListPDGameInfo = new JList<>(jListPDGameInfoModel);
         jLabel13 = new JLabel();
 
         jFileChooserFilePath = new JFileChooser();
@@ -114,13 +117,13 @@ public class PDGameReaderJFrame extends JFrame {
         jPanel1.add(jButtonRight);
         jPanel1.add(jLabel6);
 
-        jButtonDownn.setText("Down");
-        jPanel1.add(jButtonDownn);
+        jButtonDown.setText("Down");
+        jPanel1.add(jButtonDown);
         jPanel1.add(jLabel7);
 
-        jLabel1.setText("min turn");
+        jLabelMinTurn.setText("min turn");
 
-        jLabel2.setText("max turn");
+        jLabelMaxTurn.setText("max turn");
 
         jTextFieldTurn.setText("100");
 
@@ -132,9 +135,9 @@ public class PDGameReaderJFrame extends JFrame {
 
         jLabel10.setText("Path: ");
 
-        jLabelPreviousTurn.setText("jLabel11");
+        jLabelPreviousTurn.setText("valid");
 
-        jLabelNextTurn.setText("jLabel12");
+        jLabelNextTurn.setText("valid");
 
         jButtonPath.setText("Change Path");
 
@@ -148,17 +151,17 @@ public class PDGameReaderJFrame extends JFrame {
                                 .addContainerGap()
                                 .addGroup(jPanel2Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                                         .addGroup(jPanel2Layout.createSequentialGroup()
-                                                .addComponent(jLabel1, GroupLayout.PREFERRED_SIZE, 56, GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(jLabelMinTurn, GroupLayout.PREFERRED_SIZE, 56, GroupLayout.PREFERRED_SIZE)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                                                 .addComponent(jSliderTurn, GroupLayout.PREFERRED_SIZE, 462, GroupLayout.PREFERRED_SIZE)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                                                .addComponent(jLabel2, GroupLayout.PREFERRED_SIZE, 56, GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(jLabelMaxTurn, GroupLayout.PREFERRED_SIZE, 56, GroupLayout.PREFERRED_SIZE)
                                                 .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                         .addGroup(jPanel2Layout.createSequentialGroup()
                                                 .addComponent(jLabel10)
                                                 .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                                                .addComponent(jTextFieldPath)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jTextFieldPath, javax.swing.GroupLayout.PREFERRED_SIZE, 453, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                 .addComponent(jButtonPath))
                                         .addGroup(GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                                                 .addComponent(jLabel15)
@@ -193,8 +196,8 @@ public class PDGameReaderJFrame extends JFrame {
                                         .addComponent(jLabel15))
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addGroup(jPanel2Layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(jLabel2, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(jLabel1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jLabelMaxTurn, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jLabelMinTurn, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                         .addComponent(jSliderTurn, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                                 .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -234,17 +237,7 @@ public class PDGameReaderJFrame extends JFrame {
 
         jPanel6.setLayout(new java.awt.GridLayout(2, 1));
 
-        jListIndivInfo.setModel(new AbstractListModel() {
-            String[] strings = {"Item 1", "Item 2", "Item 3", "Item 4", "Item 5"};
 
-            public int getSize() {
-                return strings.length;
-            }
-
-            public Object getElementAt(int i) {
-                return strings[i];
-            }
-        });
         jScrollPane2.setViewportView(jListIndivInfo);
 
         jLabel14.setText("Individual Info");
@@ -268,17 +261,7 @@ public class PDGameReaderJFrame extends JFrame {
 
         jPanel6.add(jPanel4);
 
-        jListPDGameInfo.setModel(new AbstractListModel() {
-            String[] strings = {"Item 1", "Item 2", "Item 3", "Item 4", "Item 5"};
 
-            public int getSize() {
-                return strings.length;
-            }
-
-            public Object getElementAt(int i) {
-                return strings[i];
-            }
-        });
         jScrollPane1.setViewportView(jListPDGameInfo);
 
         jLabel13.setText("PDGame Info");
@@ -333,10 +316,27 @@ public class PDGameReaderJFrame extends JFrame {
                                 .addContainerGap())
         );
 
-        jFileChooserFilePath
-                .setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        jFileChooserFilePath.setFileFilter(new javax.swing.filechooser.FileFilter() {
+            @Override
+            public boolean accept(File f) {
+                if (f.isDirectory()) {
+                    return true;
+                }
+                if (f.getName().endsWith(FileUtils.PDGameJSONFileSuffix)) {
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public String getDescription() {
+                return FileUtils.PDGameJSONFileSuffix + " file";
+            }
+        });
+
         jTextFieldPath.setText(jFileChooserFilePath
                 .getCurrentDirectory().getAbsolutePath());
+        jTextFieldPath.setEditable(false);
 
         addComponentsListener();
 
@@ -344,69 +344,168 @@ public class PDGameReaderJFrame extends JFrame {
     }// </editor-fold>
 
     private void addComponentsListener() {
-        jTextFieldTurn.addFocusListener(new FocusAdapter() {
+        addTextFieldListener(jTextFieldTurn, new DealTextField() {
             @Override
-            public void focusLost(FocusEvent e) {
-                super.focusLost(e);
-                int i = -1;
-                try {
-                    i = Integer.parseUnsignedInt(((JTextField) e.getSource())
-                            .getText().trim());
-                } catch (NumberFormatException ne) {
-
-                }
-                if (i <= 0) {
-                    JOptionPane.showMessageDialog(PDGameReaderJFrame.this,
-                            "网格边长必须是一个有效的正整数");
-                    jTextFieldTurn.requestFocusInWindow();
-                    jTextFieldTurn.selectAll();
+            public void deal() {
+                int i = getPositiveNumberFromTextField(jTextFieldTurn);
+                if (currReaderModel != null) {
+                    if (i < 0) {
+                        updateTurnPanel();
+                        jTextFieldTurn.requestFocusInWindow();
+                        jTextFieldTurn.selectAll();
+                    } else {
+                        currReaderModel.changeTurn(i);
+                        updateAll();
+                    }
                 }
             }
         });
+
         jButtonPath.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
 
                 jFileChooserFilePath.showOpenDialog(PDGameReaderJFrame.this);
-                File selectedFilePath = jFileChooserFilePath
+                File selectedFile = jFileChooserFilePath
                         .getSelectedFile();
-                if (selectedFilePath != null && selectedFilePath.isDirectory()) {
-                    File[] fs = selectedFilePath.listFiles(
-                            new FileFilter() {
-                                @Override
-                                public boolean accept(File pathname) {
-                                    if (pathname.isFile()) {
-                                        if (pathname.getName().endsWith(FileUtils.PDGameJSONFileSuffix)
-                                                || pathname.getName().startsWith(FileUtils.PDGameAllPicFilePrefix))
-                                            return true;
-                                    }
-                                    return false;
-                                }
-                            }
-                    );
-                    File desc = findPDGameDescFile(fs);
-                    if (desc == null) {
+                if (selectedFile != null) {
+                    int index = jTabbedPanePopuPic.getSelectedIndex();
+                    ReaderModel rm = tabModelList.get(index);
+                    jTextFieldPath.setText(selectedFile.getParentFile()
+                            .getAbsolutePath());
+                    if (rm.initFromDirect(selectedFile.getParentFile())) {
+                        //tabModelList.add(rm);
+                        changeTab(index);
+                    } else {
                         JOptionPane.showMessageDialog(PDGameReaderJFrame.this,
                                 "can not find \""
                                         + FileUtils.PDGameJSONFileSuffix
                                         + "\" file in the directory");
                         jTextFieldPath.requestFocusInWindow();
                         jTextFieldPath.selectAll();
-                    } else {
-                        PDgame.initFromJSONSource(FileUtils.readStringFromFile(desc));
-                        allPicFiles.addAll(Arrays.asList(fs));
-                        allPicFiles.remove(desc);
-                        sortAllPicFiles();
-                        System.out.println(allPicFiles);
                     }
                 }
-
-                jTextFieldPath.setText(selectedFilePath
-                        .getAbsolutePath());
             }
 
         });
+        jButtonForward.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (currReaderModel != null) {
+                    currReaderModel.changeTurn(currReaderModel.nextTurn);
+                    updateAll();
+                }
+            }
+        });
+        jButtonBackward.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (currReaderModel != null) {
+                    currReaderModel.changeTurn(currReaderModel.previousTurn);
+                    updateAll();
+                }
+            }
+        });
+        jButtonUp.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dealDirectionButtonEvent(-1, 0);
+            }
+        });
+        jButtonDown.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dealDirectionButtonEvent(1, 0);
+            }
+        });
+        jButtonLeft.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dealDirectionButtonEvent(0, -1);
+            }
+        });
+        jButtonRight.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dealDirectionButtonEvent(0, 1);
+            }
+        });
+        addTextFieldListener(jTextFieldX, new DealTextField() {
+            @Override
+            public void deal() {
+                int i = getPositiveNumberFromTextField(jTextFieldX);
+                if (currReaderModel != null) {
+                    if (currReaderModel != null) {
+                        if (currReaderModel.changeLocation(i, currReaderModel.y)) {
+                            updateAll();
+                        } else {
+                            updateLocationPanel();
+                            jTextFieldY.requestFocusInWindow();
+                            jTextFieldY.selectAll();
+                        }
+                    }
+                }
+            }
+        });
+        addTextFieldListener(jTextFieldY, new DealTextField() {
+            @Override
+            public void deal() {
+                int i = getPositiveNumberFromTextField(jTextFieldY);
+                if (currReaderModel != null) {
+                    if (currReaderModel.changeLocation(currReaderModel.x, i)) {
+                        updateAll();
+                    } else {
+                        updateLocationPanel();
+                        jTextFieldY.requestFocusInWindow();
+                        jTextFieldY.selectAll();
+                    }
+                }
+            }
+        });
+        jTabbedPanePopuPic.setTabChangeListener(this);
+
+    }
+
+    interface DealTextField {
+        void deal();
+    }
+
+    private void addTextFieldListener(JTextField textField, final DealTextField dealTextField) {
+        textField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                super.keyTyped(e);
+                if (e.getKeyChar() == KeyEvent.VK_ENTER) {
+                    dealTextField.deal();
+                }
+            }
+        });
+        textField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                super.focusLost(e);
+                dealTextField.deal();
+            }
+        });
+    }
+
+
+    private int getPositiveNumberFromTextField(JTextField textField) {
+        int i = -1;
+        try {
+            i = Integer.parseUnsignedInt(textField
+                    .getText().trim());
+        } catch (NumberFormatException ne) {
+
+        }
+        return i;
+    }
+
+    private void dealDirectionButtonEvent(int v_i, int v_j) {
+        if (currReaderModel != null) {
+            changeLocationTo(currReaderModel.x + v_i, currReaderModel.y + v_j);
+        }
     }
 
     private File findPDGameDescFile(File[] fs) {
@@ -420,23 +519,121 @@ public class PDGameReaderJFrame extends JFrame {
         return null;
     }
 
-    private void sortAllPicFiles(){
-        allPicFiles.sort(new Comparator<File>() {
-            @Override
-            public int compare(File o1, File o2) {
-                return getTurn(o1.getName())- getTurn(o2.getName());
-            }
-            private int getTurn(String filename){
-                int index1 = FileUtils.PDGameAllPicFilePrefix.length();
-                int index2 = filename.indexOf('.');
-                return new Integer(filename.substring(index1,index2));
-            }
+    public void changeTab(int index) {
+        if (index > -1 && index < jTabbedPanePopuPic.getTabCount()) {
+            jTabbedPanePopuPic.setSelectedIndex(index);
+            currReaderModel = tabModelList.get(jTabbedPanePopuPic.getSelectedIndex());
+            updateAll();
+        } else if (index == -1) {
+            currReaderModel = null;
+            updateAll();
+        }
 
-        });
     }
 
-    private void updatePDGameInfo(){
-        //jListIndivInfo.add
+    private void updateAll() {
+        updateStraPic();
+        updateIndividualInfo();
+        updatePDGameInfo();
+        updateLocationPanel();
+        updateTurnPanel();
+    }
+
+    private void updateStraPic() {
+        int index = jTabbedPanePopuPic.getSelectedIndex();
+        if (index < 0)
+            return;
+        PicturePanel pp = (PicturePanel) jTabbedPanePopuPic.getComponentAt(index);
+        if (pp != null && currReaderModel != null) {
+            pp.setWorld(currReaderModel.world, currReaderModel.x, currReaderModel.y);
+        }
+    }
+
+    private void updatePDGameInfo() {
+        jListPDGameInfoModel.clear();
+        if (currReaderModel != null) {
+            Map<String, Object> param = currReaderModel.pdGame.getParam();
+
+            for (String key : param.keySet()) {
+                jListPDGameInfoModel.addElement(key + "=" + param.get(key));
+            }
+        }
+    }
+
+    private void updateIndividualInfo() {
+        jListIndivInfoModel.clear();
+        if (currReaderModel != null) {
+            Individual in = currReaderModel.in;
+            JSONObject joIn = in.getJSONObject();
+
+            for (String key : joIn.keySet()) {
+                jListIndivInfoModel.addElement(key + "=" + joIn.get(key));
+            }
+        }
+    }
+
+    private void updateLocationPanel() {
+        if (currReaderModel != null) {
+            jTextFieldX.setText("" + currReaderModel.x);
+            jTextFieldY.setText("" + currReaderModel.y);
+        } else {
+            jTextFieldX.setText("");
+            jTextFieldY.setText("");
+        }
+    }
+
+    private void updateTurnPanel() {
+        if (currReaderModel != null) {
+            jTextFieldTurn.setText("" + currReaderModel.turn);
+            jLabelPreviousTurn.setText("prev " + currReaderModel.previousTurn);
+            jLabelNextTurn.setText("next " + currReaderModel.nextTurn);
+            jLabelMaxTurn.setText("" + currReaderModel.maxTurn);
+            jLabelMinTurn.setText("" + currReaderModel.minTurn);
+        } else {
+            jTextFieldTurn.setText("0");
+            jLabelPreviousTurn.setText("valid");
+            jLabelNextTurn.setText("valid");
+            jLabelMaxTurn.setText("max turn");
+            jLabelMinTurn.setText("min turn");
+        }
+        updatejSliderTurnValue();
+    }
+
+    private void updatejSliderTurnValue() {
+        if (currReaderModel != null) {
+            jSliderTurn.setValue(projectSliderValue(currReaderModel.turn));
+        } else {
+            jSliderTurn.setValue(0);
+        }
+    }
+
+    private int projectSliderValue(int value) {
+        int minTurn = currReaderModel.minTurn;
+        int maxTurn = currReaderModel.maxTurn;
+        int turnRange = maxTurn - minTurn;
+        int min = jSliderTurn.getMinimum();
+        int max = jSliderTurn.getMaximum();
+        int range = max - min;
+        return (int) (min + ((float) (value - minTurn)) / turnRange * range);
+    }
+
+    @Override
+    public void notifyInsertTabAt(int index) {
+        //tabModelList.add(index);
+        //TODO
+    }
+
+    @Override
+    public void notifyRemoveTabAt(int index) {
+        tabModelList.remove(index);
+    }
+
+    @Override
+    public void changeLocationTo(int i, int j) {
+        if (currReaderModel != null) {
+            currReaderModel.changeLocation(i, j);
+        }
+        updateAll();
     }
 
     /**
@@ -480,18 +677,18 @@ public class PDGameReaderJFrame extends JFrame {
 
     // Variables declaration - do not modify
     private JButton jButtonBackward;
-    private JButton jButtonDownn;
+    private JButton jButtonDown;
     private JButton jButtonForward;
     private JButton jButtonLeft;
     private JButton jButtonPath;
     private JButton jButtonRight;
     private JButton jButtonUp;
-    private JLabel jLabel1;
+    private JLabel jLabelMinTurn;
     private JLabel jLabel10;
     private JLabel jLabel13;
     private JLabel jLabel14;
     private JLabel jLabel15;
-    private JLabel jLabel2;
+    private JLabel jLabelMaxTurn;
     private JLabel jLabel3;
     private JLabel jLabel4;
     private JLabel jLabel5;
@@ -501,8 +698,8 @@ public class PDGameReaderJFrame extends JFrame {
     private JLabel jLabel9;
     private JLabel jLabelNextTurn;
     private JLabel jLabelPreviousTurn;
-    private JList jListIndivInfo;
-    private JList jListPDGameInfo;
+    private JList<String> jListIndivInfo;
+    private JList<String> jListPDGameInfo;
     private JPanel jPanel1;
     private JPanel jPanel2;
     private JPanel jPanel3;
@@ -519,5 +716,132 @@ public class PDGameReaderJFrame extends JFrame {
     private JTextField jTextFieldY;
 
     private JFileChooser jFileChooserFilePath;
-    // End of variables declaration                   
+    private DefaultListModel<String> jListIndivInfoModel;
+    private DefaultListModel<String> jListPDGameInfoModel;
+    // End of variables declaration
+
+
+    class ReaderModel {
+        //File direct;
+        TreeMap<Integer, File> allPicFileMap;
+        //ArrayList<File> allPicFileList;
+        int minTurn;
+        int maxTurn;
+        int previousTurn;
+        int nextTurn;
+        int turn;
+        World world;
+        SpatialPDGame pdGame;
+        int x, y;
+        Individual in;
+
+        public ReaderModel() {
+            allPicFileMap = new TreeMap<>();
+            //allPicFileList = new ArrayList<>();
+            world = new World();
+            pdGame = new SpatialPDGame();
+            x = 0;
+            y = 0;
+            minTurn = maxTurn = turn = 0;
+            previousTurn = nextTurn = 0;
+        }
+
+        public boolean initFromDirect(File f) {
+            if (f.exists() && f.isDirectory()) {
+                File[] fs = f.listFiles(
+                        new FileFilter() {
+                            @Override
+                            public boolean accept(File pathname) {
+                                if (pathname.isFile()) {
+                                    if (pathname.getName().endsWith(FileUtils.PDGameJSONFileSuffix)
+                                            || pathname.getName().startsWith(FileUtils.PDGameAllPicFilePrefix))
+                                        return true;
+                                }
+                                return false;
+                            }
+                        }
+                );
+                File desc = findPDGameDescFile(fs);
+                if (desc == null) {
+                    return false;
+                } else {
+                    pdGame.initFromJSONSource(FileUtils.readStringFromFile(desc));
+                    for (File pic : fs) {
+                        if (pic != desc) {
+                            allPicFileMap.put(getTurnFromALlPicFile(pic.getName()),
+                                    pic);
+                        }
+                    }
+                    minTurn = allPicFileMap.firstKey();
+                    maxTurn = allPicFileMap.lastKey();
+                    changeTurn(minTurn);
+                    //System.out.println(allPicFileMap);
+                    changeLocation(0, 0);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private int getPreviousTurn() {
+            Integer i = allPicFileMap.lowerKey(turn);
+            return i == null ? turn : i;
+        }
+
+        private int getNextTurn() {
+            Integer i = allPicFileMap.higherKey(turn);
+            return i == null ? turn : i;
+        }
+
+        private int getTurnFromALlPicFile(String filename) {
+            int index1 = FileUtils.PDGameAllPicFilePrefix.length();
+            int index2 = filename.indexOf('.');
+            return new Integer(filename.substring(index1, index2));
+        }
+
+        public boolean changeLocation(int i, int j) {
+            if (i >= 0 && i < world.getLength() && j >= 0 && j < world.getLength()) {
+                x = i;
+                y = j;
+                in = world.getIndividual(x, y);
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        public void changeTurn(int newTurn) {
+            if (newTurn < minTurn) {
+                this.turn = minTurn;
+            } else if (newTurn > maxTurn) {
+                this.turn = maxTurn;
+            } else {
+                int floor = allPicFileMap.floorKey(newTurn);
+                int ceiling = allPicFileMap.ceilingKey(newTurn);
+                if (Math.abs(floor - newTurn) < Math.abs(ceiling - newTurn)) {
+                    this.turn = floor;
+                } else {
+                    this.turn = ceiling;
+                }
+                previousTurn = getPreviousTurn();
+                nextTurn = getNextTurn();
+                String allPicStr = FileUtils.readStringFromFile(allPicFileMap.get(this.turn));
+                world.initFromIndividualAllPicture(allPicStr);
+                in = world.getIndividual(x, y);
+            }
+        }
+
+//        private void sortAllPicFiles() {
+//            allPicFileList.sort(new Comparator<File>() {
+//                @Override
+//                public int compare(File o1, File o2) {
+//                    return getTurn(o1.getName()) - getTurn(o2.getName());
+//                }
+//
+//            });
+//        }
+
+
+    }
+
 }

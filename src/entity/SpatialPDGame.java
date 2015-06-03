@@ -4,6 +4,7 @@ import graphic.Painter;
 import gui.DebugWindow;
 import org.json.JSONObject;
 import rule.*;
+import utils.ArrayUtils;
 import utils.Reporter;
 import utils.Snapshot;
 import utils.WorldDetail;
@@ -309,6 +310,10 @@ public class SpatialPDGame implements Reporter, JsonEntity{
      */
     public int getTurn() {
         return turn;
+    }
+
+    public Map<String,Object> getParam(){
+        return param;
     }
 
     @Override

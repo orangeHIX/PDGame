@@ -2,7 +2,10 @@ package gui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,7 +22,9 @@ public class YiTabbedPane extends JTabbedPane implements MouseListener {
      */
     private double scaleRatio = 0.3d;
 
-    private HashMap<String, Component> maps = new HashMap<String, Component>();
+    private HashMap<String, Component> maps = new HashMap<>();
+    private TabChangeListener tabChangeListener;
+
 
     public YiTabbedPane() {
         super();
@@ -29,6 +34,8 @@ public class YiTabbedPane extends JTabbedPane implements MouseListener {
     public YiTabbedPane(int tabPlacement, int tabLayoutPolicy) {
         super(tabPlacement, tabLayoutPolicy);
         addMouseListener(this);
+//        JButton btn = new JButton("+");
+//        addTab("", btn);
     }
 
     public YiTabbedPane(int tabPlacement) {
@@ -36,33 +43,41 @@ public class YiTabbedPane extends JTabbedPane implements MouseListener {
         addMouseListener(this);
     }
 
-    @Override
-    public void addTab(String title, Icon icon, Component component, String tip) {
-        super.addTab(title, icon, component, tip);
+    public void setTabChangeListener(TabChangeListener listener){
+        this.tabChangeListener = listener;
     }
-
     @Override
     public void addTab(String title, Icon icon, Component component) {
-        super.addTab(title, new CloseTabIcon(icon), component);
+        addTab(title, null, component, null);
     }
 
     @Override
     public void addTab(String title, Component component) {
-        addTab(title, null, component);
+        addTab(title, null, component, null);
     }
 
+    @Override
+    public void addTab(String title, Icon icon, Component component, String tip) {
+        super.addTab(title, new CloseTabIcon(icon), component, tip);
+    }
+
+    @Override
     public void insertTab(String title, Icon icon, Component component, String tip, int index) {
         tip = "tab" + component.hashCode();
         maps.put(tip, component);
+        tabChangeListener.notifyInsertTabAt(index);
         super.insertTab(title, icon, component, tip, index);
     }
 
+    @Override
     public void removeTabAt(int index) {
         Component component = getComponentAt(index);
         maps.remove("tab" + component.hashCode());
+        tabChangeListener.notifyRemoveTabAt(index);
         super.removeTabAt(index);
     }
 
+    @Override
     public JToolTip createToolTip() {
         ThumbnailToolTip tooltip = new ThumbnailToolTip();
         tooltip.setComponent(this);
@@ -230,7 +245,7 @@ class CloseTabIcon implements Icon {
     public void paintIcon(Component c, Graphics g, int x, int y) {
         this.x_pos = x;
         this.y_pos = y;
-        int y_p = y + 2;  
+        int y_p = y + 2;
         Color col = g.getColor();
         g.setColor(Color.black);
         g.drawLine(x + 1, y_p, x + 12, y_p);

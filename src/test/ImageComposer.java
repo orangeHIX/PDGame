@@ -233,7 +233,7 @@ public class ImageComposer {
                 // + ".jpg").delete();
                 String expand = captionString + ", "
                         + getDrAndDgFromString(f2.getName());
-                image = Painter.composingPopulationImage(imageList, expand,
+                image = Painter.composingEvolutionImage(imageList, expand,
                         column, (int) (120 * zoom), (int) (120 * zoom),
                         (int) (5 * zoom), (int) (15 * zoom), (int) (3 * zoom),
                         (int) (15 * zoom), (int) (25 * zoom));
@@ -380,7 +380,7 @@ public class ImageComposer {
                     if (bi != null)
                         list.add(bi);
                     if (list.size() == 4) {
-                        list2.add(Painter.assembleImages(list, 20, 20));
+                        list2.add(Painter.assembleEvolutionImages(list, 20, 20));
                         list.clear();
                     }
                 }

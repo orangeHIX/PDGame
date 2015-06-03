@@ -4,8 +4,6 @@ import rule.*;
 import utils.*;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -34,7 +32,8 @@ public class World implements WorldInfo {
 //    private int[][] strategyGamblingMatrix;
 //    private float[][] strategyPayoffMatrix;
 
-    public World(){}
+    public World() {
+    }
 
 
     /**
@@ -72,6 +71,8 @@ public class World implements WorldInfo {
 
             // 给每个个体随机分配网格中的位置
             randomAllocateSeat();
+
+            assginIndividualId();
         }
 
     }
@@ -97,7 +98,6 @@ public class World implements WorldInfo {
     private void initIndividuals(float d0,
                                  float w) {
 
-        int inId = 1;
 
         int num = (int) (d0 * L * L); // 个体总数目
         // System.out.println("initIndividualStrategy"+num);
@@ -111,7 +111,7 @@ public class World implements WorldInfo {
         for (int i = 0; i < strategyNum; i++) {
             //strategySample[i] = 0 + i / (float) (strategyNum - 1);
             for (int j = 0; j < num / strategyNum; j++) {
-                this.IndividualList.add(new Individual(inId++, strategyPattern.getStrategySample(i),//strategySample[i],
+                this.IndividualList.add(new Individual(strategyPattern.getStrategySample(i),//strategySample[i],
                         maxNeighbourNum, w));
                 count++;
             }
@@ -119,7 +119,7 @@ public class World implements WorldInfo {
         // 由于采取各种策略的个体数目在某些情况下不可能全部相等，平均分配后余下的若干个体按次序分配剩下的名额
         if (count < num) {
             for (int i = 0; i < strategyNum; i++) {
-                this.IndividualList.add(new Individual(inId++, strategyPattern.getStrategySample(i),//strategySample[i],
+                this.IndividualList.add(new Individual(strategyPattern.getStrategySample(i),//strategySample[i],
                         maxNeighbourNum, w));
                 count++;
                 if (count >= num) {
@@ -143,6 +143,20 @@ public class World implements WorldInfo {
         for (i = 0; i < L * L; i++) {
             swapSeat(getSeat(i),
                     getSeat((int) (RandomUtil.nextFloat() * L * L)));
+        }
+    }
+    /**
+     * 给每个个体分配id，从0开始向无穷大分配
+     */
+    private void assginIndividualId() {
+        int inId = 0;
+        for (int i = 0; i < L; i++) {
+            for (int j = 0; j < L; j++) {
+                Individual in;
+                if ((in = grid[i][j].getOwner()) != null) {
+                    in.setId(++inId);
+                }
+            }
         }
     }
 
@@ -512,8 +526,8 @@ public class World implements WorldInfo {
         public boolean test(E object);
     }
 
-    public static void main(String[] args){
-        World world= new World();
+    public static void main(String[] args) {
+        World world = new World();
         world.initFromIndividualAllPicture(
                 FileUtils.readStringFromFile(
                         new File("C:\\Users\\hyx\\Desktop\\kk" +

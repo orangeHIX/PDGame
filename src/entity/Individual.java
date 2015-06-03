@@ -66,9 +66,9 @@ public class Individual implements JsonEntity {
         initFromJSONSource(jsonSouce);
     }
 
-    public Individual(int id, float strategy, int maxNeighbourNum, float w) {
+    public Individual(float strategy, int maxNeighbourNum, float w) {
         super();
-        this.id = id;
+        //this.id = id;
         if (strategy >= 0.0f && strategy <= 1.0f) {
             this.strategy = strategy;
             this.nextStrategy = this.strategy;
@@ -83,6 +83,10 @@ public class Individual implements JsonEntity {
         gambleIndivIds = new ArrayList<>(maxNeighbourNum);
         this.w = w;
 
+    }
+
+    public void setId(int id){
+        this.id = id;
     }
 
     /**
@@ -290,12 +294,14 @@ public class Individual implements JsonEntity {
     }
 
     public static void main(String[] args) {
-        Individual in = new Individual(1, 0.5f, 8, 1);
+        Individual in = new Individual( 0.5f, 8, 1);
+        in.setId(1);
         in.setSeat(new Seat(8, 9));
         JSONObject jo = in.getJSONObject();
         System.out.println(jo);
 
-        Individual in2 = new Individual(3, 0.2f, 4, 0.5f);
+        Individual in2 = new Individual( 0.2f, 4, 0.5f);
+        in2.setId(3);
         in2.setSeat(new Seat(10, 10));
         System.out.println(in2);
         in2.initFromJSONObject(jo);
