@@ -68,7 +68,11 @@ public class SpatialPDGame implements Reporter, JsonEntity{
      */
     private Map<Integer, Snapshot> snapshotMap = new HashMap<>();
 
-    public SpatialPDGame(){};
+    public SpatialPDGame(){
+        world = new World();
+        this.recordSnapShoot = true;
+        this.reporter = this;
+    };
 
     /**
      * @param recordSnapShoot 是否要记录实验过程中的人口斑图
@@ -204,7 +208,7 @@ public class SpatialPDGame implements Reporter, JsonEntity{
     private void recordSnapshoot() {
         if (recordSnapShoot) {
             snapshotMap.put(turn, world.getSnapshot());//getCurrentPicture());
-            reporter.report("snapshot at turn " + turn);
+            //reporter.report("snapshot at turn " + turn);
         }
     }
 
@@ -310,6 +314,10 @@ public class SpatialPDGame implements Reporter, JsonEntity{
      */
     public int getTurn() {
         return turn;
+    }
+
+    public World getWorld(){
+        return world;
     }
 
     public Map<String,Object> getParam(){
@@ -498,7 +506,7 @@ public class SpatialPDGame implements Reporter, JsonEntity{
         public String constructFilePath(String base) {
             DecimalFormat df = new DecimalFormat("0.00");
             return base + "\\" + learningPattern + "_$_" + migrationPattern
-                    + "_$_" + strategyPattern + "_$_pi=" + df.format(pi)
+                    + "_$_" + strategyPattern +"_$_"+neighbourCoverage +"_$_pi=" + df.format(pi)
                     + "_$_qi=" + df.format(qi) + "_$_w=" + df.format(w);
         }
 

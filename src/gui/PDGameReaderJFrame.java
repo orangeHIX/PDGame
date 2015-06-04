@@ -13,8 +13,6 @@ import org.json.JSONObject;
 import utils.FileUtils;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.event.*;
 import java.io.File;
 import java.io.FileFilter;
@@ -40,11 +38,11 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
         //tabModelList.set(1, null);
 
         jTabbedPanePopuPic.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-        for (int i = 0; i < 1; i++) {
-            jTabbedPanePopuPic.addTab("nihao" + i, new PicturePanel(this));
-        }
+
+       // add("sdsa",new YiTabbedPane.CloseButtonTabComponent(jTabbedPanePopuPic));
 
         tabModelList.add(new ReaderModel());
+        jTabbedPanePopuPic.setSelectedIndex(0);
         updateAll();
     }
 
@@ -376,6 +374,7 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
                             .getAbsolutePath());
                     if (rm.initFromDirect(selectedFile.getParentFile())) {
                         //tabModelList.add(rm);
+                        jTabbedPanePopuPic.setToolTipTextAt(index, rm.pdGame.toString());
                         changeTab(index);
                     } else {
                         JOptionPane.showMessageDialog(PDGameReaderJFrame.this,
@@ -522,6 +521,9 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
     public void changeTab(int index) {
         if (index > -1 && index < jTabbedPanePopuPic.getTabCount()) {
             jTabbedPanePopuPic.setSelectedIndex(index);
+            if( !(jTabbedPanePopuPic.getComponentAt(index) instanceof PicturePanel)){
+                jTabbedPanePopuPic.setComponentAt(index, new PicturePanel(this));
+            }
             currReaderModel = tabModelList.get(jTabbedPanePopuPic.getSelectedIndex());
             updateAll();
         } else if (index == -1) {
@@ -540,12 +542,14 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
     }
 
     private void updateStraPic() {
-        int index = jTabbedPanePopuPic.getSelectedIndex();
-        if (index < 0)
-            return;
-        PicturePanel pp = (PicturePanel) jTabbedPanePopuPic.getComponentAt(index);
-        if (pp != null && currReaderModel != null) {
-            pp.setWorld(currReaderModel.world, currReaderModel.x, currReaderModel.y);
+        if(currReaderModel != null) {
+            int index = jTabbedPanePopuPic.getSelectedIndex();
+            if (index < 0)
+                return;
+            PicturePanel pp = (PicturePanel) jTabbedPanePopuPic.getComponentAt(index);
+            if (pp != null) {
+                pp.setWorld(currReaderModel.world, currReaderModel.x, currReaderModel.y);
+            }
         }
     }
 
@@ -619,13 +623,14 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
 
     @Override
     public void notifyInsertTabAt(int index) {
-        //tabModelList.add(index);
-        //TODO
+        tabModelList.add(index, new ReaderModel());
+        System.out.println("add tab model at " + index);
     }
 
     @Override
     public void notifyRemoveTabAt(int index) {
         tabModelList.remove(index);
+        System.out.println("remove tab model at " + index);
     }
 
     @Override
@@ -738,8 +743,8 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
         public ReaderModel() {
             allPicFileMap = new TreeMap<>();
             //allPicFileList = new ArrayList<>();
-            world = new World();
             pdGame = new SpatialPDGame();
+            world = pdGame.getWorld();
             x = 0;
             y = 0;
             minTurn = maxTurn = turn = 0;

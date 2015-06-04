@@ -13,7 +13,7 @@ import java.util.Scanner;
  */
 public class FileFixer {
 
-    public static void FixFile(String filepath, String fileKeyStr,
+    synchronized public static void FixFile(String filepath, String fileKeyStr,
                                String secFileKeyStr) {
         File f = new File(filepath);
         float[][] data = null;

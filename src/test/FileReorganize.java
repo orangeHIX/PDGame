@@ -14,7 +14,7 @@ import java.util.Scanner;
  */
 public class FileReorganize {
 
-    public static void reorganize(String filepath, String fileKeyStr) {
+    synchronized public static void reorganize(String filepath, String fileKeyStr) {
         File f = new File(filepath);
         ArrayList<Data> dataSet = new ArrayList<>();
         for (File file1 : f.listFiles()) {

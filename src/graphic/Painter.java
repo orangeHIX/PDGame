@@ -25,7 +25,7 @@ public class Painter {
      */
     private static final String PICTRUE_FORMATE_JPG = "jpg";
 
-    private static Color getGradient(Color cfrom, Color cto, float f) {
+    synchronized private static Color getGradient(Color cfrom, Color cto, float f) {
         if (f >= 0 && f <= 1.0f) {
             int r = (int) (cfrom.getRed() + (cto.getRed() - cfrom.getRed()) * f);
             int g = (int) (cfrom.getGreen() + (cto.getGreen() - cfrom
@@ -38,7 +38,7 @@ public class Painter {
         }
     }
 
-    private static Color getGradient(Color cfrom, Color cmid, Color cto, float f) {
+    synchronized private static Color getGradient(Color cfrom, Color cmid, Color cto, float f) {
         if (f >= 0 && f < .5f) {
             return getGradient(cfrom, cmid, f * 2);
         } else if (f <= 1.0f) {
@@ -48,7 +48,7 @@ public class Painter {
         }
     }
 
-    public static Image getPDGameImage(int width, int height, String individualStrategyPicture) {
+    synchronized public static Image getPDGameImage(int width, int height, String individualStrategyPicture) {
         BufferedImage bi = new BufferedImage(width, height,
                 BufferedImage.TYPE_INT_RGB);
 
@@ -58,16 +58,16 @@ public class Painter {
         return bi;
     }
 
-    public static Image getPDGameImage(int width, int height, World world) {
+    synchronized public static Image getPDGameImage(int width, int height, World world) {
 
         return getPDGameImage(width, height, world.getIndividualStrategyPicture());
     }
 
-    public static void drawPDGameImage(Graphics2D g2, int x, int y, int width, int height, World world) {
+    synchronized public static void drawPDGameImage(Graphics2D g2, int x, int y, int width, int height, World world) {
         drawPDGameImage(g2, x, y, width, height, world.getIndividualStrategyPicture());
     }
 
-    public static void drawPDGameImage(Graphics2D g2, int x, int y, int width, int height, String individualStrategyPicture) {
+    synchronized public static void drawPDGameImage(Graphics2D g2, int x, int y, int width, int height, String individualStrategyPicture) {
 
         Color back = g2.getBackground();
         Color col = g2.getColor();
@@ -100,10 +100,10 @@ public class Painter {
     }
 
 
-    public static Image composingEvolutionImage(ArrayList<NamedImage> images,
-                                                String caption, int column, int imageWidth, int imageHeight,
-                                                int marginLengthX, int marginLengthY, int spacingLengthX,
-                                                int spacingLengthY, int topCaptionSpace) {
+    synchronized public static Image composingEvolutionImage(ArrayList<NamedImage> images,
+                                                             String caption, int column, int imageWidth, int imageHeight,
+                                                             int marginLengthX, int marginLengthY, int spacingLengthX,
+                                                             int spacingLengthY, int topCaptionSpace) {
         if (images == null) {
             return null;
         }
@@ -146,11 +146,11 @@ public class Painter {
         return bi;
     }
 
-    public static Image drawEvolutionImage(ArrayList<NamedImage> images,
-                                           int column, int imageWidth, int imageHeight, // int marginLengthX,
-                                           // int
-                                           // marginLengthY,
-                                           int spacingLengthX, int spacingLengthY) {
+    synchronized public static Image drawEvolutionImage(ArrayList<NamedImage> images,
+                                                        int column, int imageWidth, int imageHeight, // int marginLengthX,
+                                                        // int
+                                                        // marginLengthY,
+                                                        int spacingLengthX, int spacingLengthY) {
 
         int row = (int) Math.ceil(images.size() / (double) column);
         int width = column * (imageWidth + spacingLengthX) - spacingLengthX;
@@ -250,7 +250,7 @@ public class Painter {
         return img;
     }
 
-    public static Image drawCooperationLevelPolygon(
+    synchronized public static Image drawCooperationLevelPolygon(
             ArrayList<TurnAndCooLev> list, ArrayList<Integer> snapshotTurn,
             int chartWidth, int chartHeight, int marginLengthX,
             int marginLengthY, int CoordinateAxisYSpace,
@@ -428,7 +428,7 @@ public class Painter {
                 / 2, (int) (y0 + fontSize * 2.5));
     }
 
-    public static void drawVertivalDottedLine(Graphics2D g2, int x0, int y0,
+    synchronized public static void drawVertivalDottedLine(Graphics2D g2, int x0, int y0,
                                               int height) {
         float num = height / 5f;
         for (int i = 0; i < num; i++) {
@@ -437,7 +437,7 @@ public class Painter {
         }
     }
 
-    public static Image assembleEvolutionImages(ArrayList<Image> images, int marginX,
+    synchronized public static Image assembleEvolutionImages(ArrayList<Image> images, int marginX,
                                                 int marginY) {
         if (images.size() != 4)
             return null;

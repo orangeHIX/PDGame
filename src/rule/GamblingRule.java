@@ -1,6 +1,5 @@
 package rule;
 
-import Jama.Matrix;
 import entity.JsonEntity;
 import org.json.JSONObject;
 import utils.ArrayUtils;
@@ -122,25 +121,5 @@ public class GamblingRule implements JsonEntity {
     }
 
     public static void main(String[] args) {
-        GamblingRule gr = new GamblingRule(0.1f, 0.1f);
-        StrategyPattern sp = StrategyPattern.CONTINUOUS;
-        int len = sp.getStrategyNum();
-        Matrix pm = new Matrix(len, len);
-        for (int i = 0; i < len; i++) {
-            for (int j = 0; j < len; j++) {
-                pm.set(i, j, gr.getPayOff(sp.getStrategySample(i), sp.getStrategySample(j)));
-            }
-        }
-
-        System.out.println(ArrayUtils.getTwoDeArrayString(pm.getArray()));
-        Matrix straPro = new Matrix(len, 1, 1);
-        // System.out.println(ArrayUtils.getTwoDeArrayString(straPro.getArray()));
-        double max = ArrayUtils.getMaxNumber(pm.getArray());
-        double min = ArrayUtils.getMinNumber(pm.getArray());
-        pm = pm.times(straPro);
-        //pm = pm.times(1/max);
-        //System.out.println(ArrayUtils.getTwoDeArrayString(, len, len));
-
-        System.out.println(ArrayUtils.getTwoDeArrayString(pm.getArray()));
     }
 }

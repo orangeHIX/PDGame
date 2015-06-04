@@ -1,15 +1,21 @@
 package test;
 
 import entity.SpatialPDGame;
+import entity.SpatialPDGame.SampleCheck;
 import rule.LearningPattern;
 import rule.MigrationPattern;
 import rule.NeighbourCoverage;
 import rule.StrategyPattern;
-import entity.SpatialPDGame.SampleCheck;
 import utils.ArrayUtils;
 import utils.FileUtils;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class Test {
 
@@ -29,29 +35,29 @@ public class Test {
     public static final float STEP_LENGTH = 0.1f;
 
     public static void main(String args[]) {
-         SpatialPDGame spdg = new SpatialPDGame(true);
-         spdg.initSpatialPDGame(5, 1.0f, 0.1f, 0.1f, 1.0f, 0, 1.0f,
-                 LearningPattern.INTERACTIVE_FERMI, MigrationPattern.NONE,
-                 StrategyPattern.CONTINUOUS, NeighbourCoverage.Von);
-         spdg.run(MAX_TURN_NUM);
-         spdg.done();
-        FileUtils.outputToFile(
-                spdg.dataPrinter.constructDetailReportFileName("C:\\Users\\hyx\\Desktop\\kk"),
-                spdg.dataPrinter.getDetailReport());
-        //FileUtils.outputImageToFile();
-        FileUtils.outputSnapshootToFile(
-                spdg.dataPrinter.constructImageFilePath("C:\\Users\\hyx\\Desktop\\kk"),
-                spdg.dataPrinter.getJsonString(),
-                spdg.getSnapshootMap());
-        System.out.println(spdg.dataPrinter.getDetailReport());
-         //spdg.printPicture();
+//         SpatialPDGame spdg = new SpatialPDGame(true);
+//         spdg.initSpatialPDGame(5, 1.0f, 0.1f, 0.1f, 1.0f, 0, 1.0f,
+//                 LearningPattern.INTERACTIVE_FERMI, MigrationPattern.NONE,
+//                 StrategyPattern.CONTINUOUS, NeighbourCoverage.Von);
+//         spdg.run(MAX_TURN_NUM);
+//         spdg.done();
+//        FileUtils.outputToFile(
+//                spdg.dataPrinter.constructDetailReportFileName("C:\\Users\\hyx\\Desktop\\kk"),
+//                spdg.dataPrinter.getDetailReport());
+//        //FileUtils.outputImageToFile();
+//        FileUtils.outputSnapshootToFile(
+//                spdg.dataPrinter.constructImageFilePath("C:\\Users\\hyx\\Desktop\\kk"),
+//                spdg.dataPrinter.getJsonString(),
+//                spdg.getSnapshootMap());
+//        System.out.println(spdg.dataPrinter.getDetailReport());
+        //spdg.printPicture();
 
-//        long start = System.currentTimeMillis();
-//        runOneTest4(LearningPattern.INTERACTIVE_FERMI, MigrationPattern.NONE,
-//                StrategyPattern.CONTINUOUS, NeighbourCoverage.Von,
-//                MAX_TURN_NUM, "F:\\交互强度任务\\data5");
-//        long end = System.currentTimeMillis();
-//        System.out.println("underwent: " + (end - start) + "ms");
+        long start = System.currentTimeMillis();
+        runOneTest5(LearningPattern.INTERACTIVE_FERMI, MigrationPattern.NONE,
+                StrategyPattern.CONTINUOUS, NeighbourCoverage.Von,
+                MAX_TURN_NUM, "F:\\interactive task\\data10");
+        long end = System.currentTimeMillis();
+        System.out.println("underwent: " + (end - start) + "ms");
 
     }
 
@@ -224,10 +230,57 @@ public class Test {
         }
     }
 
+    public static void runOneTest5(LearningPattern learningPattern,
+                                   MigrationPattern imigratePattern, StrategyPattern strategyPattern,
+                                   NeighbourCoverage neighbourCoverage, int maxTurn,
+                                   String outputFilePath) {
+        int L = LENGTH;
+        float d0 =1.f;
+        float pi =1.f;
+        float qi = 0;
+        float w;
+        ExecutorService pool = Executors.newFixedThreadPool(5);
+        float stepLength = STEP_LENGTH;
+        ArrayList<Future<Integer>> results = new ArrayList<>();
+        for (w = .0f; w <= 1.01f; w += stepLength) {
+            results.add(
+                    pool.submit(new TestTask(
+                            L,
+                            stepLength,
+                            d0,
+                            pi,
+                            qi,
+                            w,
+                            learningPattern,
+                            imigratePattern,
+                            strategyPattern,
+                            neighbourCoverage,
+                            maxTurn,
+                            outputFilePath)));
+        }
+
+        try {
+            for (Future<Integer> fu : results) {
+                fu.get();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        pool.shutdown();
+        File f = new File(outputFilePath);
+        if(f.isDirectory()) {
+            FileFixer.FixFile(f.getParentFile().getAbsolutePath(), f.getName(), "w=");
+            FileReorganize.reorganize(f.getParentFile().getAbsolutePath(), f.getName());
+        }
+        System.out.println("**********************************");
+    }
+
     /**
      * 生成本次实验产生的合作率数组文本文件
      */
-    private static String getCoopertationLevelsReport(
+    public static String getCoopertationLevelsReport(
             double[][] coopertationLevels, String horizontalName,
             String verticalName, int L1, int L2) {
         StringBuilder sb = new StringBuilder();
