@@ -7,6 +7,8 @@ import rule.NeighbourCoverage;
 import rule.StrategyPattern;
 import utils.FileUtils;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 
 /**
@@ -30,7 +32,7 @@ public class TestTask implements Callable<Integer> {
     int maxTurn;
     String outputFilePath;
 
-    public TestTask(int length, float stepLength,float d0, float pi, float qi, float w, LearningPattern learningPattern,
+    public TestTask(int length, float stepLength, float d0, float pi, float qi, float w, LearningPattern learningPattern,
                     MigrationPattern migrationPattern, StrategyPattern strategyPattern,
                     NeighbourCoverage neighbourCoverage, int maxTurn,
                     String outputFilePath) {
@@ -67,18 +69,45 @@ public class TestTask implements Callable<Integer> {
                 spdg.initSpatialPDGame(length, d0, Dr, Dg, pi, qi, w,
                         learningPattern, migrationPattern, strategyPattern,
                         neighbourCoverage);
-                spdg.run(maxTurn);
-                spdg.done();
+                File check1File = FileUtils.checkFileExists(spdg.dataPrinter.constructDetailReportFileName(outputFilePath));
+                boolean check1 = check1File != null;
+                boolean check2 = FileUtils.checkPicFileConsistency(spdg.dataPrinter.constructImageFilePath(outputFilePath));
+                if (check1 && check2) {
+                    System.out.println(spdg.dataPrinter.GlobalCooperationLevelString
+                            + spdg.dataPrinter.getGlobalCooperationLevelFromDetailReport(
+                            FileUtils.readStringFromFile(check1File)));
+                }
+                System.out.println("task " + spdg + "check completed: " + check1 + "," + check2+"\n");
+            }
+        }
+        for (i = 0, Dr = 0; Dr <= 1.0001f; Dr += stepLength, i++) {
+            for (j = 0, Dg = 0; Dg <= 1.0001f; Dg += stepLength, j++) {
+                spdg.initSpatialPDGame(length, d0, Dr, Dg, pi, qi, w,
+                        learningPattern, migrationPattern, strategyPattern,
+                        neighbourCoverage);
 
-                FileUtils.outputToFile(
-                        spdg.dataPrinter.constructDetailReportFileName(outputFilePath),
-                        spdg.dataPrinter.getDetailReport());
-                FileUtils.outputSnapshootToFile(spdg.dataPrinter
-                        .constructImageFilePath(outputFilePath), spdg
-                        .getSnapshootMap());
+                File check1File = FileUtils.checkFileExists(spdg.dataPrinter.constructDetailReportFileName(outputFilePath));
+                boolean check1 = check1File != null;
+                boolean check2 = FileUtils.checkPicFileConsistency(spdg.dataPrinter.constructImageFilePath(outputFilePath));
+                //检查本工作是否已经做了
+                if (check1 && check2) {
+                    cl[i][j] = spdg.dataPrinter.getGlobalCooperationLevelFromDetailReport(
+                            FileUtils.readStringFromFile(check1File));
+                }else {
+                    spdg.run(maxTurn, new EarlyStageSampleCheck());
+                    spdg.done();
 
-                cl[i][j] = spdg.getCooperationLevel();
-                System.out.println("task " +spdg+" completed");
+                    FileUtils.outputToFile(
+                            spdg.dataPrinter.constructDetailReportFileName(outputFilePath),
+                            spdg.dataPrinter.getDetailReport());
+                    FileUtils.outputSnapshootToFile(
+                            spdg.dataPrinter.constructImageFilePath(outputFilePath),
+                            spdg.getJSONObject().toString(),
+                            spdg.getSnapshootMap());
+
+                    cl[i][j] = spdg.getCooperationLevel();
+                }
+                System.out.println("task " + spdg + " completed");
             }
         }
         FileUtils.outputToFile(
@@ -87,4 +116,46 @@ public class TestTask implements Callable<Integer> {
                 Test.getCoopertationLevelsReport(cl, "Dg", "Dr", L1, L2));
         return 1;
     }
+
+    class EarlyStageSampleCheck implements SpatialPDGame.SampleCheck {
+        final int idsLength = 100;
+        final int[] ids;
+
+        public EarlyStageSampleCheck() {
+            ids = new int[idsLength];
+            for (int i = 0; i < idsLength; i++) {
+                ids[i] = i;
+            }
+        }
+
+        @Override
+        public boolean isWorldDetailHistorySampleTurn(int turn) {
+            // TODO Auto-generated method stub
+            if (Arrays.binarySearch(ids, turn) >= 0) {
+                return true;
+            } else if ((turn) % 100 == 0) {
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean isSnapshootSampleTurn(int turn) {
+            // TODO Auto-generated method stub
+            if (Arrays.binarySearch(ids, turn) >= 0) {
+                return true;
+            } else {
+                int i = 1;
+                while (turn > Math.pow(10, i)) {
+                    i++;
+                }
+                if (turn == Math.pow(10, i)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    ;
 }

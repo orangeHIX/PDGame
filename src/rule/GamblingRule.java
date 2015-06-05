@@ -80,7 +80,17 @@ public class GamblingRule implements JsonEntity {
     public String toString() {
         return "[R=" + R + ", S=" + S + ", T=" + T + ", P=" + P + "]";
     }
-
+    public void initFromToString(String toString){
+        String s = toString.substring(1,toString.length()-1);
+        String[] ss = s.split(",");
+        R = getValueFromSplit(ss[0]);
+        S = getValueFromSplit(ss[1]);
+        T = getValueFromSplit(ss[2]);
+        P = getValueFromSplit(ss[3]);
+    }
+    private float getValueFromSplit(String s){
+        return Float.parseFloat(s.substring(s.indexOf("=")+1,s.length()));
+    }
     public float getR() {
         return R;
     }
@@ -107,6 +117,7 @@ public class GamblingRule implements JsonEntity {
         return jo;
     }
 
+
     @Override
     public void initFromJSONObject(JSONObject jsonObject) {
         R = new Float(jsonObject.getDouble("R"));
@@ -121,5 +132,9 @@ public class GamblingRule implements JsonEntity {
     }
 
     public static void main(String[] args) {
+        GamblingRule gr = new GamblingRule(1,2,.3f,-9);
+        System.out.println(gr);
+        gr.initFromToString(gr.toString());
+        System.out.println(gr);
     }
 }

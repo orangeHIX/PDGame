@@ -54,8 +54,8 @@ public class Test {
 
         long start = System.currentTimeMillis();
         runOneTest5(LearningPattern.INTERACTIVE_FERMI, MigrationPattern.NONE,
-                StrategyPattern.CONTINUOUS, NeighbourCoverage.Von,
-                MAX_TURN_NUM, "F:\\interactive task\\data10");
+                StrategyPattern.TWO, NeighbourCoverage.Von,
+                MAX_TURN_NUM, "F:\\interactive task\\data9");
         long end = System.currentTimeMillis();
         System.out.println("underwent: " + (end - start) + "ms");
 
@@ -242,7 +242,7 @@ public class Test {
         ExecutorService pool = Executors.newFixedThreadPool(5);
         float stepLength = STEP_LENGTH;
         ArrayList<Future<Integer>> results = new ArrayList<>();
-        for (w = .0f; w <= 1.01f; w += stepLength) {
+        for (w = .0f; w <= .01f; w += stepLength) {
             results.add(
                     pool.submit(new TestTask(
                             L,
@@ -269,11 +269,11 @@ public class Test {
             e.printStackTrace();
         }
         pool.shutdown();
-        File f = new File(outputFilePath);
-        if(f.isDirectory()) {
-            FileFixer.FixFile(f.getParentFile().getAbsolutePath(), f.getName(), "w=");
-            FileReorganize.reorganize(f.getParentFile().getAbsolutePath(), f.getName());
-        }
+//        File f = new File(outputFilePath);
+//        if(f.isDirectory()) {
+//            FileFixer.FixFile(f.getParentFile().getAbsolutePath(), f.getName(), "w=");
+//            FileReorganize.reorganize(f.getParentFile().getAbsolutePath(), f.getName());
+//        }
         System.out.println("**********************************");
     }
 

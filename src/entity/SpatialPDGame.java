@@ -16,7 +16,7 @@ import java.awt.event.WindowEvent;
 import java.text.DecimalFormat;
 import java.util.*;
 
-public class SpatialPDGame implements Reporter, JsonEntity{
+public class SpatialPDGame implements Reporter, JsonEntity {
 
     /**
      * 是否要记录实验过程中的人口斑图
@@ -68,11 +68,13 @@ public class SpatialPDGame implements Reporter, JsonEntity{
      */
     private Map<Integer, Snapshot> snapshotMap = new HashMap<>();
 
-    public SpatialPDGame(){
+    public SpatialPDGame() {
         world = new World();
         this.recordSnapShoot = true;
         this.reporter = this;
-    };
+    }
+
+    ;
 
     /**
      * @param recordSnapShoot 是否要记录实验过程中的人口斑图
@@ -219,7 +221,7 @@ public class SpatialPDGame implements Reporter, JsonEntity{
      */
     public void run(int turnNum) {
         run(turnNum, new SampleCheck() {
-            final int[] ids = {0, 1, 2, 3, 4, 5, 6,20,50 };
+            final int[] ids = {0, 1, 2, 3, 4, 5, 6, 20, 50};
 
             @Override
             public boolean isWorldDetailHistorySampleTurn(int turn) {
@@ -239,10 +241,10 @@ public class SpatialPDGame implements Reporter, JsonEntity{
                     return true;
                 } else {
                     int i = 1;
-                    while(turn > Math.pow(10, i)){
+                    while (turn > Math.pow(10, i)) {
                         i++;
                     }
-                    if( turn == Math.pow(10,i)){
+                    if (turn == Math.pow(10, i)) {
                         return true;
                     }
                 }
@@ -316,11 +318,11 @@ public class SpatialPDGame implements Reporter, JsonEntity{
         return turn;
     }
 
-    public World getWorld(){
+    public World getWorld() {
         return world;
     }
 
-    public Map<String,Object> getParam(){
+    public Map<String, Object> getParam() {
         return param;
     }
 
@@ -343,11 +345,46 @@ public class SpatialPDGame implements Reporter, JsonEntity{
         sb.delete(sb.length() - 2, sb.length());
         sb.append(']');
         return sb.toString();
-        // return "[L=" + world.getLength() + ", d0=" + df.format(d0) + ", " +
-        // gr
-        // + ", learningPattern=" + learningPattern + ", imigratePattern="
-        // + migrationPattern + ", strategyPattern=" + strategyPattern
-        // + ", pi=" + pi + ", qi=" + qi + "]";
+    }
+
+    /**
+     * 注意：只恢复了参数列表param
+     */
+    public void initFromToString(String toString) {
+        String s = toString.substring(1, toString.length() - 1);
+        param = new HashMap<>();
+        param.put("L", Integer.parseInt(getStringValue(s, "L")));
+        param.put("d0", Float.parseFloat(getStringValue(s, "d0")));
+        param.put("pi", Float.parseFloat(getStringValue(s, "pi")));
+        param.put("qi", Float.parseFloat(getStringValue(s, "qi")));
+        param.put("w", Float.parseFloat(getStringValue(s, "w")));
+        GamblingRule gr = new GamblingRule(0);
+        gr.initFromToString(getStringValue(s, "gr"));
+        param.put("gr", gr);
+        param.put("learningPattern",
+                LearningPattern.valueOf(getStringValue(s, "learningPattern")));
+        param.put("migrationPattern",
+                MigrationPattern.valueOf(getStringValue(s, "migrationPattern")));
+        param.put("strategyPattern",
+                StrategyPattern.valueOf(getStringValue(s, "strategyPattern")));
+        param.put("neighbourCoverage",
+                NeighbourCoverage.valueOf(getStringValue(s, "neighbourCoverage")));
+    }
+
+    private String getStringValue(String s, String name) {
+        s += ",";
+        int nameIndex = s.indexOf(name);
+        if (nameIndex < 0) {
+            return null;
+        }
+        int start = s.indexOf("=", nameIndex) + 1;
+        int end = s.indexOf(",", start);
+        String value = s.substring(start, end);
+        if (value.contains("[")) {
+            end = s.indexOf(",", s.indexOf("]", start));
+            value = s.substring(start, end);
+        }
+        return value;
     }
 
     @Override
@@ -359,28 +396,30 @@ public class SpatialPDGame implements Reporter, JsonEntity{
     @Override
     public JSONObject getJSONObject() {
         JSONObject jo = new JSONObject();
-        for(Map.Entry<String, Object> p : param.entrySet()){
+        for (Map.Entry<String, Object> p : param.entrySet()) {
 //            Class<?> type = p.getValue().getClass();
 //            if( type.isEnum()){
 //                jo.put(p.getKey(), p.getValue().toString());
 //            }else{
 //                jo.put(p.getKey(),p.getValue());
 //            }
-            if(p.getValue() instanceof  JsonEntity){
+            if (p.getValue() instanceof JsonEntity) {
                 jo.put(p.getKey(), ((JsonEntity) p.getValue()).getJSONObject());
-            }else {
+            } else {
                 jo.put(p.getKey(), p.getValue());
             }
         }
         return jo;
     }
 
-    /**注意：只恢复了参数列表param*/
+    /**
+     * 注意：只恢复了参数列表param
+     */
     @Override
     public void initFromJSONObject(JSONObject jsonObject) {
         param = new HashMap<>();
         param.put("L", jsonObject.get("L"));
-        param.put("d0",jsonObject.get("d0"));
+        param.put("d0", jsonObject.get("d0"));
         param.put("pi", jsonObject.get("pi"));
         param.put("qi", jsonObject.get("qi"));
         param.put("w", jsonObject.get("w"));
@@ -388,9 +427,9 @@ public class SpatialPDGame implements Reporter, JsonEntity{
         gr.initFromJSONObject(jsonObject.getJSONObject("gr"));
         param.put("gr", gr);
         param.put("learningPattern",
-                LearningPattern.valueOf((String)jsonObject.get("learningPattern")));
+                LearningPattern.valueOf((String) jsonObject.get("learningPattern")));
         param.put("migrationPattern",
-                MigrationPattern.valueOf((String)jsonObject.get("migrationPattern")));
+                MigrationPattern.valueOf((String) jsonObject.get("migrationPattern")));
         param.put("strategyPattern",
                 StrategyPattern.valueOf((String) jsonObject.get("strategyPattern")));
         param.put("neighbourCoverage",
@@ -398,7 +437,9 @@ public class SpatialPDGame implements Reporter, JsonEntity{
 
     }
 
-    /**注意：只恢复了参数列表param*/
+    /**
+     * 注意：只恢复了参数列表param
+     */
     @Override
     public void initFromJSONSource(String source) {
         initFromJSONObject(new JSONObject(source));
@@ -422,9 +463,13 @@ public class SpatialPDGame implements Reporter, JsonEntity{
 
     public class DataPrinter {
 
-        public String getJsonString(){
+
+        public static final String GlobalCooperationLevelString = "Global cooperate level = ";
+
+        public String getJsonString() {
             return getJSONObject().toString();
         }
+
         /**
          * 获取本次实验最终结果报告
          */
@@ -438,9 +483,10 @@ public class SpatialPDGame implements Reporter, JsonEntity{
 
             sb.append(SpatialPDGame.this.toString());
             sb.append("\r\n");
-            sb.append("Global cooperate level = "
-                    + world.getGlobalCooperationLevel());
-            sb.append("\tunderwent " + turn + " turns\r\n");
+            sb.append(GlobalCooperationLevelString +
+                    +world.getGlobalCooperationLevel());
+            sb.append("\t");
+            sb.append("underwent " + turn + " turns\r\n");
             sb.append("average neigbour num: " + world.getAverageNeighbourNum()
                     + "\r\n");
             sb.append("turn\tcoopLev\t");
@@ -478,6 +524,12 @@ public class SpatialPDGame implements Reporter, JsonEntity{
             return sb.toString();
         }
 
+        public float getGlobalCooperationLevelFromDetailReport(String detailReport){
+            int start = detailReport.indexOf(GlobalCooperationLevelString) + GlobalCooperationLevelString.length();
+            int end  = detailReport.indexOf("\t",start);
+            return Float.parseFloat(detailReport.substring(start, end));
+        }
+
         /**
          * 显示模型散点图
          */
@@ -506,7 +558,7 @@ public class SpatialPDGame implements Reporter, JsonEntity{
         public String constructFilePath(String base) {
             DecimalFormat df = new DecimalFormat("0.00");
             return base + "\\" + learningPattern + "_$_" + migrationPattern
-                    + "_$_" + strategyPattern +"_$_"+neighbourCoverage +"_$_pi=" + df.format(pi)
+                    + "_$_" + strategyPattern + "_$_" + neighbourCoverage + "_$_pi=" + df.format(pi)
                     + "_$_qi=" + df.format(qi) + "_$_w=" + df.format(w);
         }
 
@@ -521,5 +573,15 @@ public class SpatialPDGame implements Reporter, JsonEntity{
         public String constructImageFilePath(String base) {
             return constructDetailReportFileName(base).replace(".txt", "");
         }
+    }
+
+    public static void main(String[] args) {
+        SpatialPDGame spdg = new SpatialPDGame(true);
+        spdg.initSpatialPDGame(5, 1.0f, 0.1f, 0.1f, 1.0f, 0, 1.0f,
+                LearningPattern.INTERACTIVE_FERMI, MigrationPattern.NONE,
+                StrategyPattern.CONTINUOUS, NeighbourCoverage.Von);
+        System.out.println(spdg);
+        spdg.initFromToString(spdg.toString());
+        System.out.println(spdg);
     }
 }

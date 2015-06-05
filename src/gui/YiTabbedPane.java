@@ -31,33 +31,34 @@ public class YiTabbedPane extends JTabbedPane {
 
     @Override
     public void insertTab(String title, Icon icon, Component component, String tip, int index) {
-        if(getTabCount() > 1){
-            index--;
+        if (getTabCount() == 0) {
+            super.insertTab(title, icon, component, tip, index);
+        } else {
+            super.insertTab(title, icon, component, tip, index);
+            setTabComponentAt(index, new CloseButtonTabComponent(this));
+            if (tabChangeListener != null) {
+                tabChangeListener.notifyInsertTabAt(index);
+            }
         }
-        super.insertTab(title, icon, component, tip, index);
-
-        setTabComponentAt(index, new CloseButtonTabComponent(this));
-
-        if(tabChangeListener != null) {
-            tabChangeListener.notifyInsertTabAt(index);
-        }
-
     }
-
 
 
     @Override
     public void removeTabAt(int index) {
-        Component component = getComponentAt(index);
 
-        if( getTabCount() > 2) {
-            if(tabChangeListener != null) {
+        if (index == getTabCount() - 1) {
+            //do nothing
+        } else if (getTabCount() > 2) {
+            if (tabChangeListener != null) {
                 tabChangeListener.notifyRemoveTabAt(index);
             }
             super.removeTabAt(index);
-        }else{
+            if(index == getTabCount() -1){
+                setSelectedIndex(index -1);
+            }
+        } else {
             JComponent parantComponent = YiTabbedPane.this.getRootPane();
-            if(parantComponent == null){
+            if (parantComponent == null) {
                 parantComponent = YiTabbedPane.this;
             }
             JOptionPane.showMessageDialog(parantComponent,
@@ -68,10 +69,12 @@ public class YiTabbedPane extends JTabbedPane {
 
     @Override
     public void setSelectedIndex(int index) {
-        if(index != getTabCount() -1) {
-            super.setSelectedIndex(index);
-        } else {
+        if (index == getTabCount() - 1) {
             insertTab("new tab", null, null, null, index);
+        }
+        super.setSelectedIndex(index);
+        if (tabChangeListener != null) {
+            tabChangeListener.notifySelectTabAt(index);
         }
     }
 
@@ -80,7 +83,7 @@ public class YiTabbedPane extends JTabbedPane {
         public void mouseReleased(MouseEvent e) {
             super.mouseReleased(e);
             if (SwingUtilities.isRightMouseButton(e)) {
-                YiTabbedPane tabbedPane = (YiTabbedPane)e.getComponent();
+                YiTabbedPane tabbedPane = (YiTabbedPane) e.getComponent();
                 tabbedPane.showPopupMenu(e);
             }
         }

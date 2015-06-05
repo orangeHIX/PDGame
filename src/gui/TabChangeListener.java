@@ -6,4 +6,5 @@ package gui;
 public interface TabChangeListener {
     void notifyRemoveTabAt(int index);
     void notifyInsertTabAt(int index);
+    void notifySelectTabAt(int index);
 }

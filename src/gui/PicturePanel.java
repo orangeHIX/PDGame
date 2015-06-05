@@ -11,7 +11,7 @@ import java.awt.event.MouseEvent;
 /**
  * Created by hyx on 2015/6/3.
  */
-public class PicturePanel extends JPanel implements Runnable{
+public class PicturePanel extends JPanel implements Runnable {
 
     public static final int MARGIN_SIZE = 5;
 //    private int squareX = 50;
@@ -36,7 +36,7 @@ public class PicturePanel extends JPanel implements Runnable{
         setBackground(Color.WHITE);
 
         showSpot = false;
-        spotColor= Color.GREEN;
+        spotColor = Color.GREEN;
 
         locationChangeListener = listener;
 
@@ -84,8 +84,8 @@ public class PicturePanel extends JPanel implements Runnable{
     public void setSpotLocation(int i, int j) {
         if (checkSpotLocation(i, j)) {
             repaint(spotX, spotY, spotSize, spotSize);
-            spotX = imageX+j * spotSize;
-            spotY = imageY+i * spotSize;
+            spotX = imageX + j * spotSize;
+            spotY = imageY + i * spotSize;
             repaint(spotX, spotY, spotSize, spotSize);
         }
     }
@@ -120,7 +120,7 @@ public class PicturePanel extends JPanel implements Runnable{
         updateImageParam();
         if (world != null) {
             Painter.drawPDGameImage((Graphics2D) g, imageX, imageY, imageSize, imageSize, world);
-            if(showSpot){
+            if (showSpot) {
                 g.setColor(spotColor);
                 g.fillRect(spotX, spotY, spotSize, spotSize);
                 //System.out.println("show spot");
@@ -138,12 +138,15 @@ public class PicturePanel extends JPanel implements Runnable{
     @Override
     public void run() {
         //long start = System.currentTimeMillis();
-        while(true){
+        while (true) {
             try {
                 Thread.sleep(800);
+
                 showSpot = !showSpot;
-                repaint(spotX,spotY,spotSize,spotSize);
-            }catch (InterruptedException e){
+                repaint(spotX, spotY, spotSize, spotSize);
+
+
+            } catch (InterruptedException e) {
 
             }
         }

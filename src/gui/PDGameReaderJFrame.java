@@ -13,6 +13,8 @@ import org.json.JSONObject;
 import utils.FileUtils;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.event.*;
 import java.io.File;
 import java.io.FileFilter;
@@ -39,7 +41,7 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
 
         jTabbedPanePopuPic.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 
-       // add("sdsa",new YiTabbedPane.CloseButtonTabComponent(jTabbedPanePopuPic));
+        // add("sdsa",new YiTabbedPane.CloseButtonTabComponent(jTabbedPanePopuPic));
 
         tabModelList.add(new ReaderModel());
         jTabbedPanePopuPic.setSelectedIndex(0);
@@ -345,10 +347,10 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
         addTextFieldListener(jTextFieldTurn, new DealTextField() {
             @Override
             public void deal() {
-                int i = getPositiveNumberFromTextField(jTextFieldTurn);
-                if (currReaderModel != null) {
+                if (isUpdateable()) {
+                    int i = getPositiveNumberFromTextField(jTextFieldTurn);
                     if (i < 0) {
-                        updateTurnPanel();
+                        updatePathAndTurnPanel();
                         jTextFieldTurn.requestFocusInWindow();
                         jTextFieldTurn.selectAll();
                     } else {
@@ -375,7 +377,7 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
                     if (rm.initFromDirect(selectedFile.getParentFile())) {
                         //tabModelList.add(rm);
                         jTabbedPanePopuPic.setToolTipTextAt(index, rm.pdGame.toString());
-                        changeTab(index);
+                        changeTab();
                     } else {
                         JOptionPane.showMessageDialog(PDGameReaderJFrame.this,
                                 "can not find \""
@@ -391,7 +393,7 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
         jButtonForward.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (currReaderModel != null) {
+                if (isUpdateable()) {
                     currReaderModel.changeTurn(currReaderModel.nextTurn);
                     updateAll();
                 }
@@ -400,7 +402,7 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
         jButtonBackward.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (currReaderModel != null) {
+                if (isUpdateable()) {
                     currReaderModel.changeTurn(currReaderModel.previousTurn);
                     updateAll();
                 }
@@ -434,24 +436,24 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
             @Override
             public void deal() {
                 int i = getPositiveNumberFromTextField(jTextFieldX);
-                if (currReaderModel != null) {
-                    if (currReaderModel != null) {
-                        if (currReaderModel.changeLocation(i, currReaderModel.y)) {
-                            updateAll();
-                        } else {
-                            updateLocationPanel();
-                            jTextFieldY.requestFocusInWindow();
-                            jTextFieldY.selectAll();
-                        }
+
+                if (isUpdateable()) {
+                    if (currReaderModel.changeLocation(i, currReaderModel.y)) {
+                        updateAll();
+                    } else {
+                        updateLocationPanel();
+                        jTextFieldY.requestFocusInWindow();
+                        jTextFieldY.selectAll();
                     }
                 }
             }
+
         });
         addTextFieldListener(jTextFieldY, new DealTextField() {
             @Override
             public void deal() {
                 int i = getPositiveNumberFromTextField(jTextFieldY);
-                if (currReaderModel != null) {
+                if (isUpdateable()) {
                     if (currReaderModel.changeLocation(currReaderModel.x, i)) {
                         updateAll();
                     } else {
@@ -463,7 +465,16 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
             }
         });
         jTabbedPanePopuPic.setTabChangeListener(this);
-
+        jSliderTurn.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                if (isUpdateable()) {
+                    int turn = unprojectSliderValue(jSliderTurn.getValue());
+                    currReaderModel.changeTurn(turn);
+                    updateAll();
+                }
+            }
+        });
     }
 
     interface DealTextField {
@@ -507,24 +518,15 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
         }
     }
 
-    private File findPDGameDescFile(File[] fs) {
-        for (File f : fs) {
-            if (f.isFile()
-                    && f.getName().endsWith(
-                    FileUtils.PDGameJSONFileSuffix)) {
-                return f;
-            }
-        }
-        return null;
-    }
 
-    public void changeTab(int index) {
+    public void changeTab() {
+        int index = jTabbedPanePopuPic.getSelectedIndex();
         if (index > -1 && index < jTabbedPanePopuPic.getTabCount()) {
-            jTabbedPanePopuPic.setSelectedIndex(index);
-            if( !(jTabbedPanePopuPic.getComponentAt(index) instanceof PicturePanel)){
+            //jTabbedPanePopuPic.setSelectedIndex(index);
+            if (!(jTabbedPanePopuPic.getComponentAt(index) instanceof PicturePanel)) {
                 jTabbedPanePopuPic.setComponentAt(index, new PicturePanel(this));
             }
-            currReaderModel = tabModelList.get(jTabbedPanePopuPic.getSelectedIndex());
+            currReaderModel = tabModelList.get(index);
             updateAll();
         } else if (index == -1) {
             currReaderModel = null;
@@ -538,11 +540,19 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
         updateIndividualInfo();
         updatePDGameInfo();
         updateLocationPanel();
-        updateTurnPanel();
+        updatePathAndTurnPanel();
+    }
+
+    private boolean isUpdateable() {
+        if (currReaderModel != null && currReaderModel.isInit()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private void updateStraPic() {
-        if(currReaderModel != null) {
+        if (isUpdateable()) {
             int index = jTabbedPanePopuPic.getSelectedIndex();
             if (index < 0)
                 return;
@@ -555,7 +565,7 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
 
     private void updatePDGameInfo() {
         jListPDGameInfoModel.clear();
-        if (currReaderModel != null) {
+        if (isUpdateable()) {
             Map<String, Object> param = currReaderModel.pdGame.getParam();
 
             for (String key : param.keySet()) {
@@ -566,7 +576,7 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
 
     private void updateIndividualInfo() {
         jListIndivInfoModel.clear();
-        if (currReaderModel != null) {
+        if (isUpdateable()) {
             Individual in = currReaderModel.in;
             JSONObject joIn = in.getJSONObject();
 
@@ -577,7 +587,7 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
     }
 
     private void updateLocationPanel() {
-        if (currReaderModel != null) {
+        if (isUpdateable()) {
             jTextFieldX.setText("" + currReaderModel.x);
             jTextFieldY.setText("" + currReaderModel.y);
         } else {
@@ -586,14 +596,16 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
         }
     }
 
-    private void updateTurnPanel() {
-        if (currReaderModel != null) {
+    private void updatePathAndTurnPanel() {
+        if (isUpdateable()) {
+            jTextFieldPath.setText(currReaderModel.pdGameDesc.getAbsolutePath());
             jTextFieldTurn.setText("" + currReaderModel.turn);
             jLabelPreviousTurn.setText("prev " + currReaderModel.previousTurn);
             jLabelNextTurn.setText("next " + currReaderModel.nextTurn);
             jLabelMaxTurn.setText("" + currReaderModel.maxTurn);
             jLabelMinTurn.setText("" + currReaderModel.minTurn);
         } else {
+            jTextFieldPath.setText(System.getProperty("user.dir"));
             jTextFieldTurn.setText("0");
             jLabelPreviousTurn.setText("valid");
             jLabelNextTurn.setText("valid");
@@ -604,7 +616,7 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
     }
 
     private void updatejSliderTurnValue() {
-        if (currReaderModel != null) {
+        if (isUpdateable()) {
             jSliderTurn.setValue(projectSliderValue(currReaderModel.turn));
         } else {
             jSliderTurn.setValue(0);
@@ -621,6 +633,16 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
         return (int) (min + ((float) (value - minTurn)) / turnRange * range);
     }
 
+    private int unprojectSliderValue(int value) {
+        int minTurn = currReaderModel.minTurn;
+        int maxTurn = currReaderModel.maxTurn;
+        int turnRange = maxTurn - minTurn;
+        int min = jSliderTurn.getMinimum();
+        int max = jSliderTurn.getMaximum();
+        int range = max - min;
+        return (int) (minTurn + ((float) (value - min)) / range * turnRange);
+    }
+
     @Override
     public void notifyInsertTabAt(int index) {
         tabModelList.add(index, new ReaderModel());
@@ -631,6 +653,11 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
     public void notifyRemoveTabAt(int index) {
         tabModelList.remove(index);
         System.out.println("remove tab model at " + index);
+    }
+
+    @Override
+    public void notifySelectTabAt(int index) {
+        changeTab();
     }
 
     @Override
@@ -727,7 +754,11 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
 
 
     class ReaderModel {
-        //File direct;
+
+        private boolean isInit = false;
+
+
+        File pdGameDesc;
         TreeMap<Integer, File> allPicFileMap;
         //ArrayList<File> allPicFileList;
         int minTurn;
@@ -753,28 +784,18 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
 
         public boolean initFromDirect(File f) {
             if (f.exists() && f.isDirectory()) {
-                File[] fs = f.listFiles(
-                        new FileFilter() {
-                            @Override
-                            public boolean accept(File pathname) {
-                                if (pathname.isFile()) {
-                                    if (pathname.getName().endsWith(FileUtils.PDGameJSONFileSuffix)
-                                            || pathname.getName().startsWith(FileUtils.PDGameAllPicFilePrefix))
-                                        return true;
-                                }
-                                return false;
-                            }
-                        }
-                );
-                File desc = findPDGameDescFile(fs);
-                if (desc == null) {
+                pdGameDesc = findPDGameDescFile(f);
+                if (pdGameDesc == null) {
                     return false;
                 } else {
-                    pdGame.initFromJSONSource(FileUtils.readStringFromFile(desc));
-                    for (File pic : fs) {
-                        if (pic != desc) {
-                            allPicFileMap.put(getTurnFromALlPicFile(pic.getName()),
-                                    pic);
+                    File[] allPic = findPDGameTextFormatAllPicDirect(f);
+                    if (allPic == null) {
+                        return false;
+                    }
+                    pdGame.initFromJSONSource(FileUtils.readStringFromFile(pdGameDesc));
+                    for (File pic : allPic) {
+                        if (pic != pdGameDesc) {
+                            allPicFileMap.put(getTurnFromALlPicFile(pic.getName()), pic);
                         }
                     }
                     minTurn = allPicFileMap.firstKey();
@@ -782,10 +803,63 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
                     changeTurn(minTurn);
                     //System.out.println(allPicFileMap);
                     changeLocation(0, 0);
+                    isInit = true;
                     return true;
                 }
             }
             return false;
+        }
+
+        public boolean isInit() {
+            return isInit;
+        }
+
+        private File findPDGameDescFile(File direc) {
+            if (direc.exists() && direc.isDirectory()) {
+                File[] fs = direc.listFiles(new FileFilter() {
+                    @Override
+                    public boolean accept(File pathname) {
+                        if (pathname.isFile() && pathname.getName().endsWith(
+                                FileUtils.PDGameJSONFileSuffix))
+                            return true;
+                        return false;
+                    }
+                });
+                if (fs.length > 0) {
+                    return fs[0];
+                }
+            }
+            return null;
+        }
+
+        private File[] findPDGameTextFormatAllPicDirect(File parentDirect) {
+            if (parentDirect.exists() && parentDirect.isDirectory()) {
+                File[] fs = parentDirect.listFiles(new FileFilter() {
+                    @Override
+                    public boolean accept(File pathname) {
+                        if (pathname.isDirectory()
+                                && pathname.getName().contains(FileUtils.PDGameSnapshotTxtFormatDirectName)) {
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+                File txtFormatDirec = fs[0];
+                File[] allPic = txtFormatDirec.listFiles(
+                        new FileFilter() {
+                            @Override
+                            public boolean accept(File pathname) {
+                                if (pathname.isFile()) {
+                                    if (pathname.getName().startsWith(FileUtils.PDGameAllPicFilePrefix))
+                                        return true;
+                                }
+                                return false;
+                            }
+                        }
+                );
+                return allPic;
+            }
+            return null;
         }
 
         private int getPreviousTurn() {
@@ -835,16 +909,6 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
                 in = world.getIndividual(x, y);
             }
         }
-
-//        private void sortAllPicFiles() {
-//            allPicFileList.sort(new Comparator<File>() {
-//                @Override
-//                public int compare(File o1, File o2) {
-//                    return getTurn(o1.getName()) - getTurn(o2.getName());
-//                }
-//
-//            });
-//        }
 
 
     }
