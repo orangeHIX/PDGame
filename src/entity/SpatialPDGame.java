@@ -352,7 +352,7 @@ public class SpatialPDGame implements Reporter, JsonEntity {
      */
     public void initFromToString(String toString) {
         String s = toString.substring(1, toString.length() - 1);
-        param = new HashMap<>();
+        param.clear();
         param.put("L", Integer.parseInt(getStringValue(s, "L")));
         param.put("d0", Float.parseFloat(getStringValue(s, "d0")));
         param.put("pi", Float.parseFloat(getStringValue(s, "pi")));
@@ -417,7 +417,7 @@ public class SpatialPDGame implements Reporter, JsonEntity {
      */
     @Override
     public void initFromJSONObject(JSONObject jsonObject) {
-        param = new HashMap<>();
+        param.clear();
         param.put("L", jsonObject.get("L"));
         param.put("d0", jsonObject.get("d0"));
         param.put("pi", jsonObject.get("pi"));

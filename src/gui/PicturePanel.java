@@ -26,6 +26,7 @@ public class PicturePanel extends JPanel implements Runnable {
     World world;
     int spotX, spotY;
     int spotSize;
+
     boolean showSpot;
     Color spotColor;
     MouseClickLocationChangeListener locationChangeListener;
@@ -76,6 +77,7 @@ public class PicturePanel extends JPanel implements Runnable {
         this.world = world;
         if (this.world != null) {
             spotSize = imageSize / world.getLength();
+            //ceilSpotSize = (int)Math.ceil(spotSize);
             setSpotLocation(i, j);
             repaint(0, 0, getWidth(), getHeight());
         }
@@ -83,9 +85,10 @@ public class PicturePanel extends JPanel implements Runnable {
 
     public void setSpotLocation(int i, int j) {
         if (checkSpotLocation(i, j)) {
+
             repaint(spotX, spotY, spotSize, spotSize);
-            spotX = imageX + j * spotSize;
-            spotY = imageY + i * spotSize;
+            spotX = (int)(imageX + j * spotSize);
+            spotY = (int)(imageY + i * spotSize);
             repaint(spotX, spotY, spotSize, spotSize);
         }
     }
@@ -122,7 +125,7 @@ public class PicturePanel extends JPanel implements Runnable {
             Painter.drawPDGameImage((Graphics2D) g, imageX, imageY, imageSize, imageSize, world);
             if (showSpot) {
                 g.setColor(spotColor);
-                g.fillRect(spotX, spotY, spotSize, spotSize);
+                g.fillRect(spotX, spotY, (int)spotSize, (int)spotSize);
                 //System.out.println("show spot");
             }
         }

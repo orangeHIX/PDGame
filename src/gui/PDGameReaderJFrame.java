@@ -16,6 +16,8 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.LinkedList;
@@ -30,12 +32,14 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
     LinkedList<ReaderModel> tabModelList;
     ReaderModel currReaderModel;
 
+    private boolean turnChangeNotFromSlider;
+
     /**
      * Creates new form PDGameReaderJFrame
      */
     public PDGameReaderJFrame() {
         tabModelList = new LinkedList<>();
-        setResizable(false);
+        //setResizable(false);
         initComponents();
         //tabModelList.set(1, null);
 
@@ -69,7 +73,7 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
         jLabel7 = new JLabel();
         jTabbedPanePopuPic = new YiTabbedPane();
         jPanel2 = new JPanel();
-        jSliderTurn = new JSlider(0, 50000, 0);
+        jSliderTurn = new JSlider();
         jLabelMinTurn = new JLabel();
         jLabelMaxTurn = new JLabel();
         jTextFieldTurn = new JTextField();
@@ -395,6 +399,7 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
             public void actionPerformed(ActionEvent e) {
                 if (isUpdateable()) {
                     currReaderModel.changeTurn(currReaderModel.nextTurn);
+                    System.out.println("jButtonForward" + currReaderModel.toString());
                     updateAll();
                 }
             }
@@ -404,6 +409,7 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
             public void actionPerformed(ActionEvent e) {
                 if (isUpdateable()) {
                     currReaderModel.changeTurn(currReaderModel.previousTurn);
+                    System.out.println("jButtonBackward" + currReaderModel.toString());
                     updateAll();
                 }
             }
@@ -465,13 +471,25 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
             }
         });
         jTabbedPanePopuPic.setTabChangeListener(this);
+        //jSliderTurn.setEnabled(false);
         jSliderTurn.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                if (isUpdateable()) {
-                    int turn = unprojectSliderValue(jSliderTurn.getValue());
-                    currReaderModel.changeTurn(turn);
-                    updateAll();
+//                e.getSource();
+//                System.out.println("state change Slider: " + jSliderTurn.getValue()
+//                        + ", currModel: " + currReaderModel.toString()
+//                        + ", turnChangeNotFromSlider: " + turnChangeNotFromSlider);
+                if (turnChangeNotFromSlider) {
+                    turnChangeNotFromSlider = false;
+                } else {
+                    if (isUpdateable()) {
+                        int turn = jSliderTurn.getValue();//unprojectSliderValue(jSliderTurn.getValue());
+                        //System.out.println("state change Slider: " + currReaderModel.toString());
+                        if (turn != currReaderModel.turn) {
+                            currReaderModel.changeTurn(turn);
+                            updateAll();
+                        }
+                    }
                 }
             }
         });
@@ -604,6 +622,7 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
             jLabelNextTurn.setText("next " + currReaderModel.nextTurn);
             jLabelMaxTurn.setText("" + currReaderModel.maxTurn);
             jLabelMinTurn.setText("" + currReaderModel.minTurn);
+            updatejSliderTurn();
         } else {
             jTextFieldPath.setText(System.getProperty("user.dir"));
             jTextFieldTurn.setText("0");
@@ -612,36 +631,39 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
             jLabelMaxTurn.setText("max turn");
             jLabelMinTurn.setText("min turn");
         }
-        updatejSliderTurnValue();
     }
 
-    private void updatejSliderTurnValue() {
+    private void updatejSliderTurn() {
         if (isUpdateable()) {
-            jSliderTurn.setValue(projectSliderValue(currReaderModel.turn));
-        } else {
-            jSliderTurn.setValue(0);
+            turnChangeNotFromSlider = true;
+            jSliderTurn.setMaximum(currReaderModel.minTurn);
+            turnChangeNotFromSlider = true;
+            jSliderTurn.setMaximum(currReaderModel.maxTurn);
+            turnChangeNotFromSlider = true;
+            jSliderTurn.setValue(currReaderModel.turn);//projectSliderValue(currReaderModel.turn));
         }
+        //turnChangeNotFromSlider = true;
     }
 
-    private int projectSliderValue(int value) {
-        int minTurn = currReaderModel.minTurn;
-        int maxTurn = currReaderModel.maxTurn;
-        int turnRange = maxTurn - minTurn;
-        int min = jSliderTurn.getMinimum();
-        int max = jSliderTurn.getMaximum();
-        int range = max - min;
-        return (int) (min + ((float) (value - minTurn)) / turnRange * range);
-    }
-
-    private int unprojectSliderValue(int value) {
-        int minTurn = currReaderModel.minTurn;
-        int maxTurn = currReaderModel.maxTurn;
-        int turnRange = maxTurn - minTurn;
-        int min = jSliderTurn.getMinimum();
-        int max = jSliderTurn.getMaximum();
-        int range = max - min;
-        return (int) (minTurn + ((float) (value - min)) / range * turnRange);
-    }
+//    private int projectSliderValue(int value) {
+//        int minTurn = currReaderModel.minTurn;
+//        int maxTurn = currReaderModel.maxTurn;
+//        int turnRange = maxTurn - minTurn;
+//        int min = jSliderTurn.getMinimum();
+//        int max = jSliderTurn.getMaximum();
+//        int range = max - min;
+//        return (int) (min + ((float) (value - minTurn)) / turnRange * range);
+//    }
+//
+//    private int unprojectSliderValue(int value) {
+//        int minTurn = currReaderModel.minTurn;
+//        int maxTurn = currReaderModel.maxTurn;
+//        int turnRange = maxTurn - minTurn;
+//        int min = jSliderTurn.getMinimum();
+//        int max = jSliderTurn.getMaximum();
+//        int range = max - min;
+//        return (int) (minTurn + ((float) (value - min)) / range * turnRange);
+//    }
 
     @Override
     public void notifyInsertTabAt(int index) {
@@ -910,7 +932,19 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
             }
         }
 
-
+        @Override
+        public String toString() {
+            return "ReaderModel{" +
+                    "y=" + y +
+                    ", x=" + x +
+                    ", turn=" + turn +
+                    ", nextTurn=" + nextTurn +
+                    ", minTurn=" + minTurn +
+                    ", maxTurn=" + maxTurn +
+                    ", previousTurn=" + previousTurn +
+                    ", in=" + in +
+                    '}';
+        }
     }
 
 }

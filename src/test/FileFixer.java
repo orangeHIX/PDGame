@@ -1,11 +1,14 @@
 package test;
 
+import entity.SpatialPDGame;
 import utils.ArrayUtils;
 import utils.FileUtils;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Scanner;
 
 /**
@@ -14,7 +17,7 @@ import java.util.Scanner;
 public class FileFixer {
 
     synchronized public static void FixFile(String filepath, String fileKeyStr,
-                               String secFileKeyStr) {
+                                            String secFileKeyStr) {
         File f = new File(filepath);
         float[][] data = null;
 
@@ -30,12 +33,16 @@ public class FileFixer {
                     if (file2.isDirectory()
                             && file2.getName().contains(secFileKeyStr)) {
                         System.out.println(file2.getName());
+
+                        //补写PDGame的JSON描述文件
+                        rewritePDGameJSONFile(file2);
+
                         for (File file3 : file2.listFiles()) {
                             if (file3.getName().equals("CoopertationLevel.txt")) {
                                 System.out.println(file3.getName());
-                                data = readData(file3);
+                                data = readDataCoopertationLevel(file3);
                                 // rewriteFile(file3,data);
-                                break;
+                                //break;
                             }
                         }
                         if (data != null) {
@@ -132,7 +139,69 @@ public class FileFixer {
         }
     }
 
-    public static float[][] readData(File f) {
+    public static void rewritePDGameJSONFile(File path) {
+        if (path != null && path.isDirectory()) {
+            File[] directs = path.listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File pathname) {
+                    if (pathname.isDirectory()) {
+                        return true;
+                    }
+                    return false;
+                }
+            });
+            File[] txtFiles = path.listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File pathname) {
+                    if (pathname.isFile() && pathname.getName().endsWith(".txt")) {
+                        return true;
+                    }
+                    return false;
+                }
+            });
+            //System.out.println(Arrays.toString(directs));
+            //System.out.println(Arrays.toString(txtFiles));
+            for (File direct : directs) {
+                File txtFile = findFile(txtFiles, direct.getName()+ ".txt");
+                //System.out.println("txtFile: "+ txtFile);
+                if (txtFile != null) {
+                    File jsonFile = FileUtils.findPDGameJSONFile(direct);
+                    if (jsonFile == null) {
+                        String JSONString = convertSptialPDgameToStringFromFiletoJSONString(txtFile);
+                        //System.out.println("JSONString: "+ JSONString);
+                        FileUtils.outputPDGameJSONFile(direct.getAbsolutePath(), JSONString);
+                    }
+                }
+            }
+        }
+    }
+
+    private static File findFile(File[] fs, String filename) {
+        for (File f : fs) {
+            if (f.getName().compareTo(filename) == 0) {
+                return f;
+            }
+        }
+        return null;
+    }
+
+
+    private static String convertSptialPDgameToStringFromFiletoJSONString(File f) {
+        if (f != null && f.isFile()) {
+            SpatialPDGame pdGmae = new SpatialPDGame();
+            try (Scanner sc = new Scanner(f)) {
+
+                pdGmae.initFromToString(sc.nextLine());
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            return pdGmae.getJSONObject().toString();
+        }
+        return null;
+    }
+
+    public static float[][] readDataCoopertationLevel(File f) {
 
         int L = 11;
 
@@ -165,6 +234,8 @@ public class FileFixer {
     }
 
     public static void main(String[] args) {
-        FixFile("F:\\交互强度任务", "data5", "w=");
+        //FixFile("F:\\交互强度任务", "data5", "w=");
+        rewritePDGameJSONFile(new File("C:\\Users\\hyx\\Desktop\\kk2" +
+                "\\INTERACTIVE_FERMI_$_NONE_$_CONTINUOUS_$_Von_$_pi=1.00_$_qi=0.00_$_w=1.00"));
     }
 }

@@ -21,14 +21,25 @@ public class FileUtils {
      * 删除该文件夹即文件夹下所有文件
      */
     synchronized public static void deleteFile(String path) {
+        deleteFile(path, new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                return true;
+            }
+        });
+    }
+
+    public static void deleteFile(String path, FileFilter fileFilter) {
         File file = new File(path);
         if (file.exists() && file.isDirectory()) {
             File[] ff = file.listFiles();
             for (int i = 0; i < ff.length; i++) {
-                deleteFile(ff[i].getPath());
+                deleteFile(ff[i].getPath(), fileFilter);
             }
         }
-        file.delete();
+        if (fileFilter.accept(file)) {
+            file.delete();
+        }
     }
 
     synchronized public static void outputSnapshootToFile(String filePath,
@@ -55,12 +66,15 @@ public class FileUtils {
             File f = getFile(filePath + "\\" + PDGameStraPicFilePrefix + i + ".jpg");
             outputImageToFile(im, "jpg", f);
 
+            outputPDGameJSONFile(filePath,PDGameJSONString);
 
-            if (PDGameJSONString != null) {
-                outputToFile(filePath + "\\" + PDGameJSONFileSuffix,
-                        PDGameJSONString);
-            }
+        }
+    }
 
+    synchronized public static void outputPDGameJSONFile(String path, String PDGameJSONString){
+        if (PDGameJSONString != null) {
+            outputToFile(path + "\\" + PDGameJSONFileSuffix,
+                    PDGameJSONString);
         }
     }
 
@@ -191,11 +205,40 @@ public class FileUtils {
         return sb.toString();
     }
 
+    /**
+     * @return null if not find*/
+    public static File findPDGameJSONFile(File direct){
+        if( direct != null && direct.isDirectory()){
+            File[] fs = direct.listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File pathname) {
+                    if(pathname.getName().endsWith(FileUtils.PDGameJSONFileSuffix)){
+                        return true;
+                    }
+                    return false;
+                }
+            });
+            if( fs.length > 0){
+                return fs[0];
+            }
+        }
+        return null;
+    }
 
     public static void main(String[] args) {
-        String path = "F:\\interactive task\\data9\\INTERACTIVE_FERMI_$_NONE_$_TWO_$_Von_$_pi=1.00_$_qi=0.00_$_w=0.00";
-        System.out.println(checkFileExists(path + "\\gr=(1.00,-0.00,1.00,0.00)_$_d0=1.00.txt"));
-        System.out.println(checkPicFileConsistency(path+"\\gr=(1.00,-0.00,1.00,0.00)_$_d0=1.00"));
+//        String path = "F:\\interactive task\\data9\\INTERACTIVE_FERMI_$_NONE_$_TWO_$_Von_$_pi=1.00_$_qi=0.00_$_w=0.00";
+//        System.out.println(checkFileExists(path + "\\gr=(1.00,-0.00,1.00,0.00)_$_d0=1.00.txt"));
+//        System.out.println(checkPicFileConsistency(path+"\\gr=(1.00,-0.00,1.00,0.00)_$_d0=1.00"));
+
+        String path = "F:\\interactive task\\data9";
+        deleteFile(path, new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                if (pathname.getName().endsWith(".jpg"))
+                    return true;
+                return false;
+            }
+        });
     }
 
 }

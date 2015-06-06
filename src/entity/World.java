@@ -26,7 +26,7 @@ public class World implements WorldInfo {
     private int L;
 
 
-    private NeighbourCoverage neighbourCoverage;
+    //private NeighbourCoverage neighbourCoverage;
     private StrategyPattern strategyPattern;
 
 //    private int[][] strategyGamblingMatrix;
@@ -52,22 +52,18 @@ public class World implements WorldInfo {
                 && (density < 1.0 || density - 1.0f < 1.0e-5)) {
             L = length;
             // d0 = density;
-            grid = new Seat[L][];
-            for (int i = 0; i < L; i++) {
-                grid[i] = new Seat[L];
-                for (int j = 0; j < L; j++) {
-                    grid[i][j] = new Seat(i, j);
-                }
-            }
+
             // this.neighbourRange = neighbourRange;
-            this.neighbourCoverage = neighbourCoverage;
+            //this.neighbourCoverage = neighbourCoverage;
             this.strategyPattern = strategyPattern;
             IndividualList = new ArrayList<>();
 
             //initMatrix();
+            //初始化座位
+            initGrid(neighbourCoverage);
 
             // 给每个个体随机分配初始策略
-            initIndividuals(density, w);
+            initIndividuals(density, w, neighbourCoverage.getCoverageVector().size());
 
             // 给每个个体随机分配网格中的位置
             randomAllocateSeat();
@@ -89,6 +85,22 @@ public class World implements WorldInfo {
 //        ArrayUtils.clearFloatMatrix(strategyPayoffMatrix, len, len);
 //    }
 
+    private void initGrid(NeighbourCoverage neighbourCoverage) {
+        grid = new Seat[L][];
+        for (int i = 0; i < L; i++) {
+            grid[i] = new Seat[L];
+            for (int j = 0; j < L; j++) {
+                grid[i][j] = new Seat(i, j);
+            }
+        }
+
+        for (int i = 0; i < L; i++) {
+            for (int j = 0; j < L; j++) {
+                grid[i][j].setSeatAroundList(grid, neighbourCoverage);
+            }
+        }
+    }
+
     /**
      * 初始化模型中的个体
      *
@@ -96,7 +108,7 @@ public class World implements WorldInfo {
      * @param w  设置全部个体的初始交互强度
      */
     private void initIndividuals(float d0,
-                                 float w) {
+                                 float w, int maxNeighbourNum) {
 
 
         int num = (int) (d0 * L * L); // 个体总数目
@@ -105,7 +117,6 @@ public class World implements WorldInfo {
 
         //strategySample = new float[strategyNum];
 
-        int maxNeighbourNum = neighbourCoverage.getCoverageVector().size();
         // 依次向个体表中添加初始个体
         int count = 0;
         for (int i = 0; i < strategyNum; i++) {
@@ -145,6 +156,7 @@ public class World implements WorldInfo {
                     getSeat((int) (RandomUtil.nextFloat() * L * L)));
         }
     }
+
     /**
      * 给每个个体分配id，从0开始向无穷大分配
      */
@@ -309,29 +321,30 @@ public class World implements WorldInfo {
     /**
      * 找到该座位周围所有在直接邻居距离范围内的座位
      */
-    public ArrayList<Seat> getSeatAround(Seat s, Condition<Seat> test) {
+    public ArrayList<Seat> getSeatAround(Seat s, Predicate<Seat> test) {
         // seatAround.clear();
-        ArrayList<Seat> seatAround = new ArrayList<Seat>();
-        int i, j;
-        i = s.seat_i;
-        j = s.seat_j;
-        int x, y;
-        for (Vector2 v : neighbourCoverage.getCoverageVector()) {
-            x = i + v.x;
-            y = j + v.y;
-            if (x >= 0 && x < L && y >= 0 && y < L) {
-                // System.out.println("seat("+i+","+j+"): "+x+","+y);
-                if (test.test(grid[x][y])) {
-                    seatAround.add(grid[x][y]);
-                }
-            }
-        }
-        return seatAround;
+//        ArrayList<Seat> seatAround = new ArrayList<Seat>();
+//        int i, j;
+//        i = s.seat_i;
+//        j = s.seat_j;
+//        int x, y;
+//        for (Vector2 v : neighbourCoverage.getCoverageVector()) {
+//            x = i + v.x;
+//            y = j + v.y;
+//            if (x >= 0 && x < L && y >= 0 && y < L) {
+//                // System.out.println("seat("+i+","+j+"): "+x+","+y);
+//                if (test.test(grid[x][y])) {
+//                    seatAround.add(grid[x][y]);
+//                }
+//            }
+//        }
+//        return seatAround;
+        return s.getSeatAround(test);
     }
 
     @Override
     public ArrayList<Seat> getAllSeatAround(Seat s) {
-        return getSeatAround(s, new Condition<Seat>() {
+        return getSeatAround(s, new Predicate<Seat>() {
 
             @Override
             public boolean test(Seat object) {
@@ -344,7 +357,7 @@ public class World implements WorldInfo {
 
     @Override
     public ArrayList<Seat> getEmptySeatAround(Seat s) {
-        return getSeatAround(s, new Condition<Seat>() {
+        return getSeatAround(s, new Predicate<Seat>() {
 
             @Override
             public boolean test(Seat object) {
@@ -358,7 +371,7 @@ public class World implements WorldInfo {
 
     @Override
     public ArrayList<Seat> getOccupiedSeatAround(Seat s) {
-        return getSeatAround(s, new Condition<Seat>() {
+        return getSeatAround(s, new Predicate<Seat>() {
 
             @Override
             public boolean test(Seat object) {
@@ -520,10 +533,6 @@ public class World implements WorldInfo {
             sb.append("\r\n");
         }
         return sb.toString();
-    }
-
-    interface Condition<E> {
-        public boolean test(E object);
     }
 
     public static void main(String[] args) {

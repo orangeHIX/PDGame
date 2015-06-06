@@ -10,6 +10,7 @@ import utils.ArrayUtils;
 import utils.FileUtils;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
@@ -238,11 +239,12 @@ public class Test {
         float d0 =1.f;
         float pi =1.f;
         float qi = 0;
-        float w;
+
         ExecutorService pool = Executors.newFixedThreadPool(5);
         float stepLength = STEP_LENGTH;
         ArrayList<Future<Integer>> results = new ArrayList<>();
-        for (w = .0f; w <= .01f; w += stepLength) {
+        Float[] wArray = {0.f, 0.1f, 0.2f, 0.5f, 1.0f};
+        for (Float w : Arrays.asList(wArray)) {
             results.add(
                     pool.submit(new TestTask(
                             L,
@@ -269,11 +271,11 @@ public class Test {
             e.printStackTrace();
         }
         pool.shutdown();
-//        File f = new File(outputFilePath);
-//        if(f.isDirectory()) {
-//            FileFixer.FixFile(f.getParentFile().getAbsolutePath(), f.getName(), "w=");
-//            FileReorganize.reorganize(f.getParentFile().getAbsolutePath(), f.getName());
-//        }
+        File f = new File(outputFilePath);
+        if(f.isDirectory()) {
+            FileFixer.FixFile(f.getParentFile().getAbsolutePath(), f.getName(), "w=");
+            FileReorganize.reorganize(f.getParentFile().getAbsolutePath(), f.getName());
+        }
         System.out.println("**********************************");
     }
 
