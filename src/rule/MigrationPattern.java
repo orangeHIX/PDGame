@@ -6,13 +6,18 @@ import entity.WorldInfo;
 import utils.RandomUtil;
 
 import java.util.ArrayList;
+import java.util.function.Predicate;
 
 public enum MigrationPattern {
     /**
      * NONE,个体什么也不做
      */
-    NONE//("no_migrate")
-    ,
+    NONE{
+        @Override
+        public Seat migrate(Individual in, WorldInfo world) {
+            return in.getSeat();
+        }
+    },
     /**
      * RANDOM，个体随机迁徙到直接邻居距离范围内的一个空位上
      */
@@ -68,21 +73,33 @@ public enum MigrationPattern {
 
     },
     /**
-     * 个体统计周围邻居背叛者的数量nd，以nd/8的概率迁徙到空位上
+     * 个体统计周围邻居背叛者的数量nd，以nd/(最大邻居数)的概率迁徙到空位上
+     * 如果周围全是空座位，随机选取一个移动到空位上
      */
     ESCAPE{//("escape_migrate") {
         @Override
         public Seat migrate(Individual in, WorldInfo world) {
-            // TODO Auto-generated method stub
-            ArrayList<Seat> emptySeatAround = world.getEmptySeatAround(in
-                    .getSeat());
+            ArrayList<Seat> emptySeatAround = world.getAllSeatAround(in.getSeat());
+            int seatNum = emptySeatAround.size();
+            emptySeatAround.removeIf(new Predicate<Seat>() {
+                @Override
+                public boolean test(Seat seat) {
+                    if(seat.isEmpty())
+                        return true;
+                    return false;
+                }
+            });
             if (!emptySeatAround.isEmpty()) {
                 Seat emptySeat = emptySeatAround.get((int) (RandomUtil
                         .nextFloat() * emptySeatAround.size()));
-                float dl = world.getSeatDefectionLevel(in.getSeat());
-                double imigratePosibility = dl / 8;
-                if (RandomUtil.nextDouble() < imigratePosibility) {
+                if( seatNum == emptySeatAround.size()){
                     return emptySeat;
+                }else {
+                    float dl = world.getSeatDefectionLevel(in.getSeat());
+                    double migratePossibility = dl / seatNum;
+                    if (RandomUtil.nextDouble() < migratePossibility) {
+                        return emptySeat;
+                    }
                 }
             }
             return in.getSeat();
@@ -103,9 +120,7 @@ public enum MigrationPattern {
      * @param world 能提供迁徙所需模型必要信息的接口
      * @return 应该迁徙到的位置，也可能没有迁徙，返回的位置是个体原来所在的的位置
      */
-    public Seat migrate(Individual in, WorldInfo world) {
-        return in.getSeat();
-    }
+    abstract public Seat migrate(Individual in, WorldInfo world);
 
 //    @Override
 //    public String toString() {

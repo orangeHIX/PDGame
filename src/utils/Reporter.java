@@ -2,6 +2,6 @@ package utils;
 
 public interface Reporter {
 
-    public void report(String s);
+    void report(String s);
 
 }

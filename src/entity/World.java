@@ -10,12 +10,12 @@ import java.util.Iterator;
 /**
  * 二维网格，包含L*L个空位，和若干个体
  */
-public class World implements WorldInfo {
+public class World implements WorldInfo, Evoluteble {
 
     /**
      * 记录所有个体的表
      */
-    private ArrayList<Individual> IndividualList;
+    private ArrayList<Individual> individualList;
     /**
      * 二维网络中所有空位，二维数组表示
      */
@@ -56,7 +56,7 @@ public class World implements WorldInfo {
             // this.neighbourRange = neighbourRange;
             //this.neighbourCoverage = neighbourCoverage;
             this.strategyPattern = strategyPattern;
-            IndividualList = new ArrayList<>();
+            individualList = new ArrayList<>();
 
             //initMatrix();
             //初始化座位
@@ -122,7 +122,7 @@ public class World implements WorldInfo {
         for (int i = 0; i < strategyNum; i++) {
             //strategySample[i] = 0 + i / (float) (strategyNum - 1);
             for (int j = 0; j < num / strategyNum; j++) {
-                this.IndividualList.add(new Individual(strategyPattern.getStrategySample(i),//strategySample[i],
+                this.individualList.add(new Individual(strategyPattern.getStrategySample(i),//strategySample[i],
                         maxNeighbourNum, w));
                 count++;
             }
@@ -130,7 +130,7 @@ public class World implements WorldInfo {
         // 由于采取各种策略的个体数目在某些情况下不可能全部相等，平均分配后余下的若干个体按次序分配剩下的名额
         if (count < num) {
             for (int i = 0; i < strategyNum; i++) {
-                this.IndividualList.add(new Individual(strategyPattern.getStrategySample(i),//strategySample[i],
+                this.individualList.add(new Individual(strategyPattern.getStrategySample(i),//strategySample[i],
                         maxNeighbourNum, w));
                 count++;
                 if (count >= num) {
@@ -146,7 +146,7 @@ public class World implements WorldInfo {
     private void randomAllocateSeat() {
         int i = 0;
         // 从位置（0,0）开始，个体依次向后入座
-        for (Iterator<Individual> e = IndividualList.iterator(); e.hasNext(); ) {
+        for (Iterator<Individual> e = individualList.iterator(); e.hasNext(); ) {
             getSeat(i).setOwner(e.next());
             i++;
         }
@@ -212,7 +212,7 @@ public class World implements WorldInfo {
         Individual neighbour;
         ArrayList<Seat> seatAround;
         // 重置所有个体的邻居列表（清空），重置所有个体累计收益（置零）
-        for (Individual in : IndividualList) {
+        for (Individual in : individualList) {
             in.resetAccumulatedPayoff();
             in.clearLastTurnInfo();
         }
@@ -221,7 +221,7 @@ public class World implements WorldInfo {
 //        float inStra, neiStra;
 //        int inStraIndex, neiStraIndex;
 //        float inPayoff, neiPayoff;
-        for (Individual in : IndividualList) {
+        for (Individual in : individualList) {
 
             seatAround = getOccupiedSeatAround(in.getSeat());// 得到个体周围的所有被占据座位
 
@@ -263,39 +263,70 @@ public class World implements WorldInfo {
     /**
      * 演化：以pi的概率学习邻居的策略，以qi的概率迁徙，同时更新个体的交互强度
      *
-     * @param pi                学习邻居策略的概率
-     * @param qi                迁徙的概率
-     * @param learningPattern   学习模式，可以是学习最优邻居MAXPAYOFF,
-     *                          也可以是fermi学习模式ERMI
-     * @param imigrationPattern 迁徙模式 ，可以是无迁徙NONE、随机迁徙RANDOM、机会迁徙OPTIMISTIC
+     * @param evolutionPattern 协同演化顺序
+     * @param pi               学习邻居策略的概率
+     * @param qi               迁徙的概率
+     * @param learningPattern  学习模式，可以是学习最优邻居MAXPAYOFF,
+     *                         也可以是fermi学习模式ERMI
+     * @param migrationPattern 迁徙模式 ，可以是无迁徙NONE、随机迁徙RANDOM、机会迁徙OPTIMISTIC
      * @return 采取新策略的个体占总体的比率
      */
-    public float evolute(float pi, float qi, LearningPattern learningPattern,
-                         MigrationPattern imigrationPattern) {
-        for (Individual in : IndividualList) {
+    public float evolute(EvolutionPattern evolutionPattern,
+                         float pi, float qi, LearningPattern learningPattern,
+                         MigrationPattern migrationPattern) {
+
+        int change = evolutionPattern.evolute(this, pi, qi, learningPattern, migrationPattern);
+
+        return change / (float) individualList.size();
+    }
+
+    @Override
+    public void learning(float pi, LearningPattern learningPattern) {
+        for (Individual in : individualList) {
             if (RandomUtil.nextFloat() <= pi) {
                 in.learnFromNeighbours(learningPattern);
             }
+            // getEmptySeatAround(in);
+        }
+
+    }
+
+    @Override
+    public void migrate(float qi, MigrationPattern migrationPattern) {
+        if( migrationPattern.equals(MigrationPattern.NONE))
+            return;
+        for (Individual in : individualList) {
             if (RandomUtil.nextFloat() <= qi) {
                 // 个体在本轮进行迁徙，每个个体在博弈阶段自己保留有邻居表，迁徙后邻居仍能找到该个体
-                in.imigrate(this, imigrationPattern);
+                in.imigrate(this, migrationPattern);
             }
             // getEmptySeatAround(in);
         }
+    }
+
+    /**
+     * 更新个体下一轮要用的策略
+     */
+    @Override
+    public int updateIndividualStrategy() {
         int change = 0;
-        // 个体更新下一轮要用的策略
-        for (Individual in : IndividualList) {
+        for (Individual in : individualList) {
             if (in.updateStrategy()) {
                 change++;
             }
         }
-        // 个体更新交互强度
-        for (Individual in : IndividualList) {
-            in.updateInteractionIntensity(0, 0);
-        }
-        return change / (float) IndividualList.size();
+        return change;
     }
 
+    /**
+     * 更新个体交互强度
+     */
+    @Override
+    public void updateIndividualInteractionIntensity() {
+        for (Individual in : individualList) {
+            in.updateInteractionIntensity(0, 0);
+        }
+    }
 
     @Override
     public float getSeatDefectionLevel(Seat s) {
@@ -322,24 +353,10 @@ public class World implements WorldInfo {
      * 找到该座位周围所有在直接邻居距离范围内的座位
      */
     public ArrayList<Seat> getSeatAround(Seat s, Predicate<Seat> test) {
-        // seatAround.clear();
-//        ArrayList<Seat> seatAround = new ArrayList<Seat>();
-//        int i, j;
-//        i = s.seat_i;
-//        j = s.seat_j;
-//        int x, y;
-//        for (Vector2 v : neighbourCoverage.getCoverageVector()) {
-//            x = i + v.x;
-//            y = j + v.y;
-//            if (x >= 0 && x < L && y >= 0 && y < L) {
-//                // System.out.println("seat("+i+","+j+"): "+x+","+y);
-//                if (test.test(grid[x][y])) {
-//                    seatAround.add(grid[x][y]);
-//                }
-//            }
-//        }
-//        return seatAround;
-        return s.getSeatAround(test);
+        if (s != null) {
+            return s.getSeatAround(test);
+        }
+        return null;
     }
 
     @Override
@@ -384,10 +401,10 @@ public class World implements WorldInfo {
     @Override
     public float getGlobalCooperationLevel() {
         float cp = 0;
-        for (Individual e : IndividualList) {
+        for (Individual e : individualList) {
             cp += e.getStrategy();
         }
-        return cp / IndividualList.size();
+        return cp / individualList.size();
     }
 
     @Override
@@ -399,7 +416,7 @@ public class World implements WorldInfo {
         for (i = 0; i < strategyNum; i++) {
             strategyProportion[i] = 0;
         }
-        for (Individual e : IndividualList) {
+        for (Individual e : individualList) {
             globalCooperationLevel += e.getStrategy();
             for (i = 0; i < strategyNum; i++) {
                 if (Math.abs(e.getStrategy() - strategyPattern.getStrategySample(i)) < 1.0e-4) {
@@ -408,10 +425,10 @@ public class World implements WorldInfo {
                 }
             }
         }
-        globalCooperationLevel = globalCooperationLevel / IndividualList.size();
+        globalCooperationLevel = globalCooperationLevel / individualList.size();
         for (i = 0; i < strategyProportion.length; i++) {
             strategyProportion[i] = strategyProportion[i]
-                    / IndividualList.size();
+                    / individualList.size();
         }
 //        float[][] PM = ArrayUtils.copyFloatMatrix(
 //                strategyPayoffMatrix, strategyNum, strategyNum);
@@ -425,19 +442,19 @@ public class World implements WorldInfo {
     @Override
     public float getAverageNeighbourNum() {
         float ann = 0;
-        for (Individual e : IndividualList) {
+        for (Individual e : individualList) {
             ann += (getAllSeatAround(e.getSeat()).size() - getEmptySeatAround(
                     e.getSeat()).size());
             // System.out.println("getAverageNeighbourNum "+getAllSeatAround(e.getSeat()).size()
             // +","+ getEmptySeatAround(
             // e.getSeat()).size());
         }
-        return ann / IndividualList.size();
+        return ann / individualList.size();
     }
 
     @Override
     public int getPopulationNum() {
-        return IndividualList.size();
+        return individualList.size();
     }
 
     @Override
@@ -487,14 +504,14 @@ public class World implements WorldInfo {
 
     public Snapshot getSnapshot() {
         //return new Snapshot(getIndividualStrategyPicture(), getIndividualPayoffPicture());
-        return new Snapshot(getIndividualStrategyPicture(), getIndividualAllPicture());
+        return new Snapshot(getIndividualAllPicture());
     }
 
     public void initFromIndividualAllPicture(String individualAllPicture) {
 
         String[] ss = individualAllPicture.split("\r\n");
 
-        IndividualList = new ArrayList<>();
+        individualList = new ArrayList<>();
         L = ss.length;
         grid = new Seat[ss.length][];
 
@@ -502,9 +519,10 @@ public class World implements WorldInfo {
             String[] ss2 = ss[i].split("\t");
             grid[i] = new Seat[ss2.length];
             for (int j = 0; j < ss2.length; j++) {
+                //System.out.println(">>>>>>>>>>>>>>>>>"+ss2[j]);
                 Individual in = new Individual(ss2[j]);
                 grid[i][j] = in.getSeat();
-                IndividualList.add(in);
+                individualList.add(in);
             }
         }
     }
@@ -535,15 +553,36 @@ public class World implements WorldInfo {
         return sb.toString();
     }
 
+    public static String convertAllPicToStraPic(String allpic) {
+
+        StringBuilder sb = new StringBuilder();
+        String[] ss = allpic.split("\r\n");
+        Individual in = new Individual();
+        for (String line : ss) {
+            //System.out.println(">>>>>>>>>>>1>>>>"+line);
+            String[] ss2 = line.split("\t");
+            for (String line2 : ss2) {
+                //System.out.println(">>>>>>>>>>>2>>>>" + line);
+                sb.append(line2.compareTo("null") == 0 ? null : in.initFromJSONSource(line2).getStrategy());
+                sb.append("\t");
+            }
+            sb.append("\r\n");
+        }
+        return sb.toString();
+    }
+
     public static void main(String[] args) {
         World world = new World();
         world.initFromIndividualAllPicture(
                 FileUtils.readStringFromFile(
                         new File("C:\\Users\\hyx\\Desktop\\kk" +
-                                "\\interactive_fermi_$_no_migrate_$_continuous_strategy_$_pi=1.00_$_qi=0.00_$_w=1.00" +
-                                "\\gr=(1.00,-0.10,1.10,0.00)_$_d0=1.00" +
-                                "\\txt_format\\all_1.txt")));
-        System.out.println(world.getIndividualAllPicture());
+                                "\\INTERACTIVE_FERMI_$_NONE_$_CONTINUOUS_$_Von_$_CDO_$_pi=1.00_$_qi=0.00_$_w=1.00" +
+                                "\\gr=(1.00,-0.10,1.10,0.00)_$_d0=1.00\\txt_format\\all_1.txt")));
+        String straPic = world.getIndividualStrategyPicture();
+        String allPic = world.getIndividualAllPicture();
+        System.out.println(straPic);
+        System.out.println(allPic);
+        System.out.println(World.convertAllPicToStraPic(allPic));
 
     }
 }

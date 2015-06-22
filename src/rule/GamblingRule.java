@@ -4,6 +4,8 @@ import entity.JsonEntity;
 import org.json.JSONObject;
 import utils.ArrayUtils;
 
+import java.text.DecimalFormat;
+
 /**
  * ÇôÍ½À§¾³²©ÞÄ¹æÔò
  */
@@ -110,25 +112,27 @@ public class GamblingRule implements JsonEntity {
     @Override
     public JSONObject getJSONObject() {
         JSONObject jo = new JSONObject();
-        jo.put("R", R);
-        jo.put("S", S);
-        jo.put("T", T);
-        jo.put("P", P);
+        DecimalFormat df = new DecimalFormat("0.00");
+        jo.put("R", df.format(R));
+        jo.put("S", df.format(S));
+        jo.put("T", df.format(T));
+        jo.put("P", df.format(P));
         return jo;
     }
 
 
     @Override
-    public void initFromJSONObject(JSONObject jsonObject) {
-        R = new Float(jsonObject.getDouble("R"));
-        S = new Float(jsonObject.getDouble("S"));
-        T = new Float(jsonObject.getDouble("T"));
-        P = new Float(jsonObject.getDouble("P"));
+    public GamblingRule initFromJSONObject(JSONObject jsonObject) {
+        R = new Float(jsonObject.getString("R"));
+        S = new Float(jsonObject.getString("S"));
+        T = new Float(jsonObject.getString("T"));
+        P = new Float(jsonObject.getString("P"));
+        return this;
     }
 
     @Override
-    public void initFromJSONSource(String source) {
-        initFromJSONObject(new JSONObject(source));
+    public GamblingRule initFromJSONSource(String source) {
+        return initFromJSONObject(new JSONObject(source));
     }
 
     public static void main(String[] args) {

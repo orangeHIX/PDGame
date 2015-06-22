@@ -8,6 +8,6 @@ import org.json.JSONObject;
 public interface JsonEntity {
 
     JSONObject getJSONObject();
-    void initFromJSONObject(JSONObject jsonObject);
-    void initFromJSONSource(String source);
+    JsonEntity initFromJSONObject(JSONObject jsonObject);
+    JsonEntity initFromJSONSource(String source);
 }

@@ -10,10 +10,9 @@ public enum NeighbourCoverage {
      * 个体周围其他与该个体的横纵坐标之差均不超过特定值的个体均为该个体的直接邻居。例如特定值为1，个体坐标为（3，3）那么位于坐标（2，2）（2，3）（
      * 2，4）（3，2）（3，4）（4，2）（4，3）（4，4）的个体均为位于（3，3）个体的邻居
      */
-    Classic(new Coverage() {
-
+    Classic {
         @Override
-        public ArrayList<Vector2> getCoverage() {
+        protected ArrayList<Vector2> getCoverage() {
             // TODO 自动生成的方法存根
             int range = 1;
             ArrayList<Vector2> vectors = new ArrayList<>();
@@ -26,15 +25,14 @@ public enum NeighbourCoverage {
             return vectors;
         }
 
-    }),
+    },
     /**
      * Von(冯诺依曼邻居),最大邻居个数n = 4，既上下左右4个邻居
      */
-    Von(new Coverage() {
-
+    Von {
         @SuppressWarnings("serial")
         @Override
-        public ArrayList<Vector2> getCoverage() {
+        protected ArrayList<Vector2> getCoverage() {
             // TODO 自动生成的方法存根
             return new ArrayList<Vector2>() {
                 {
@@ -46,12 +44,12 @@ public enum NeighbourCoverage {
             };
         }
 
-    });
+    };
 
     private ArrayList<Vector2> coverageVectors;
 
-    NeighbourCoverage(Coverage co) {
-        coverageVectors = co.getCoverage();
+    NeighbourCoverage() {
+        coverageVectors = getCoverage();
     }
 
     /**
@@ -61,7 +59,6 @@ public enum NeighbourCoverage {
         return coverageVectors;
     }
 
-    interface Coverage {
-        ArrayList<Vector2> getCoverage();
-    }
+
+    abstract protected ArrayList<Vector2> getCoverage();
 }

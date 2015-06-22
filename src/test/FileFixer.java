@@ -144,19 +144,13 @@ public class FileFixer {
             File[] directs = path.listFiles(new FileFilter() {
                 @Override
                 public boolean accept(File pathname) {
-                    if (pathname.isDirectory()) {
-                        return true;
-                    }
-                    return false;
+                    return pathname.isDirectory();
                 }
             });
             File[] txtFiles = path.listFiles(new FileFilter() {
                 @Override
                 public boolean accept(File pathname) {
-                    if (pathname.isFile() && pathname.getName().endsWith(".txt")) {
-                        return true;
-                    }
-                    return false;
+                    return pathname.isFile() && pathname.getName().endsWith(".txt");
                 }
             });
             //System.out.println(Arrays.toString(directs));

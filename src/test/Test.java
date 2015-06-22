@@ -2,10 +2,7 @@ package test;
 
 import entity.SpatialPDGame;
 import entity.SpatialPDGame.SampleCheck;
-import rule.LearningPattern;
-import rule.MigrationPattern;
-import rule.NeighbourCoverage;
-import rule.StrategyPattern;
+import rule.*;
 import utils.ArrayUtils;
 import utils.FileUtils;
 
@@ -31,7 +28,7 @@ public class Test {
      */
     public static final int LENGTH = 100;
 
-    public static final int MAX_TURN_NUM = 50000;
+    public static final int MAX_TURN_NUM = 30000;
 
     public static final float STEP_LENGTH = 0.1f;
 
@@ -39,7 +36,7 @@ public class Test {
 //         SpatialPDGame spdg = new SpatialPDGame(true);
 //         spdg.initSpatialPDGame(5, 1.0f, 0.1f, 0.1f, 1.0f, 0, 1.0f,
 //                 LearningPattern.INTERACTIVE_FERMI, MigrationPattern.NONE,
-//                 StrategyPattern.CONTINUOUS, NeighbourCoverage.Von);
+//                 StrategyPattern.CONTINUOUS, NeighbourCoverage.Von, EvolutionPattern.CDO);
 //         spdg.run(MAX_TURN_NUM);
 //         spdg.done();
 //        FileUtils.outputToFile(
@@ -54,9 +51,12 @@ public class Test {
         //spdg.printPicture();
 
         long start = System.currentTimeMillis();
-        runOneTest5(LearningPattern.INTERACTIVE_FERMI, MigrationPattern.NONE,
-                StrategyPattern.TWO, NeighbourCoverage.Von,
-                MAX_TURN_NUM, "F:\\interactive task\\data9");
+        runOneTest6(LearningPattern.MAXPAYOFF, MigrationPattern.ESCAPE,
+                StrategyPattern.CONTINUOUS, NeighbourCoverage.Von, EvolutionPattern.CDO,
+                MAX_TURN_NUM, false, "F:\\extra task\\data_5");
+        runOneTest6(LearningPattern.MAXPAYOFF, MigrationPattern.ESCAPE,
+                StrategyPattern.CONTINUOUS, NeighbourCoverage.Von, EvolutionPattern.COD,
+                MAX_TURN_NUM, false, "F:\\extra task\\data_6" );
         long end = System.currentTimeMillis();
         System.out.println("underwent: " + (end - start) + "ms");
 
@@ -78,8 +78,8 @@ public class Test {
         float stepLength = STEP_LENGTH;
         float stepLength2 = 0.1f;
         int L1, L2;
-        L1 = (int) Math.round(1 / stepLength) + 1;
-        L2 = (int) Math.round(1 / stepLength) + 1;
+        L1 = Math.round(1 / stepLength) + 1;
+        L2 = Math.round(1 / stepLength) + 1;
         double[][] cl = new double[L1][];
         for (int i = 0; i < L1; i++) {
             cl[i] = new double[L2];
@@ -91,7 +91,7 @@ public class Test {
                 for (j = 0, Dg = 0; Dg <= 1.0001f; Dg += stepLength, j++) {
                     spdg.initSpatialPDGame(L, d0, Dr, Dg, pi, qi, 1.0f,
                             learningPattern, imigratePattern, strategyPattern,
-                            NeighbourCoverage.Classic);
+                            NeighbourCoverage.Classic, EvolutionPattern.CDO);
                     spdg.run(maxTurn);
                     spdg.done();
                     // spdg.printPicture();
@@ -131,7 +131,7 @@ public class Test {
 
             spdg.initSpatialPDGame(L, d0, Dr, Dg, pi, qi, 1.0f,
                     learningPattern, imigratePattern, strategyPattern,
-                    NeighbourCoverage.Classic);
+                    NeighbourCoverage.Classic, EvolutionPattern.CDO);
             spdg.run(maxTurn, new SampleCheck() {
                 int[] specialTurns = {1, 2, 3, 4, 5, 6, 20, 50};
 
@@ -193,8 +193,8 @@ public class Test {
         float stepLength = STEP_LENGTH;
         // float stepLength2 = 0.1f;
         int L1, L2;
-        L1 = (int) Math.round(1 / stepLength) + 1;
-        L2 = (int) Math.round(1 / stepLength) + 1;
+        L1 = Math.round(1 / stepLength) + 1;
+        L2 = Math.round(1 / stepLength) + 1;
         double[][] cl = new double[L1][];
         for (int i = 0; i < L1; i++) {
             cl[i] = new double[L2];
@@ -206,7 +206,7 @@ public class Test {
                 for (j = 0, Dg = 0; Dg <= 1.0001f; Dg += stepLength, j++) {
                     spdg.initSpatialPDGame(L, d0, Dr, Dg, pi, qi, w,
                             learningPattern, imigratePattern, strategyPattern,
-                            neighbourCoverage);
+                            neighbourCoverage, EvolutionPattern.CDO);
                     spdg.run(maxTurn);
                     spdg.done();
 
@@ -236,17 +236,17 @@ public class Test {
                                    NeighbourCoverage neighbourCoverage, int maxTurn,
                                    String outputFilePath) {
         int L = LENGTH;
-        float d0 =1.f;
-        float pi =1.f;
+        float d0 = 1.f;
+        float pi = 1.f;
         float qi = 0;
-
+        EvolutionPattern evolutionPattern = EvolutionPattern.CDO;
         ExecutorService pool = Executors.newFixedThreadPool(5);
         float stepLength = STEP_LENGTH;
         ArrayList<Future<Integer>> results = new ArrayList<>();
         Float[] wArray = {0.f, 0.1f, 0.2f, 0.5f, 1.0f};
         for (Float w : Arrays.asList(wArray)) {
             results.add(
-                    pool.submit(new TestTask(
+                    pool.submit(new TestTask(true,
                             L,
                             stepLength,
                             d0,
@@ -257,6 +257,7 @@ public class Test {
                             imigratePattern,
                             strategyPattern,
                             neighbourCoverage,
+                            evolutionPattern,
                             maxTurn,
                             outputFilePath)));
         }
@@ -272,11 +273,67 @@ public class Test {
         }
         pool.shutdown();
         File f = new File(outputFilePath);
-        if(f.isDirectory()) {
+        if (f.isDirectory()) {
             FileFixer.FixFile(f.getParentFile().getAbsolutePath(), f.getName(), "w=");
             FileReorganize.reorganize(f.getParentFile().getAbsolutePath(), f.getName());
         }
-        System.out.println("**********************************");
+    }
+
+    public static void runOneTest6(LearningPattern learningPattern,
+                                   MigrationPattern imigratePattern, StrategyPattern strategyPattern,
+                                   NeighbourCoverage neighbourCoverage, EvolutionPattern evolutionPattern, int maxTurn,
+                                   boolean recordSnapshot, String outputFilePath) {
+        int L = LENGTH;
+        float d0 = .5f;
+        float pi = .5f;
+        //float qi = 0.0f;
+        float w = 1.0f;
+
+        outputFilePath= outputFilePath +"_"+
+                learningPattern +"_" +
+                imigratePattern+"_"+
+                strategyPattern+"_"+
+                neighbourCoverage+"_"+
+                evolutionPattern;
+
+        ExecutorService pool = Executors.newFixedThreadPool(5);
+        float stepLength = STEP_LENGTH;
+        ArrayList<Future<Integer>> results = new ArrayList<>();
+        Float[] qiArray = {0.f, /*0.02f, 0.04f, 0.06f, 0.08f,*/ 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
+        for (Float qi : Arrays.asList(qiArray)) {
+            results.add(
+                    pool.submit(new TestTask(
+                            recordSnapshot,
+                            L,
+                            stepLength,
+                            d0,
+                            pi,
+                            qi,
+                            w,
+                            learningPattern,
+                            imigratePattern,
+                            strategyPattern,
+                            neighbourCoverage,
+                            evolutionPattern,
+                            maxTurn,
+                            outputFilePath)));
+        }
+
+        try {
+            for (Future<Integer> fu : results) {
+                fu.get();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        pool.shutdown();
+        File f = new File(outputFilePath);
+        if (f.isDirectory()) {
+            FileFixer.FixFile(f.getParentFile().getAbsolutePath(), f.getName(), "qi=");
+            FileReorganize.reorganize(f.getParentFile().getAbsolutePath(), f.getName());
+        }
     }
 
     /**

@@ -95,15 +95,16 @@ public class Seat implements JsonEntity {
     }
 
     @Override
-    public void initFromJSONSource(String source) {
+    public Seat initFromJSONSource(String source) {
         JSONObject jo = new JSONObject(source);
-        initFromJSONObject(jo);
+        return initFromJSONObject(jo);
     }
 
     @Override
-    public void initFromJSONObject(JSONObject jsonObject) {
+    public Seat initFromJSONObject(JSONObject jsonObject) {
         seat_i = jsonObject.getInt("x");
         seat_j = jsonObject.getInt("y");
+        return this;
     }
 
     public static void main(String[] args) {

@@ -41,7 +41,7 @@ public class FileReorganize {
         try (PrintWriter pw = new PrintWriter(f)) {
             pw.print("从上到下依次是：BCH（Dr=0）、BSH（Dg=0）、DRG（Dr=Dg）、ALLPD\r\n");
             for (int i = 0; i < dataSet.size(); i++) {
-                pw.print("w=0." + i);
+                pw.print("" + i);
                 pw.print("\t\t");
             }
             pw.print("\r\n");

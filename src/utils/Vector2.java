@@ -32,8 +32,6 @@ public class Vector2 {
         Vector2 other = (Vector2) obj;
         if (x != other.x)
             return false;
-        if (y != other.y)
-            return false;
-        return true;
+        return y == other.y;
     }
 }

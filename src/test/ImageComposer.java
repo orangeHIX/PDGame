@@ -46,7 +46,7 @@ public class ImageComposer {
             @Override
             public void paint(Graphics g) {
                 g.clearRect(0, 0, this.getWidth(), this.getHeight());
-                g.drawImage(image, MarginWith, MarginWith, (int) (1000),
+                g.drawImage(image, MarginWith, MarginWith, 1000,
                         (int) (1000 / proportion), null);
             }
         };
@@ -83,10 +83,7 @@ public class ImageComposer {
                 @Override
                 public boolean accept(File dir, String name) {
                     // TODO Auto-generated method stub
-                    if (name.startsWith("turn_") && name.endsWith(".jpg")) {
-                        return true;
-                    }
-                    return false;
+                    return name.startsWith("turn_") && name.endsWith(".jpg");
                 }
             });
 
@@ -234,9 +231,9 @@ public class ImageComposer {
                 String expand = captionString + ", "
                         + getDrAndDgFromString(f2.getName());
                 image = Painter.composingEvolutionImage(imageList, expand,
-                        column, (int) (120 * zoom), (int) (120 * zoom),
-                        (int) (5 * zoom), (int) (15 * zoom), (int) (3 * zoom),
-                        (int) (15 * zoom), (int) (25 * zoom));
+                        column, 120 * zoom, 120 * zoom,
+                        5 * zoom, 15 * zoom, 3 * zoom,
+                        15 * zoom, 25 * zoom);
                 //printPicture(image);
                 if (image != null) {
                     // new File(f2.getAbsolutePath() + "\\"
@@ -329,11 +326,8 @@ public class ImageComposer {
                 public boolean test(NamedImage t) {
                     // TODO Auto-generated method stub
                     int id = t.getID();
-                    if (Arrays.binarySearch(ids, id) < 0
-                            && Arrays.binarySearch(excep, id) < 0) {
-                        return true;
-                    }
-                    return false;
+                    return Arrays.binarySearch(ids, id) < 0
+                            && Arrays.binarySearch(excep, id) < 0;
                 }
             });
         }
@@ -362,11 +356,9 @@ public class ImageComposer {
                 @Override
                 public boolean accept(File dir, String name) {
                     // TODO Auto-generated method stub
-                    if (name.endsWith(".jpg") && name.contains("m")
+                    return name.endsWith(".jpg") && name.contains("m")
                             && name.contains("strategy") && name.contains("Dr")
-                            && name.contains("Dg"))
-                        return true;
-                    return false;
+                            && name.contains("Dg");
                 }
             });
 

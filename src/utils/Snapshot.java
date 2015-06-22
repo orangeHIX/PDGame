@@ -5,7 +5,7 @@ package utils;
  */
 public class Snapshot {
     String individualStrategyPicture;
-    //String individualPayoffPicture;
+    String individualPayoffPicture;
 
     String allPicture;
 
@@ -14,8 +14,13 @@ public class Snapshot {
 //        this.individualPayoffPicture = individualPayoffPicture;
 //    }
 
-    public Snapshot(String individualStrategyPicture,String allPicture){
-        this.individualStrategyPicture = individualStrategyPicture;
-        this.allPicture  = allPicture;
+//    public Snapshot(String individualStrategyPicture,String allPicture){
+//        this.individualStrategyPicture = individualStrategyPicture;
+//        this.allPicture  = allPicture;
+//    }
+
+
+    public Snapshot(String allPicture) {
+        this.allPicture = allPicture;
     }
 }

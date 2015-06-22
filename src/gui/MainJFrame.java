@@ -1,9 +1,6 @@
 package gui;
 
-import rule.LearningPattern;
-import rule.MigrationPattern;
-import rule.NeighbourCoverage;
-import rule.StrategyPattern;
+import rule.*;
 import entity.SpatialPDGame;
 import utils.CompleteListener;
 import utils.FileUtils;
@@ -1352,15 +1349,15 @@ public class MainJFrame extends javax.swing.JFrame implements Reporter,
                 if (!isRunning) {
                     thread = new WorkThread(Integer
                             .parseInt(jTextFieldGridLength.getText()),
-                            (Float) (Number) jSpinnerPopulationDensity
+                            (Float) jSpinnerPopulationDensity
                                     .getValue(), R, S, T, P,
-                            (Float) (Number) jSpinnerPi.getValue(),
-                            (Float) (Number) jSpinnerQi.getValue(),
+                            (Float) jSpinnerPi.getValue(),
+                            (Float) jSpinnerQi.getValue(),
                             getLearningPattern(), getMigratePattern(),
                             getStrategyPattern(), jTextFieldOutputFilePath
                             .getText(), jCheckBoxNeedOutputImage
                             .isSelected(),
-                            (Integer) (Number) jSpinnerMaxTurn.getValue(),
+                            (Integer) jSpinnerMaxTurn.getValue(),
                             MainJFrame.this, MainJFrame.this);
                     thread.start();
                     if (thread.getState().equals(Thread.State.RUNNABLE)) {
@@ -1522,7 +1519,7 @@ public class MainJFrame extends javax.swing.JFrame implements Reporter,
             spdg = new SpatialPDGame(recordSnapShoot, reporter);
             spdg.initSpatialPDGame(L, d0, R, S, T, P, pi, qi, 1.0f,
                     learningPattern, imigratePattern, strategyPattern,
-                    NeighbourCoverage.Classic);
+                    NeighbourCoverage.Classic, EvolutionPattern.CDO);
             outputFilePath = filepath;
             this.maxTurn = maxTurn;
             this.completeListener = completeListener;

@@ -20,6 +20,7 @@ public class Painter {
     public static final Color CColor = Color.YELLOW;
     public static final Color MColor = Color.RED;
     public static final Color DColor = Color.BLUE;
+    public static final Color AbsentColor = Color.BLACK;
     /**
      * Õº∆¨∏Ò Ω£∫JPG
      */
@@ -47,6 +48,7 @@ public class Painter {
             return null;
         }
     }
+
 
     synchronized public static Image getPDGameImage(int width, int height, String individualStrategyPicture) {
         BufferedImage bi = new BufferedImage(width, height,
@@ -88,7 +90,7 @@ public class Painter {
                     g2.setColor(getGradient(DColor, MColor, CColor,
                             Float.parseFloat(straStrs[j])));
                 } else {
-                    g2.setColor(new Color(0, 0, 0));
+                    g2.setColor(AbsentColor);
                 }
                 g2.fillRect(x + j * widPerCell, y + i * heiPerCell, widPerCell,
                         heiPerCell);
@@ -429,7 +431,7 @@ public class Painter {
     }
 
     synchronized public static void drawVertivalDottedLine(Graphics2D g2, int x0, int y0,
-                                              int height) {
+                                                           int height) {
         float num = height / 5f;
         for (int i = 0; i < num; i++) {
             if (i % 2 == 0)
@@ -438,7 +440,7 @@ public class Painter {
     }
 
     synchronized public static Image assembleEvolutionImages(ArrayList<Image> images, int marginX,
-                                                int marginY) {
+                                                             int marginY) {
         if (images.size() != 4)
             return null;
         int imageWidth = images.get(0).getWidth(null);

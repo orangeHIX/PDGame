@@ -5,5 +5,5 @@ package utils;
  */
 @FunctionalInterface
 public interface Predicate<E> {
-    public boolean test(E object);
+    boolean test(E object);
 }

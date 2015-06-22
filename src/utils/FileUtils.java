@@ -48,30 +48,41 @@ public class FileUtils {
     }
 
     synchronized public static void outputSnapshootToFile(String filePath, String PDGameJSONString,
-                                                          Map<Integer, Snapshot> Snapshot) {
+                                                          Map<Integer, Snapshot> snapshot) {
         FileUtils.deleteFile(filePath);
-        for (Integer i : Snapshot.keySet()) {
+        for (Integer i : snapshot.keySet()) {
             //File f = getFile();
-            outputToFile(filePath + "\\" + PDGameSnapshotTxtFormatDirectName + "\\"
-                            + PDGameStraPicFilePrefix + i + ".txt",
-                    Snapshot.get(i).individualStrategyPicture);
-            outputToFile(filePath + "\\" + PDGameSnapshotTxtFormatDirectName + "\\"
-                            + PDGameAllPicFilePrefix + i + ".txt",
-                    Snapshot.get(i).allPicture);
-
-            RenderedImage im = (RenderedImage) Painter.getPDGameImage(
-                    400,
-                    400,
-                    Snapshot.get(i).individualStrategyPicture);
-            File f = getFile(filePath + "\\" + PDGameStraPicFilePrefix + i + ".jpg");
-            outputImageToFile(im, "jpg", f);
-
-            outputPDGameJSONFile(filePath,PDGameJSONString);
+            outputPicTxtFile(snapshot.get(i).allPicture, i, PDGameAllPicFilePrefix, filePath);
+            outputPicTxtFile(snapshot.get(i).individualStrategyPicture, i, PDGameStraPicFilePrefix, filePath);
+            outputStraPicImageFile(snapshot.get(i).individualStrategyPicture, i, filePath);
+            outputPDGameJSONFile(filePath, PDGameJSONString);
 
         }
     }
 
-    synchronized public static void outputPDGameJSONFile(String path, String PDGameJSONString){
+    private static void outputPicTxtFile(String pic, int turn, String fileNamePrefix, String filePath) {
+        if (pic != null &&
+                !pic.isEmpty()) {
+            outputToFile(filePath + "\\" +
+                            PDGameSnapshotTxtFormatDirectName + "\\" +
+                            fileNamePrefix + turn + ".txt",
+                    pic);
+        }
+    }
+
+    private static void outputStraPicImageFile(String individualStrategyPicture, int turn, String filePath) {
+        if (individualStrategyPicture != null &&
+                !individualStrategyPicture.isEmpty()) {
+            RenderedImage im = (RenderedImage) Painter.getPDGameImage(
+                    400,
+                    400,
+                    individualStrategyPicture);
+            File f = getFile(filePath + "\\" + PDGameStraPicFilePrefix + turn + ".jpg");
+            outputImageToFile(im, "jpg", f);
+        }
+    }
+
+    synchronized public static void outputPDGameJSONFile(String path, String PDGameJSONString) {
         if (PDGameJSONString != null) {
             outputToFile(path + "\\" + PDGameJSONFileSuffix,
                     PDGameJSONString);
@@ -81,7 +92,7 @@ public class FileUtils {
     synchronized public static void outputImageToFile(RenderedImage image,
                                                       String formatName, File output) {
         try {
-            ImageIO.write((RenderedImage) image, "jpg", output);
+            ImageIO.write(image, "jpg", output);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -96,74 +107,6 @@ public class FileUtils {
         return null;
     }
 
-    public static boolean checkPicFileConsistency(String filePath) {
-        File f = checkFileExists(filePath + "\\" + PDGameSnapshotTxtFormatDirectName);
-        //System.out.println(f);
-        if (f != null) {
-            File[] allPicfs = f.listFiles(new FileFilter() {
-                @Override
-                public boolean accept(File pathname) {
-                    String filename = pathname.getName();
-                    if (pathname.isFile() && filename.endsWith(".txt")
-                            && filename.startsWith(FileUtils.PDGameAllPicFilePrefix)) {
-                        return true;
-                    }
-                    return false;
-                }
-            });
-            File[] straPicfs = f.listFiles(new FileFilter() {
-                @Override
-                public boolean accept(File pathname) {
-                    String filename = pathname.getName();
-                    if (pathname.isFile() && filename.endsWith(".txt")
-                            && filename.startsWith(FileUtils.PDGameStraPicFilePrefix)) {
-                        return true;
-                    }
-                    return false;
-                }
-            });
-            //System.out.println(Arrays.toString(allPicfs));
-            //System.out.println(Arrays.toString(straPicfs));
-            if (allPicfs != null
-                    && allPicfs.length > 0
-                    && straPicfs != null
-                    && straPicfs.length > 0) {
-                int allMax = -1;
-                for (File allf : allPicfs) {
-                    int turn = getPicFileTurn(allf, FileUtils.PDGameAllPicFilePrefix, ".txt");
-                    if (allMax < turn) {
-                        allMax = turn;
-                    }
-                }
-                int straMax = -1;
-                for (File straf : straPicfs) {
-                    int turn = getPicFileTurn(straf, FileUtils.PDGameStraPicFilePrefix, ".txt");
-                    if (straMax < turn) {
-                        straMax = turn;
-                    }
-                }
-                //System.out.println(allMax + "," + straMax);
-                if (allMax != -1 && straMax != -1 && allMax == straMax) {
-                    return true;
-                }
-
-            }
-        }
-        return false;
-    }
-
-    private static int getPicFileTurn(File f, String prefix, String suffix) {
-        String name = f.getName();
-        int start = name.indexOf(prefix);
-        int end = name.indexOf(suffix);
-        if (start >= 0 && end >= 0) {
-            start += prefix.length();
-            if (start < end) {
-                return Integer.parseInt(name.substring(start, end));
-            }
-        }
-        return -1;
-    }
 
     /**
      * @param fileName String The system-dependent filename
@@ -206,19 +149,17 @@ public class FileUtils {
     }
 
     /**
-     * @return null if not find*/
-    public static File findPDGameJSONFile(File direct){
-        if( direct != null && direct.isDirectory()){
+     * @return null if not find
+     */
+    public static File findPDGameJSONFile(File direct) {
+        if (direct != null && direct.isDirectory()) {
             File[] fs = direct.listFiles(new FileFilter() {
                 @Override
                 public boolean accept(File pathname) {
-                    if(pathname.getName().endsWith(FileUtils.PDGameJSONFileSuffix)){
-                        return true;
-                    }
-                    return false;
+                    return pathname.getName().endsWith(FileUtils.PDGameJSONFileSuffix);
                 }
             });
-            if( fs.length > 0){
+            if (fs.length > 0) {
                 return fs[0];
             }
         }
@@ -230,12 +171,24 @@ public class FileUtils {
 //        System.out.println(checkFileExists(path + "\\gr=(1.00,-0.00,1.00,0.00)_$_d0=1.00.txt"));
 //        System.out.println(checkPicFileConsistency(path+"\\gr=(1.00,-0.00,1.00,0.00)_$_d0=1.00"));
 
-        String path = "F:\\interactive task\\data9";
+        String path = "F:\\interactive task\\data9\\INTERACTIVE_FERMI_$_NONE_$_TWO_$_Von_$_pi=1.00_$_qi=0.00_$_w=0.10";
         deleteFile(path, new FileFilter() {
             @Override
             public boolean accept(File pathname) {
-                if (pathname.getName().endsWith(".jpg"))
+                String name = pathname.getName();
+                int start = name.indexOf(FileUtils.PDGameAllPicFilePrefix);
+                if( start < 0 ){
+                    return false;
+                }
+                start += FileUtils.PDGameAllPicFilePrefix.length();
+                int end = name.indexOf(".txt");
+                if( end < 0 ){
+                    return false;
+                }
+                int turn  = Integer.parseInt(name.substring(start, end));
+                if( turn >100 && turn < 200){
                     return true;
+                }
                 return false;
             }
         });

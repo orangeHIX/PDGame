@@ -9,7 +9,7 @@ public enum LearningPattern {
     /**
      * MAXPAYOFF：从直接邻居学习策略，个体学习具有最大累积收益的邻居
      */
-    MAXPAYOFF(){//"max_payoff_learning") {
+    MAXPAYOFF{//"max_payoff_learning") {
         @Override
         public Individual getTeacher(Individual in) {
             Individual maxPayoffNeighbour = null;
@@ -36,7 +36,7 @@ public enum LearningPattern {
      * k描述了环境的噪声因素，刻画了个体的非理性程度。当时k趋近于0时，意味着i具有完全理性——它只会学习高于自身收益的行为。
      * 而随着k的增加，个体理性程度降低，学习低收益邻居行为的可能性增加
      */
-    FERMI(){//"fermi_learning") {
+    FERMI{//"fermi_learning") {
 
         float noise = 0.1f; // 噪声暂时设为0.1
 
@@ -61,7 +61,7 @@ public enum LearningPattern {
             return null;
         }
     },
-    INTERACTIVE_FERMI(){//"interactive_fermi") {
+    INTERACTIVE_FERMI{//"interactive_fermi") {
         float noise = 0.1f; // 噪声暂时设为0.1
 
         @Override
@@ -139,10 +139,7 @@ public enum LearningPattern {
      * @param in 要进行学习的个体
      * @return 学习对象
      */
-    public Individual getTeacher(Individual in) {
-        // do nothing
-        return null;
-    }
+    abstract public Individual getTeacher(Individual in);
 
 //    @Override
 //    public String toString() {

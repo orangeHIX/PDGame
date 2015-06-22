@@ -326,10 +326,7 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
                 if (f.isDirectory()) {
                     return true;
                 }
-                if (f.getName().endsWith(FileUtils.PDGameJSONFileSuffix)) {
-                    return true;
-                }
-                return false;
+                return f.getName().endsWith(FileUtils.PDGameJSONFileSuffix);
             }
 
             @Override
@@ -562,11 +559,7 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
     }
 
     private boolean isUpdateable() {
-        if (currReaderModel != null && currReaderModel.isInit()) {
-            return true;
-        } else {
-            return false;
-        }
+        return currReaderModel != null && currReaderModel.isInit();
     }
 
     private void updateStraPic() {
@@ -841,10 +834,8 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
                 File[] fs = direc.listFiles(new FileFilter() {
                     @Override
                     public boolean accept(File pathname) {
-                        if (pathname.isFile() && pathname.getName().endsWith(
-                                FileUtils.PDGameJSONFileSuffix))
-                            return true;
-                        return false;
+                        return pathname.isFile() && pathname.getName().endsWith(
+                                FileUtils.PDGameJSONFileSuffix);
                     }
                 });
                 if (fs.length > 0) {
@@ -859,11 +850,8 @@ public class PDGameReaderJFrame extends JFrame implements TabChangeListener, Mou
                 File[] fs = parentDirect.listFiles(new FileFilter() {
                     @Override
                     public boolean accept(File pathname) {
-                        if (pathname.isDirectory()
-                                && pathname.getName().contains(FileUtils.PDGameSnapshotTxtFormatDirectName)) {
-                            return true;
-                        }
-                        return false;
+                        return pathname.isDirectory()
+                                && pathname.getName().contains(FileUtils.PDGameSnapshotTxtFormatDirectName);
                     }
                 });
                 File txtFormatDirec = fs[0];

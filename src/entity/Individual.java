@@ -6,6 +6,7 @@ import rule.GamblingRule;
 import rule.LearningPattern;
 import rule.MigrationPattern;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 /**
@@ -59,10 +60,13 @@ public class Individual implements JsonEntity {
      */
     private float w;
 
-    /**
-     * 此构造方法邻居表neighbours没有正确还原!!!
-     */
+    public Individual(){
+        neighbours = new ArrayList<>();
+        gambleIndivIds = new ArrayList<>();
+    }
     public Individual(String jsonSouce) {
+        neighbours = new ArrayList<>();
+        gambleIndivIds = new ArrayList<>();
         initFromJSONSource(jsonSouce);
     }
 
@@ -174,7 +178,7 @@ public class Individual implements JsonEntity {
      *
      * @param imigratePattern 迁徙模式 ，可以是无迁徙NONE、随机迁徙 RANDOM、机会迁徙OPTIMISTIC
      */
-    public void imigrate(World world, MigrationPattern imigratePattern) {
+    public void imigrate(WorldInfo world, MigrationPattern imigratePattern) {
         moveTo(imigratePattern.migrate(this, world));
     }
 
@@ -256,28 +260,26 @@ public class Individual implements JsonEntity {
     @Override
     public JSONObject getJSONObject() {
         //gambleIndivIds.add(99);
-        return new JSONObject().put("id", id).put("stra", strategy)
+        DecimalFormat df = new DecimalFormat("0.00");
+        return new JSONObject().put("id", id).put("stra", df.format(strategy))
                 .put("teaId", teacherId)
                 //.put("nextStra", nextStrategy)
                 .put("gamIds", new JSONArray(gambleIndivIds.toArray()))
-                .put("payoff", accumulatedPayoff)
+                .put("payoff", df.format(accumulatedPayoff))
                 .put("seat", seat.getJSONObject())
-                .put("w", w);
+                .put("w", df.format(w));
     }
 
     @Override
-    public void initFromJSONSource(String source) {
-        initFromJSONObject(new JSONObject(source));
+    public Individual initFromJSONSource(String source) {
+        return  initFromJSONObject(new JSONObject(source));
     }
 
     @Override
-    public void initFromJSONObject(JSONObject jsonObject) {
-
-        neighbours = new ArrayList<>();
-        gambleIndivIds = new ArrayList<>();
+    public Individual initFromJSONObject(JSONObject jsonObject) {
 
         id = jsonObject.getInt("id");
-        strategy = new Float(jsonObject.getDouble("stra"));
+        strategy = new Float(jsonObject.getString("stra"));
         teacherId = jsonObject.getInt("teaId");
         //nextStrategy = new Float(jsonObject.getDouble("nextStra"));
         gambleIndivIds.clear();
@@ -286,11 +288,12 @@ public class Individual implements JsonEntity {
         for (int i = 0; i < len; i++) {
             gambleIndivIds.add(ja.getInt(i));
         }
-        accumulatedPayoff = new Float(jsonObject.getDouble("payoff"));
+        accumulatedPayoff = new Float(jsonObject.getString("payoff"));
         seat = new Seat(0, 0);
         seat.initFromJSONObject(jsonObject.getJSONObject("seat"));
         seat.setOwner(this);
-        w = new Float(jsonObject.getDouble("w"));
+        w = new Float(jsonObject.getString("w"));
+        return this;
     }
 
     public static void main(String[] args) {

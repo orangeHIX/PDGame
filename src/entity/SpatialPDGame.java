@@ -22,7 +22,10 @@ public class SpatialPDGame implements Reporter, JsonEntity {
      * 是否要记录实验过程中的人口斑图
      */
     private boolean recordSnapShoot;
+
+
     public DataPrinter dataPrinter = new DataPrinter();
+
     private World world;
     private Map<String, Object> param = new HashMap<>();
     private GamblingRule gr;
@@ -30,6 +33,7 @@ public class SpatialPDGame implements Reporter, JsonEntity {
     private MigrationPattern migrationPattern;
     private StrategyPattern strategyPattern;
     private NeighbourCoverage neighbourCoverage;
+    private EvolutionPattern evolutionPattern;
     private float d0;
     /**
      * 学习的概率
@@ -73,8 +77,6 @@ public class SpatialPDGame implements Reporter, JsonEntity {
         this.recordSnapShoot = true;
         this.reporter = this;
     }
-
-    ;
 
     /**
      * @param recordSnapShoot 是否要记录实验过程中的人口斑图
@@ -133,7 +135,8 @@ public class SpatialPDGame implements Reporter, JsonEntity {
     public void initSpatialPDGame(int L, float d0, float R, float S, float T,
                                   float P, float pi, float qi, float w,
                                   LearningPattern learningPattern, MigrationPattern migratePattern,
-                                  StrategyPattern strategyPattern, NeighbourCoverage neighbourCoverage) {
+                                  StrategyPattern strategyPattern, NeighbourCoverage neighbourCoverage,
+                                  EvolutionPattern evolutionPattern) {
 
         world.init_world(L, d0, w, strategyPattern, neighbourCoverage);
         gr = new GamblingRule(R, S, T, P);
@@ -145,6 +148,7 @@ public class SpatialPDGame implements Reporter, JsonEntity {
         this.migrationPattern = migratePattern;
         this.strategyPattern = strategyPattern;
         this.neighbourCoverage = neighbourCoverage;
+        this.evolutionPattern = evolutionPattern;
         turn = 0;
         noChangeTurn = 0;
         isFinished = false;
@@ -158,14 +162,15 @@ public class SpatialPDGame implements Reporter, JsonEntity {
         param.put("qi", this.qi);
         param.put("w", this.w);
         param.put("gr", this.gr);
-        param.put("learningPattern",
+        param.put("learn",
                 this.learningPattern);
-        param.put("migrationPattern",
+        param.put("migrate",
                 this.migrationPattern);
-        param.put("strategyPattern",
+        param.put("strategy",
                 this.strategyPattern);
-        param.put("neighbourCoverage",
+        param.put("neighbour",
                 this.neighbourCoverage);
+        param.put("evolute", this.evolutionPattern);
         System.out.println(this);
     }
 
@@ -181,10 +186,10 @@ public class SpatialPDGame implements Reporter, JsonEntity {
     public void initSpatialPDGame(int L, float d0, float Dr, float Dg,
                                   float pi, float qi, float w, LearningPattern learningPattern,
                                   MigrationPattern migratePattern, StrategyPattern strategyPattern,
-                                  NeighbourCoverage neighbourCoverage) {
+                                  NeighbourCoverage neighbourCoverage, EvolutionPattern evolutionPattern) {
 
         initSpatialPDGame(L, d0, 1, -Dr, 1 + Dg, 0, pi, qi, w, learningPattern,
-                migratePattern, strategyPattern, neighbourCoverage);
+                migratePattern, strategyPattern, neighbourCoverage, evolutionPattern);
 
     }
 
@@ -200,10 +205,10 @@ public class SpatialPDGame implements Reporter, JsonEntity {
     public void initSpatialPDGame(int L, float d0, float r, float pi, float qi,
                                   float w, LearningPattern learningPattern,
                                   MigrationPattern migratePattern, StrategyPattern strategyPattern,
-                                  NeighbourCoverage neighbourCoverage) {
+                                  NeighbourCoverage neighbourCoverage, EvolutionPattern evolutionPattern) {
 
         initSpatialPDGame(L, d0, r, r, pi, qi, w, learningPattern,
-                migratePattern, strategyPattern, neighbourCoverage);
+                migratePattern, strategyPattern, neighbourCoverage, evolutionPattern);
 
     }
 
@@ -289,7 +294,8 @@ public class SpatialPDGame implements Reporter, JsonEntity {
                     worldDetailHistory.put(turn, world.getWorldDetail());
                 }
 
-                if (world.evolute(pi, qi, learningPattern, migrationPattern) < 1 / (float) population) {
+                if (world.evolute(evolutionPattern, pi, qi, learningPattern, migrationPattern)
+                        < 1 / (float) population) {
                     noChangeTurn++;
                     if (noChangeTurn >= 100) {
                         break;
@@ -361,14 +367,15 @@ public class SpatialPDGame implements Reporter, JsonEntity {
         GamblingRule gr = new GamblingRule(0);
         gr.initFromToString(getStringValue(s, "gr"));
         param.put("gr", gr);
-        param.put("learningPattern",
-                LearningPattern.valueOf(getStringValue(s, "learningPattern")));
-        param.put("migrationPattern",
-                MigrationPattern.valueOf(getStringValue(s, "migrationPattern")));
-        param.put("strategyPattern",
-                StrategyPattern.valueOf(getStringValue(s, "strategyPattern")));
-        param.put("neighbourCoverage",
-                NeighbourCoverage.valueOf(getStringValue(s, "neighbourCoverage")));
+        param.put("learn",
+                LearningPattern.valueOf(getStringValue(s, "learn")));
+        param.put("migrate",
+                MigrationPattern.valueOf(getStringValue(s, "migrate")));
+        param.put("strategy",
+                StrategyPattern.valueOf(getStringValue(s, "strategy")));
+        param.put("neighbour",
+                NeighbourCoverage.valueOf(getStringValue(s, "neighbour")));
+        param.put("evolute", EvolutionPattern.valueOf(getStringValue(s, "evolute")));
     }
 
     private String getStringValue(String s, String name) {
@@ -416,7 +423,7 @@ public class SpatialPDGame implements Reporter, JsonEntity {
      * 注意：只恢复了参数列表param
      */
     @Override
-    public void initFromJSONObject(JSONObject jsonObject) {
+    public SpatialPDGame initFromJSONObject(JSONObject jsonObject) {
         param.clear();
         param.put("L", jsonObject.get("L"));
         param.put("d0", jsonObject.get("d0"));
@@ -426,23 +433,24 @@ public class SpatialPDGame implements Reporter, JsonEntity {
         GamblingRule gr = new GamblingRule(0);
         gr.initFromJSONObject(jsonObject.getJSONObject("gr"));
         param.put("gr", gr);
-        param.put("learningPattern",
-                LearningPattern.valueOf((String) jsonObject.get("learningPattern")));
-        param.put("migrationPattern",
-                MigrationPattern.valueOf((String) jsonObject.get("migrationPattern")));
-        param.put("strategyPattern",
-                StrategyPattern.valueOf((String) jsonObject.get("strategyPattern")));
-        param.put("neighbourCoverage",
-                NeighbourCoverage.valueOf((String) jsonObject.get("neighbourCoverage")));
-
+        param.put("learn",
+                LearningPattern.valueOf((String) jsonObject.get("learn")));
+        param.put("migrate",
+                MigrationPattern.valueOf((String) jsonObject.get("migrate")));
+        param.put("strategy",
+                StrategyPattern.valueOf((String) jsonObject.get("strategy")));
+        param.put("neighbour",
+                NeighbourCoverage.valueOf((String) jsonObject.get("neighbour")));
+        param.put("evolute", EvolutionPattern.valueOf((String) jsonObject.get("evolute")));
+        return this;
     }
 
     /**
      * 注意：只恢复了参数列表param
      */
     @Override
-    public void initFromJSONSource(String source) {
-        initFromJSONObject(new JSONObject(source));
+    public SpatialPDGame initFromJSONSource(String source) {
+        return initFromJSONObject(new JSONObject(source));
     }
 
     public interface SampleCheck {
@@ -465,6 +473,8 @@ public class SpatialPDGame implements Reporter, JsonEntity {
 
 
         public static final String GlobalCooperationLevelString = "Global cooperate level = ";
+        public static final String UnderwentTurnPrefix = "underwent ";
+        public static final String UnderwentTurnSuffix = " turns";
 
         public String getJsonString() {
             return getJSONObject().toString();
@@ -486,9 +496,8 @@ public class SpatialPDGame implements Reporter, JsonEntity {
             sb.append(GlobalCooperationLevelString +
                     +world.getGlobalCooperationLevel());
             sb.append("\t");
-            sb.append("underwent " + turn + " turns\r\n");
-            sb.append("average neigbour num: " + world.getAverageNeighbourNum()
-                    + "\r\n");
+            sb.append(UnderwentTurnPrefix).append(turn).append(UnderwentTurnSuffix).append("\r\n");
+            sb.append("average neigbour num: ").append(world.getAverageNeighbourNum()).append("\r\n");
             sb.append("turn\tcoopLev\t");
 
             WorldDetail wd = worldDetailHistory.get(new Integer(0));
@@ -524,10 +533,17 @@ public class SpatialPDGame implements Reporter, JsonEntity {
             return sb.toString();
         }
 
-        public float getGlobalCooperationLevelFromDetailReport(String detailReport){
+        public float getGlobalCooperationLevelFromDetailReport(String detailReport) {
             int start = detailReport.indexOf(GlobalCooperationLevelString) + GlobalCooperationLevelString.length();
-            int end  = detailReport.indexOf("\t",start);
+            int end = detailReport.indexOf("\t", start);
             return Float.parseFloat(detailReport.substring(start, end));
+        }
+
+
+        public Integer getUnderwentTurnFromDetailReport(String detailReport) {
+            int start = detailReport.indexOf(UnderwentTurnPrefix) + UnderwentTurnPrefix.length();
+            int end = detailReport.indexOf(UnderwentTurnSuffix, start);
+            return Integer.parseInt(detailReport.substring(start, end));
         }
 
         /**
@@ -558,7 +574,8 @@ public class SpatialPDGame implements Reporter, JsonEntity {
         public String constructFilePath(String base) {
             DecimalFormat df = new DecimalFormat("0.00");
             return base + "\\" + learningPattern + "_$_" + migrationPattern
-                    + "_$_" + strategyPattern + "_$_" + neighbourCoverage + "_$_pi=" + df.format(pi)
+                    + "_$_" + strategyPattern + "_$_" + neighbourCoverage
+                    + "_$_" + evolutionPattern + "_$_pi=" + df.format(pi)
                     + "_$_qi=" + df.format(qi) + "_$_w=" + df.format(w);
         }
 
@@ -579,9 +596,9 @@ public class SpatialPDGame implements Reporter, JsonEntity {
         SpatialPDGame spdg = new SpatialPDGame(true);
         spdg.initSpatialPDGame(5, 1.0f, 0.1f, 0.1f, 1.0f, 0, 1.0f,
                 LearningPattern.INTERACTIVE_FERMI, MigrationPattern.NONE,
-                StrategyPattern.CONTINUOUS, NeighbourCoverage.Von);
-        System.out.println(spdg);
+                StrategyPattern.CONTINUOUS, NeighbourCoverage.Von, EvolutionPattern.CDO);
+        System.out.println(spdg.getJSONObject());
         spdg.initFromToString(spdg.toString());
-        System.out.println(spdg);
+        System.out.println(spdg.getJSONObject());
     }
 }
